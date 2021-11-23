@@ -126,7 +126,7 @@ ensavg = mean(cyc,1);                                                   % Calcul
 ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
 figure()
 plot(x, ensavg, '-r', 'LineWidth',1)
-hold on
+hold on;
 plot(x, ensavg+ci95, ':g', 'LineWidth',1.5)
 plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off
