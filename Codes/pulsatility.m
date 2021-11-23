@@ -40,7 +40,7 @@ figure()
 plot(avg)
 
 %% Test space
-i=1:1:length(minima);
+
 %% Finding the signal using the find signal
 % take the initial segment as a prototype signal to match it for the whole
 % signal and then try to find the similar occurances in a singal. Probably
@@ -178,7 +178,7 @@ legend('Ensemble Average', '95% Confidence Intervals')
 
 subplot(1,2,1)
 ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
-ci95 = 1.96*std(cyc,[],1)/sqrt(numel(cyc));                             % Calculate 95% Confidence Intervals                                    
+ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals                                    
 plot(x, ensavg, '-r', 'LineWidth',1)
 hold on
 plot(x, ensavg+ci95, ':g', 'LineWidth',1.5)
@@ -192,7 +192,7 @@ legend('Ensemble Average', '95% Confidence Intervals')
 
 subplot(1,2,2)
 ensavg = mean(cycu,1);                                                   % Calculate Ensemble Average
-ci95 = 1.96*std(cycu,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals  
+ci95 = 1.96*std(cycu,[],1)/sqrt(count_u);                             % Calculate 95% Confidence Intervals  
 plot(x_u, ensavg, '-r', 'LineWidth',1)
 hold on
 plot(x_u, ensavg+ci95, ':g', 'LineWidth',1.5)
