@@ -39,7 +39,46 @@ avg = avg/count;
 figure()
 plot(avg)
 
-%% Test space
+%% Plotting the TCD signal
+
+minima = islocalmin(tcd,'MinProminence',10);
+x = 1:length(minima);
+plot(x,tcd,x(minima),tcd(minima),'r*');
+
+l = length(tcd(1:5000));
+ini = tcd(5:49);
+
+cyc =zeros(sum(minima==1)-1,45); 
+cyc(1,:)= ini;
+count = 1;
+avg = ini;
+for i=5:1:length(minima)
+    if (minima(i)==1) && (i+44<=length(minima))
+        count = count+1;
+        plot(tcd(i:i+44))
+        hold on
+        avg = avg+tcd(i:i+44);
+        cyc(count,:) = tcd(i:i+44);
+    end
+end
+hold off
+avg = avg/count;
+x = (1:1:45)/20;
+figure()
+plot(avg)
+
+%Plotting the ensemble average
+ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
+figure()
+plot(x, ensavg, '-r', 'LineWidth',1)
+hold on
+plot(x, ensavg+ci95, ':g', 'LineWidth',1.5)
+plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
+hold off
+grid
+legend('Ensemble Average', '95% Confidence Intervals')
+
 
 %% Finding the signal using the find signal
 % take the initial segment as a prototype signal to match it for the whole
@@ -77,11 +116,11 @@ count = 1;
 avg = ini;
 for i=1:1:length(minima)
     if (minima(i)==1) && (i+15<=length(minima))
-        fprintf("%d\n",i)
+        count = count+1;
         plot(dcs_1a(i:i+15))
         hold on
         avg = avg+dcs_1a(i:i+15);
-        count = count+1;
+        
     end
 end
 hold off
@@ -103,16 +142,16 @@ plot(x,sg_lp_30,x(minima),sg_lp_30(minima),'r*');
 ini = sg_lp_30(1:16);
 cyc =zeros(sum(minima==1)-1,16); 
 cyc(1,:)= ini;
-count = 2;
+count = 1;
 avg = ini;
 for i=17:1:length(minima)
     if (minima(i)==1) && (i+15<=length(minima))
-        fprintf("%d\n",i)
+        count = count+1;
         plot(sg_lp_30(i:i+15))
         hold on
         avg = avg+sg_lp_30(i:i+15);
          cyc(count,:) = sg_lp_30(i:i+15);
-        count = count+1;
+        
     end
 end
 hold off
@@ -164,7 +203,7 @@ plot(x_u,avg)
 
 %Plotting  the ensemble average
 ensavg = mean(cycu,1);                                                   % Calculate Ensemble Average
-ci95 = 1.96*std(cycu,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals
+ci95 = 1.96*std(cycu,[],1)/sqrt(count_u);                             % Calculate 95% Confidence Intervals
 figure()
 plot(x_u, ensavg, '-r', 'LineWidth',1)
 hold on
@@ -228,7 +267,7 @@ for i=17:1:length(minima3)
         plot(sg_lp_30(i:i+16))
         hold on
         avg = avg+sg_lp_30(i:i+16);
-         cyc(count,:) = sg_lp_30(i:i+16);
+        cyc(count,:) = sg_lp_30(i:i+16);
         count = count+1;
     end
 end
