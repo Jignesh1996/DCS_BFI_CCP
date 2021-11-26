@@ -1,6 +1,6 @@
 %% Loading the file
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\Matlab export_carotid occlusion_08062021_TCD DCS.mat');
-load(filename)
+% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\Matlab export_carotid occlusion_08062021_TCD DCS.mat');
+% load(filename)
 
 %% Upscaling the data by 3
 data_u = interp(data,3);
@@ -9,12 +9,12 @@ dcs_1 = data_u(14501:21500);
 dcs_3 = data_u(28801:43200);
 
 %% Plotting the signal
-figure();
-x_fig = (1:1:600)/20
-plot(x_fig,dcs_3a(1:600))
-xlabel('Time (s)')
-ylabel('aDb *10^9 ')
-title('Original signal: DCS-3cm (Fs= 20Hz)')
+% figure();
+% x_fig = (1:1:600)/20
+% plot(x_fig,dcs_3a(1:600))
+% xlabel('Time (s)')
+% ylabel('aDb *10^9 ')
+% title('Original signal: DCS-3cm (Fs= 20Hz)')
 %% Finding the minima to find the starting of the signal
 
 minima = islocalmin(dcs_1,'MinProminence',10);
