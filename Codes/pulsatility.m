@@ -46,24 +46,24 @@ x = 1:length(minima);
 plot(x,tcd,x(minima),tcd(minima),'r*');
 
 l = length(tcd(1:5000));
-ini = tcd(5:49);
+ini = tcd(5:54);
 
-cyc =zeros(sum(minima==1)-1,45); 
+cyc =zeros(sum(minima==1)-1,50); 
 cyc(1,:)= ini;
 count = 1;
 avg = ini;
-for i=5:1:length(minima)
-    if (minima(i)==1) && (i+44<=length(minima))
+for i=51:1:length(minima)
+    if (minima(i)==1) && (i+49<=length(minima))
         count = count+1;
-        plot(tcd(i:i+44))
+        plot(tcd(i:i+49))
         hold on
-        avg = avg+tcd(i:i+44);
-        cyc(count,:) = tcd(i:i+44);
+        avg = avg+tcd(i:i+49);
+        cyc(count,:) = tcd(i:i+49);
     end
 end
 hold off
 avg = avg/count;
-x = (1:1:45)/20;
+x = (1:1:50)/60;
 figure()
 plot(avg)
 
@@ -78,6 +78,9 @@ plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off
 grid
 legend('Ensemble Average', '95% Confidence Intervals')
+xlabel('Time (s)')
+ylabel('BFi')
+title("Ensemble average of TCD upsampled signal")
 
 
 %% Finding the signal using the find signal
@@ -212,6 +215,9 @@ plot(x_u, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off
 grid
 legend('Ensemble Average', '95% Confidence Intervals')
+xlabel('Time (s)')
+ylabel('aDb *10^9')
+title("DCS-1.5cm Upsampled signal")
 
 %% Subplotting the original singal and upscaled signal
 
@@ -255,13 +261,13 @@ x3 = 1:length(minima3);
 figure();
 plot(x3,sg_lp_30,x3(minima3),sg_lp_30(minima3),'r*');
 
-%% Plotting the data based on the minima
+
 ini = sg_lp_30(1:17);
 cyc =zeros(sum(minima3==1)-1,17); 
 cyc(1,:)= ini;
 count = 2;
 avg = ini;
-for i=17:1:length(minima3)
+for i=18:1:length(minima3)
     if (minima3(i)==1) && (i+16<=length(minima3))
         fprintf("%d\n",i)
         plot(sg_lp_30(i:i+16))
@@ -281,12 +287,56 @@ plot(avg)
 ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
 ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
 figure()
+subplot(1,2,1)
 plot(x3, ensavg, '-r', 'LineWidth',1)
 hold on
 plot(x3, ensavg+ci95, ':g', 'LineWidth',1.5)
 plot(x3, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off
 grid
+xlabel('Time (s)')
+ylabel('aDb *10^9 ')
+title('Original Signal')
+legend('Ensemble Average', '95% Confidence Intervals')
+
+
+sg_lp_30_u = interp(sg_lp_30,3);
+
+minima3u = islocalmin(sg_lp_30_u,'MinSeparation',14,'MinProminence',3);
+% x3u = 1:length(minima3u);
+% figure();
+% plot(x3u,sg_lp_30_u,x3u(minima3u),sg_lp_30_u(minima3),'r*');
+
+ini = sg_lp_30_u(1:51);
+cycu =zeros(sum(minima3u==1)-1,51); 
+cycu(1,:)= ini;
+count = 2;
+avg = ini;
+for i=52:1:length(minima3u)
+    if (minima3u(i)==1) && (i+51<=length(minima3u))
+        fprintf("%d\n",i)
+%         plot(sg_lp_30_u(i:i+50))
+%         hold on
+        avg = avg+sg_lp_30_u(i:i+50);
+        cycu(count,:) = sg_lp_30_u(i:i+50);
+        count = count+1;
+    end
+end
+hold off
+avg = avg/count;
+x3u = (1:1:51)/60;
+
+%Plotting the ensemble average
+ensavg = mean(cycu,1);                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(cycu,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
+subplot(1,2,2)
+plot(x3u, ensavg, '-r', 'LineWidth',1)
+hold on
+plot(x3u, ensavg+ci95, ':g', 'LineWidth',1.5)
+plot(x3u, ensavg-ci95, ':g', 'LineWidth',1.5)
+hold off
+grid
+title('DCS - 2.7cm Upsampled Signal')
 xlabel('Time (s)')
 ylabel('aDb *10^9 ')
 legend('Ensemble Average', '95% Confidence Intervals')
