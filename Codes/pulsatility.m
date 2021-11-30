@@ -15,6 +15,24 @@ dcs_3 = data_u(28801:43200);
 % xlabel('Time (s)')
 % ylabel('aDb *10^9 ')
 % title('Original signal: DCS-3cm (Fs= 20Hz)')
+
+%% Plotting the frequency spectrum
+Fs = 20;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period    
+signal = dcs_3a;
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
+
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+f = Fs*(0:(L/2))/L;
+plot(f,P1) 
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
 %% Finding the minima to find the starting of the signal
 
 minima = islocalmin(dcs_1,'MinProminence',10);
