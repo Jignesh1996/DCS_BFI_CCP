@@ -17,9 +17,9 @@ dcs_3 = data_u(28801:43200);
 % title('Original signal: DCS-3cm (Fs= 20Hz)')
 
 %% Plotting the frequency spectrum
-Fs = 10;            % Sampling frequency                    
+Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = dcs_3a;
+signal = ecgu;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -349,7 +349,7 @@ ensavg = mean(cycu,1);                                                   % Calcu
 ci95 = 1.96*std(cycu,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
 subplot(1,2,2)
 plot(x3u, ensavg, '-r', 'LineWidth',1)
-hold onc
+hold on
 plot(x3u, ensavg+ci95, ':g', 'LineWidth',1.5)
 plot(x3u, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off
