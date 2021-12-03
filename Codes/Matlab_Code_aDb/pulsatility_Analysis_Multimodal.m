@@ -1,5 +1,5 @@
 %% Loading the file
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Leena_2min baseline_120221.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Jignesh_2min baseline_120221.mat');
 load(filename)
 
 %% Upscaling the data by 3
@@ -27,7 +27,7 @@ xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
 %% ECG signal Processing
-ecg1 = ecg_a(75450:105600);
+ecg1 = ecg_a(75420:105600);
 %filter the ECG signal @10Hz using the low pass filter
 
 %% finding the maxima to find the individual signals
@@ -74,7 +74,9 @@ legend('Ensemble Average', '95% Confidence Intervals')
 
 %Repeating the waveform
 ensavg = [ensavg; ensavg];
-
+ecg_ens = ensavg*1000;
+ecg_ens(1549:1600) = 1
+ecg_ens = ecg_ens';
 %Saving the variable
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\ecg_ens.csv','Delimiter','comma');
 
@@ -123,6 +125,7 @@ ylabel('BFi')
 title("Ensemble average of TCD signal")
 ensavg = [ensavg ensavg];
 
+tcd_ens = ensavg;
 %Saving the variable
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
@@ -171,12 +174,14 @@ ylabel('BFi')
 title("Ensemble average of TCD signal")
 ensavg = [ensavg ensavg];
 
+abd_ens = ensavg;
+
 %Saving the variable
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\bp_ens.csv','Delimiter','comma');
 %% Processing the DCS data
 
 %% Loading the data
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Leena_2minBSL_20121202\','Data.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Jignesh_2min_BSL_20211202\','Data.mat');
 load(filename)
 
 g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
@@ -213,6 +218,7 @@ end
 %% Processing using the actual data
 dcs_1 = aDb1(1,:).*10^9;
 dcs_3 = aDb1(2,:).*10^9;
+%%
 dcs_1w = dcs_1lp(1510:2150);
 dcs_1a = interp(dcs_1w,50);
 dcs_3w = dcs_3lp(1510:2150);
@@ -223,7 +229,7 @@ dcs_3a = interp(dcs_3w,50);
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1a;
 
-minima = islocalmin(sg_lp_30,'MinSeparation',12,'MinProminence',1.5);
+minima = islocalmin(sg_lp_30,'MinSeparation',50,'MinProminence',1.5);
 x = 1:length(minima);
 figure();
 plot(x,sg_lp_30,x(minima),sg_lp_30(minima),'r*');
@@ -263,9 +269,15 @@ grid
 legend('Ensemble Average', '95% Confidence Intervals')
 
 ensavg = [ensavg ensavg];
+dcs_1a_ens = ensavg;
 
 %Saving the variable
-writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_1cm_ens.csv','Delimiter','comma');
+writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_3cm_ens.csv','Delimiter','comma');
+
+
+%% Creating the exportable fil for the windkessel model
+final_data = [ecg_ens; abd_ens ;tcd_ens ;dcs_1a_ens ;dcs_3a_ens]
+writematrix(final_data,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\final_file.txt','Delimiter','tab');
 
 %% Plotting the data based on the minima for the upsampled signal
 ini = sg_lp_30_u(1:48);

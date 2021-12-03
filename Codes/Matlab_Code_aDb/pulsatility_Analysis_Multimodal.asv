@@ -1,17 +1,17 @@
 %% Loading the file
-% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\Matlab export_carotid occlusion_08062021_TCD DCS.mat');
-% load(filename)
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Leena_2min baseline_120221.mat');
+load(filename)
 
 %% Upscaling the data by 3
-ecg_a = data(1:120800);
-bp_a = data(120801:241600);
-tcd_a = data(241601:362400);
+ecg_a = data(datastart(1):dataend(1));
+bp_a = data(datastart(2):dataend(2));
+tcd_a = data(datastart(3):dataend(3));
 
 
 %% Plotting the frequency spectrum
 Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = tcd;
+signal = tcd_a;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -27,7 +27,7 @@ xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
 %% ECG signal Processing
-ecg1 = ecg_a(75400:105600);
+ecg1 = ecg_a(75450:105600);
 %filter the ECG signal @10Hz using the low pass filter
 
 %% finding the maxima to find the individual signals
@@ -74,6 +74,8 @@ legend('Ensemble Average', '95% Confidence Intervals')
 
 %Repeating the waveform
 ensavg = [ensavg; ensavg];
+
+ecg_ens = ensavg;
 
 %Saving the variable
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\ecg_ens.csv','Delimiter','comma');
@@ -123,8 +125,9 @@ ylabel('BFi')
 title("Ensemble average of TCD signal")
 ensavg = [ensavg ensavg];
 
+tcd_ens = ensavg;
 %Saving the variable
-writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
+% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
 %% Processing the blood pressure data
 bp = bp_a(75400:105600);
@@ -171,8 +174,10 @@ ylabel('BFi')
 title("Ensemble average of TCD signal")
 ensavg = [ensavg ensavg];
 
+abd_ens = ensavg;
+
 %Saving the variable
-writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
+% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\bp_ens.csv','Delimiter','comma');
 %% Processing the DCS data
 
 %% Loading the data
@@ -213,36 +218,29 @@ end
 %% Processing using the actual data
 dcs_1 = aDb1(1,:).*10^9;
 dcs_3 = aDb1(2,:).*10^9;
+%%
 dcs_1w = dcs_1lp(1510:2150);
 dcs_1a = interp(dcs_1w,50);
 dcs_3w = dcs_3lp(1510:2150);
 dcs_3a = interp(dcs_3w,50);
 
-%% Finding the minima to find the starting of the signal
-
-minima = islocalmin(dcs_1a,'MinProminence',1.5);
-x = 1:length(minima);
-figure();
-plot(x,dcs_1a,x(minima),dcs_1a(minima),'r*');
 
 
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1a;
-% sg_lp_30(109:112) = [];
-% sg_lp_30(393:441) = [];
-% sg_lp_30(439:443) = [];
-minima = islocalmin(sg_lp_30,'MinSeparation',12,'MinProminence',1.5);
+
+minima = islocalmin(sg_lp_30,'MinSeparation',50,'MinProminence',1.5);
 x = 1:length(minima);
 figure();
 plot(x,sg_lp_30,x(minima),sg_lp_30(minima),'r*');
 
 %% Plotting the data based on the minima
-ini = sg_lp_30(300:1099);
+ini = sg_lp_30(400:1199);
 cyc =zeros(sum(minima==1)-1,800); 
 cyc(1,:)= ini;
 count = 1;
 avg = ini;
-for i=1100:1:length(minima)
+for i=1200:1:length(minima)
     if (minima(i)==1) && (i+799<=length(minima))
         count = count+1;
         plot(sg_lp_30(i:i+799))
@@ -270,7 +268,15 @@ hold off
 grid
 legend('Ensemble Average', '95% Confidence Intervals')
 
+ensavg = [ensavg ensavg];
+dcs_1a_ens = ensavg;
 
+%Saving the variable
+writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_3cm_ens.csv','Delimiter','comma');
+
+
+%% Creating the exportable fil for the windkessel model
+final_data = [ecg_ens ]
 %% Plotting the data based on the minima for the upsampled signal
 ini = sg_lp_30_u(1:48);
 cycu =zeros(sum(minima_u==1)-1,48); 
