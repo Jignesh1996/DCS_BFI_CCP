@@ -1,25 +1,17 @@
 %% Loading the file
-% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\Matlab export_carotid occlusion_08062021_TCD DCS.mat');
-% load(filename)
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Leena_2min baseline_120221.mat');
+load(filename)
 
 %% Upscaling the data by 3
-data_u = interp(data,3);
-tcd = data_u(1:14400);
-dcs_1 = data_u(14501:21500);
-dcs_3 = data_u(28801:43200);
+ecg_a = data(datastart(1):dataend(1));
+bp_a = data(datastart(2):dataend(2));
+tcd_a = data(datastart(3):dataend(3));
 
-%% Plotting the signal
-% figure();
-% x_fig = (1:1:600)/20
-% plot(x_fig,dcs_3a(1:600))
-% xlabel('Time (s)')
-% ylabel('aDb *10^9 ')
-% title('Original signal: DCS-3cm (Fs= 20Hz)')
 
 %% Plotting the frequency spectrum
-Fs = 20;            % Sampling frequency                    
+Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = ecgu;
+signal = tcd_a;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -33,55 +25,85 @@ plot(f,P1)
 title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
 ylabel('|P1(f)|')
-%% Finding the minima to find the starting of the signal
 
-minima = islocalmin(dcs_1,'MinProminence',10);
-x = 1:length(minima);
-plot(x,dcs_1,x(minima),dcs_1(minima),'r*');
+%% ECG signal Processing
+ecg1 = ecg_a(75450:105600);
+%filter the ECG signal @10Hz using the low pass filter
 
-%% Plotting the data based on the minima
-ini = dcs_1(1:50);
-count = 1;
-avg = ini;
-for i=1:1:length(minima)
-    if (minima(i)==1) && (i+49<=length(minima))
-        fprintf("%d\n",i)
-        plot(dcs_1(i:i+49))
-        hold on
-        avg = avg+dcs_1(i:i+49);
-        count = count+1;
-    end
+%% finding the maxima to find the individual signals
+y = ecg1;
+x = (1:length(ecg1))/1000;
+[pks,locs] = findpeaks(y, 'MinPeakHeight', 0.0001,'MinPeakDist',150,'MinPeakProminence',0.0015);  %Determine peaks and Indices
+figure()
+plot(x,y)
+hold on
+plot(x(locs),pks, '+r')
+hold off
+grid
+
+for k1 = 1:numel(locs)-0.1
+    yc{k1} = y(locs(k1)-200:locs(k1+1)-200);                            % Define MUAP Frames
+    xc{k1} = x(locs(k1)-200:locs(k1+1)-200);
+end
+
+figure()
+hold all 
+for k1 = 1:numel(yc)
+   plot(xc{k1}-xc{k1}(1),yc{k1})
 end
 hold off
-avg = avg/count;
+grid
+
+% — CALCULATE & PLOT ENSEMBLE AVERAGE —                                                                    
+minlen = min(cellfun(@numel, yc));                                     % Minimum Length Of MUAP Records
+ens = zeros(minlen, numel(yc));                                        % Preallocate
+for k1 = 1:numel(yc)
+    ens(:,k1) = yc{k1}(1:minlen);                                      % Trim MUAPs To Shortest Length
+end
+ensavg = mean(ens,2);                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(ens,[],2)/sqrt(numel(yc));                             % Calculate 95% Confidence Intervals
+eatv = mean(diff(x))*(0:minlen-1);                                     % Time Vector For Ensemble AVerage
 figure()
-plot(avg)
+plot(eatv, ensavg, '-r', 'LineWidth',1)
+hold on
+plot(eatv, ensavg+ci95, ':g', 'LineWidth',1.5)
+plot(eatv, ensavg-ci95, ':g', 'LineWidth',1.5)
+hold off
+grid
+legend('Ensemble Average', '95% Confidence Intervals')
 
+%Repeating the waveform
+ensavg = [ensavg; ensavg];
+
+%Saving the variable
+% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\ecg_ens.csv','Delimiter','comma');
+
+%% TCD signal Processing
+tcd = tcd_a(75400:105600);
 %% Plotting the TCD signal
-
 minima = islocalmin(tcd,'MinProminence',10);
 x = 1:length(minima);
 plot(x,tcd,x(minima),tcd(minima),'r*');
 
-l = length(tcd(1:5000));
-ini = tcd(5:54);
+l = length(tcd);
+ini = tcd(200:999);
 
-cyc =zeros(sum(minima==1)-1,50); 
+cyc =zeros(sum(minima==1)-1,800); 
 cyc(1,:)= ini;
 count = 1;
 avg = ini;
-for i=51:1:length(minima)
-    if (minima(i)==1) && (i+49<=length(minima))
+for i=1000:1:length(minima)
+    if (minima(i)==1) && (i+799<=length(minima))
         count = count+1;
-        plot(tcd(i:i+49))
+        plot(tcd(i:i+799))
         hold on
-        avg = avg+tcd(i:i+49);
-        cyc(count,:) = tcd(i:i+49);
+        avg = avg+tcd(i:i+799);
+        cyc(count,:) = tcd(i:i+799);
     end
 end
 hold off
 avg = avg/count;
-x = (1:1:50)/60;
+x = (1:1:800)/1000;
 figure()
 plot(avg)
 
@@ -98,86 +120,133 @@ grid
 legend('Ensemble Average', '95% Confidence Intervals')
 xlabel('Time (s)')
 ylabel('BFi')
-title("Ensemble average of TCD upsampled signal")
+title("Ensemble average of TCD signal")
+ensavg = [ensavg ensavg];
 
+%Saving the variable
+% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
-%% Finding the signal using the find signal
-% take the initial segment as a prototype signal to match it for the whole
-% signal and then try to find the similar occurances in a singal. Probably
-% this will not work cause the signal shape may not be completely identical
-% to the prototype
+%% Processing the blood pressure data
+bp = bp_a(75400:105600);
 
-% findsignal
-
-%% Taking the ensemble average
-
-l = length(data_u);
-ini = data_u(5:54);
-avg = ini;
-for i=55:50:l-10
-    avg = (avg+data_u(i:i+49));
-%     hold on;
-    plot(avg);
-end
-avg = avg/((l-10)/50);
-plot(avg);
-
-%% Processing using the actual data
-dcs_1a = data(4850:7110);
-%% Finding the minima to find the starting of the signal
-
-minima = islocalmin(dcs_1a,'MinProminence',10);
+minima = islocalmin(bp,'MinProminence',10);
 x = 1:length(minima);
-figure();
-plot(x,dcs_1a,x(minima),dcs_1a(minima),'r*');
+plot(x,bp,x(minima),bp(minima),'r*');
 
-%% Plotting the data based on the minima
-ini = dcs_1a(1:16);
+l = length(bp);
+ini = bp(200:999);
+
+cyc =zeros(sum(minima==1)-1,800); 
+cyc(1,:)= ini;
 count = 1;
 avg = ini;
-for i=1:1:length(minima)
-    if (minima(i)==1) && (i+15<=length(minima))
+for i=1000:1:length(minima)
+    if (minima(i)==1) && (i+799<=length(minima))
         count = count+1;
-        plot(dcs_1a(i:i+15))
+        plot(bp(i:i+799))
         hold on
-        avg = avg+dcs_1a(i:i+15);
-        
+        avg = avg+bp(i:i+799);
+        cyc(count,:) = bp(i:i+799);
     end
 end
 hold off
 avg = avg/count;
+x = (1:1:800)/1000;
 figure()
 plot(avg)
 
+%Plotting the ensemble average
+ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
+figure()
+plot(x, ensavg, '-r', 'LineWidth',1)
+hold on
+plot(x, ensavg+ci95, ':g', 'LineWidth',1.5)
+plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
+hold off
+grid
+legend('Ensemble Average', '95% Confidence Intervals')
+xlabel('Time (s)')
+ylabel('BFi')
+title("Ensemble average of TCD signal")
+ensavg = [ensavg ensavg];
+
+%Saving the variable
+% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\bp_ens.csv','Delimiter','comma');
+%% Processing the DCS data
+
+%% Loading the data
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Leena_2minBSL_20121202\','Data.mat');
+load(filename)
+
+g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+
+% average g2 curve for large source detector separation
+for i=1:size(g2,2)
+    g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+end
+
+% aDb calculation
+rho = [1 3]; %source detector separations in cm 
+mua = 0.1; %cm^-1 baseline absorption coefficient
+mus = 10; %cm^-1 baseline reduced scattering coefficient
+
+tau_values=Data_tau;
+
+for chan=1:size(g2,1)
+    for i=1:size(g2,2)
+        rsd=rho(chan);
+        g2_temp(i,:)=squeeze(g2(chan,i,:));
+        LB = [0];
+        UB = [inf];
+        Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
+        beta= squeeze(g2(chan,i,1)); %0.1568;
+        options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
+        [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
+        aDb1(chan,i) = FittedParams(1);
+    end
+end
+
+%% Processing using the actual data
+dcs_1 = aDb1(1,:).*10^9;
+dcs_3 = aDb1(2,:).*10^9;
+dcs_1w = dcs_1lp(1510:2150);
+dcs_1a = interp(dcs_1w,50);
+dcs_3w = dcs_3lp(1510:2150);
+dcs_3a = interp(dcs_3w,50);
+
+
+
 %% Finding the minima to find the starting of the signal
-sg_lp_30 = sg_lp_03(1:604);
-sg_lp_30(109:112) = [];
-% sg_lp_30(393:441) = [];
-% sg_lp_30(439:443) = [];
-minima = islocalmin(sg_lp_30,'MinSeparation',14,'MinProminence',5);
+sg_lp_30 = dcs_1a;
+
+minima = islocalmin(sg_lp_30,'MinSeparation',12,'MinProminence',1.5);
 x = 1:length(minima);
 figure();
 plot(x,sg_lp_30,x(minima),sg_lp_30(minima),'r*');
 
 %% Plotting the data based on the minima
-ini = sg_lp_30(1:16);
-cyc =zeros(sum(minima==1)-1,16); 
+ini = sg_lp_30(400:1199);
+cyc =zeros(sum(minima==1)-1,800); 
 cyc(1,:)= ini;
 count = 1;
 avg = ini;
-for i=17:1:length(minima)
-    if (minima(i)==1) && (i+15<=length(minima))
+for i=1200:1:length(minima)
+    if (minima(i)==1) && (i+799<=length(minima))
         count = count+1;
-        plot(sg_lp_30(i:i+15))
+        plot(sg_lp_30(i:i+799))
         hold on
-        avg = avg+sg_lp_30(i:i+15);
-         cyc(count,:) = sg_lp_30(i:i+15);
+        avg = avg+sg_lp_30(i:i+799);
+         cyc(count,:) = sg_lp_30(i:i+799);
         
     end
 end
 hold off
 avg = avg/count;
-x = (1:1:16)/20;
+x = (1:1:800)/1000;
 figure()
 plot(avg)
 
@@ -192,13 +261,11 @@ plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off
 grid
 legend('Ensemble Average', '95% Confidence Intervals')
-%% Finding the minima to find the starting of the upsampled signal 
 
-sg_lp_30_u = interp(sg_lp_30,3);
-minima_u = islocalmin(sg_lp_30_u,'MinSeparation',42,'MinProminence',5);
-x_u = 1:length(minima_u);
-figure();
-plot(x_u,sg_lp_30_u,x_u(minima_u),sg_lp_30_u(minima_u),'r*');
+ensavg = [ensavg ensavg];
+
+%Saving the variable
+writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_1cm_ens.csv','Delimiter','comma');
 
 %% Plotting the data based on the minima for the upsampled signal
 ini = sg_lp_30_u(1:48);
@@ -349,7 +416,7 @@ ensavg = mean(cycu,1);                                                   % Calcu
 ci95 = 1.96*std(cycu,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
 subplot(1,2,2)
 plot(x3u, ensavg, '-r', 'LineWidth',1)
-hold on
+hold onc
 plot(x3u, ensavg+ci95, ':g', 'LineWidth',1.5)
 plot(x3u, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off

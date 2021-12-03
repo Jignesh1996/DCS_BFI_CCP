@@ -7,7 +7,7 @@ Folder='apnea3_304530';
 
 %--------------------------------------------------------------------------
 
-Directory="D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\TR\20211116\";
+Directory="D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Marianne_2mmin_BSL_20211202_v2\";
 
 files_temp=dir(Directory);
 filesFlags = ~[files_temp.isdir];
@@ -24,7 +24,7 @@ end
 % Save as a mat -----------------------------------------------------------
 
 file=strcat(Directory, filename,'_tau.csv');
-Data_tau=load (file);1
+Data_tau=load (file);
 
 for f=1:1:size(subFiles,1)-1
     file=strcat(Directory, filename,num2str(f),'.csv');
