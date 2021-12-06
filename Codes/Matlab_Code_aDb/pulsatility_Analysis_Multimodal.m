@@ -78,7 +78,11 @@ legend('Ensemble Average', '95% Confidence Intervals')
 %Repeating the waveform
 ensavg = [ensavg; ensavg];
 ecg_ens = ensavg*1000;
-ecg_ens(1549:1600) = 1
+if length(ecg_ens)<=1600
+    ecg_ens(length(ecg_ens):1600) = 1;
+else
+    ecg_ens = ecg_ens(1:1600);
+end
 ecg_ens = ecg_ens';
 %Saving the variable
 writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\Marianne\ecg_ens.csv','Delimiter','comma');

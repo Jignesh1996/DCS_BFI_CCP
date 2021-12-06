@@ -33,7 +33,7 @@ ecg1 = ecg_a(75420:105600);
 %% finding the maxima to find the individual signals
 y = ecg1;
 x = (1:length(ecg1))/1000;
-[pks,locs] = findpeaks(y, 'MinPeakHeight', 0.0001,'MinPeakDist',150,'MinPeakProminence',0.0015);  %Determine peaks and Indices
+[pks,locs] = findpeaks(y, 'MinPeakHeight', 0.00005,'MinPeakDist',100,'MinPeakProminence',0.0010);  %Determine peaks and Indices
 figure()
 plot(x,y)
 hold on
@@ -42,8 +42,8 @@ hold off
 grid
 
 for k1 = 1:numel(locs)-0.1
-    yc{k1} = y(locs(k1)-200:locs(k1+1)-200);                            % Define MUAP Frames
-    xc{k1} = x(locs(k1)-200:locs(k1+1)-200);
+    yc{k1} = y(locs(k1)-40:locs(k1+1)-40);                            % Define MUAP Frames
+    xc{k1} = x(locs(k1)-40:locs(k1+1)-40);
 end
 
 figure()
@@ -70,15 +70,23 @@ plot(eatv, ensavg+ci95, ':g', 'LineWidth',1.5)
 plot(eatv, ensavg-ci95, ':g', 'LineWidth',1.5)
 hold off
 grid
+xlabel('Time (s)')
+ylabel('Amplitude')
+title("Ensemble average of ECG signal")
 legend('Ensemble Average', '95% Confidence Intervals')
 
 %Repeating the waveform
 ensavg = [ensavg; ensavg];
+
 ecg_ens = ensavg*1000;
-ecg_ens(1549:1600) = 1
+if length(ecg_ens)<=1600
+    ecg_ens(length(ecg_ens):1600) = 1;
+else
+    ecg_ens = ecg_ens(1:1600);
+end
 ecg_ens = ecg_ens';
 %Saving the variable
-% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\ecg_ens.csv','Delimiter','comma');
+writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\Marianne\ecg_ens.csv','Delimiter','comma');
 
 %% TCD signal Processing
 tcd = tcd_a(75400:105600);
