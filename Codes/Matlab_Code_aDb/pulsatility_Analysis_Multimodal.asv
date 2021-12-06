@@ -1,5 +1,5 @@
 %% Loading the file
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Leena_2min baseline_120221.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Marianne_2min baseline_120221.mat');
 load(filename)
 
 %% Upscaling the data by 3
@@ -27,7 +27,7 @@ xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
 %% ECG signal Processing
-ecg1 = ecg_a(75450:105600);
+ecg1 = ecg_a(75420:105600);
 %filter the ECG signal @10Hz using the low pass filter
 
 %% finding the maxima to find the individual signals
@@ -74,9 +74,9 @@ legend('Ensemble Average', '95% Confidence Intervals')
 
 %Repeating the waveform
 ensavg = [ensavg; ensavg];
-
-ecg_ens = ensavg;
-
+ecg_ens = ensavg*1000;
+ecg_ens(1549:1600) = 1
+ecg_ens = ecg_ens';
 %Saving the variable
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\ecg_ens.csv','Delimiter','comma');
 
@@ -276,7 +276,9 @@ writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Co
 
 
 %% Creating the exportable fil for the windkessel model
-final_data = [ecg_ens ]
+final_data = [ecg_ens; abd_ens ;tcd_ens ;dcs_1a_ens ;dcs_3a_ens]
+writematrix(final_data,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\final_file.txt','Delimiter','tab');
+
 %% Plotting the data based on the minima for the upsampled signal
 ini = sg_lp_30_u(1:48);
 cycu =zeros(sum(minima_u==1)-1,48); 
