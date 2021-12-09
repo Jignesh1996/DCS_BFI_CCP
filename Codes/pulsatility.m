@@ -1,6 +1,6 @@
 %% Loading the file
-% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\Matlab export_carotid occlusion_08062021_TCD DCS.mat');
-% load(filename)
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\Matlab export_carotid occlusion_08062021_TCD DCS.mat');
+load(filename)
 
 %% Upscaling the data by 3
 data_u = interp(data,3);
