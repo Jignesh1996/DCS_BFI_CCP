@@ -1,5 +1,5 @@
 %% Loading the file
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\jignesh_2min baseline_120221.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\marianne_10122021\Marianne_12 7 2021_trNIRS DCS TCD BP ECG 8min SNG.mat');
 load(filename)
 
 %% Upscaling the data by 3
@@ -31,7 +31,7 @@ ylabel('|P1(f)|')
 ecg1 = ecg_a(1:120000);
 ecg1 = normalize(ecg1);
 %filter the ECG signal @10Hz using the low pass filter
-
+ecg1 = lpf(ecg1,5,1000)
 %% finding the maxima to find the individual signals
 y = ecg1;
 x = (1:length(ecg1));
@@ -92,8 +92,9 @@ writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Co
 %% TCD signal Processing
 tcd = tcd_a(1:120000);
 tcd = normalize(tcd);
+tcd = lpf(tcd,5,1000);
 %% Plotting the TCD signal
-minima = islocalmin(tcd,'MinProminence',1);
+minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',800 );
 x = 1:length(minima);
 plot(x,tcd,x(minima),tcd(minima),'r*');
 
@@ -192,7 +193,7 @@ writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Co
 %% Processing the DCS data
 
 %% Loading the data
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Jignesh_2min_BSL_20211202\','Data.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\20211207\Data.mat');
 load(filename)
 
 g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
@@ -233,8 +234,8 @@ dcs_3 = aDb1(2,:).*10^9;
 
 
 %% Filtering the singal
-dcs_1lp = lpf(dcs_1,5,20);
-dcs_3lp = lpf(dcs_3,5,20);
+dcs_1lp = lpf(dcs_1,3,20);
+dcs_3lp = lpf(dcs_3,3,20);
 
 %% upsampling the data
 

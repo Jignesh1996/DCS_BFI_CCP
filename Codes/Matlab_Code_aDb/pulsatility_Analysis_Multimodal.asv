@@ -192,7 +192,7 @@ writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Co
 %% Processing the DCS data
 
 %% Loading the data
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Jignesh_2min_BSL_20211202\','Data.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\20211207-1','Data.mat');
 load(filename)
 
 g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
