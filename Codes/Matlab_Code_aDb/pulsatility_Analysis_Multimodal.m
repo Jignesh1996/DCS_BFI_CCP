@@ -1,5 +1,5 @@
 %% Loading the file
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\marianne_10122021\Marianne_12 7 2021_trNIRS DCS TCD BP ECG 8min SNG.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\marianne_10122021\Marianne_12 7 2021_trNIRS DCS TCD BP ECG baseline.mat');
 load(filename)
 
 %% Upscaling the data by 3
@@ -7,7 +7,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 tcd_a = data(datastart(3):dataend(3));
 
-
+    
 %% Plotting the frequency spectrum
 Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
@@ -142,7 +142,7 @@ tcd_ens = ensavg;
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
 %% Processing the blood pressure data
-bp = bp_a(75400:105600);
+bp = bp_a(1:105600);
 
 minima = islocalmin(bp,'MinProminence',10);
 x = 1:length(minima);
