@@ -192,7 +192,7 @@ abd_ens = ensavg;
 writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\marianne\bp_ens.csv','Delimiter','comma');
 %% Processing the DCS data
 
-%% Loading the data
+%% Loading the data for Standalone DCS system
 filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\20211207\Data.mat');
 load(filename)
 
@@ -227,13 +227,11 @@ for chan=1:size(g2,1)
     end
 end
 
-%% Processing using the actual data
 dcs_1 = aDb1(1,:).*10^9;
 dcs_3 = aDb1(2,:).*10^9;
-%%
 
 
-%% Filtering the singal
+% Filtering the singal
 dcs_1lp = lpf(dcs_1,3,20);
 dcs_3lp = lpf(dcs_3,3,20);
 
@@ -243,11 +241,92 @@ dcs_1w = dcs_1lp(1:2400);
 dcs_1a = interp(dcs_1w,50);
 dcs_3w = dcs_3lp(1:2400);
 dcs_3a = interp(dcs_3w,50);
+
+
+%% Processing the hybrid DCS system data
+
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\DCS\marianne_10122021\20211207\','Data.mat');
+load(filename)
+
+%
+
+g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+
+% aDb calculations
+
+rho = [1 1.5 2 2.5]; %source detector separations in cm 
+mua = 0.1; %cm^-1 baseline absorption coefficient
+mus = 10; %cm^-1 baseline reduced scattering coefficient
+
+tau_values=Data_tau;
+
+for chan=1:size(g2,1)
+    for i=1:size(g2,2)
+        rsd=rho(chan);
+        g2_temp(i,:)=squeeze(g2(chan,i,:));
+        LB = [0];
+        UB = [inf];
+        Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
+        beta= squeeze(g2(chan,i,1)); %0.1568;
+        options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
+        [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
+        aDb1(chan,i) = FittedParams(1);
+    end
+end
+
+%% Data plotting
+
+% time resultion - aqusition time used to aquire data
+figure();
+t_res=0.25; % seconds
+time=t_res*(1:1:size(aDb1,2));
+
+subplot(2,2,1)
+
+plot(time,aDb1(1,:))
+title('{\itr}_{SD}=1 cm')
+% set(gca,'xticklabel',{})
+
+subplot(2,2,2)
+
+plot(time,aDb1(2,:))
+title('{\itr}_{SD}=1.5 cm')
+xlabel('Time (s)')
+
+subplot(2,2,3)
+
+plot(time,aDb1(3,:))
+title('{\itr}_{SD}=2 cm')
+% set(gca,'xticklabel',{})
+
+subplot(2,2,4)
+
+plot(time,aDb1(4,:))
+title('{\itr}_{SD}=2.5 cm')
+xlabel('Time (s)')
+
+
+%% Assigning the channels
+dcs_1 = aDb1(1,:).*10^9;
+dcs_1lp = lpf(dcs_1,3,20);
+dcs_15 = aDb1(2,:).*10^9;
+dcs_15lp = lpf(dcs_15,3,20);
+dcs_2 = aDb1(3,:).*10^9;
+dcs_2lp = lpf(dcs_2,3,20);
+dcs_25 = aDb1(4,:).*10^9;
+dcs_25lp = lpf(dcs_25,3,20);
+
+%% Upsampling the signal
+dcs_1a = interp(dcs_1lp,50);
+
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1a;
 sg_lp_30 = normalize(sg_lp_30);
 % 
-minima = islocalmin(sg_lp_30,'MinSeparation',600, 'ProminenceWindow',1,'MinProminence',1 ,'FlatSelection', 'last');
+minima = islocalmin(sg_lp_30,'MinSeparation',900, 'ProminenceWindow',1,'MinProminence',1 ,'FlatSelection', 'last');
 x = 1:length(minima);
 locs = x(minima)
 figure();
@@ -260,12 +339,12 @@ cyc(1,:)= ini;
 count = 1;
 avg = ini;
 for i=851:1:length(minima)
-    if (minima(i)==1) && (i+949<=length(minima))
+    if (minima(i)==1) && (i+849<=length(minima))
         count = count+1;
-        plot(sg_lp_30(i:i+949))
+        plot(sg_lp_30(i:i+849))
         hold on
-        avg = avg+sg_lp_30(i:i+949);
-         cyc(count,:) = sg_lp_30(i:i+949);
+        avg = avg+sg_lp_30(i:i+849);
+         cyc(count,:) = sg_lp_30(i:i+849);
         
     end
 end
