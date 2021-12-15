@@ -320,7 +320,7 @@ dcs_25 = aDb1(4,:).*10^9;
 dcs_25lp = lpf(dcs_25,3,20);
 
 %% Upsampling the signal
-dcs_1a = interp(dcs_1lp,50);
+dcs_1a = interp(dcs_15lp,50);
 
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1a;
