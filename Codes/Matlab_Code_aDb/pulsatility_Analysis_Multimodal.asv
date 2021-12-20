@@ -1,17 +1,17 @@
 %% Loading the file
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\marianne_10122021\Marianne_12 7 2021_trNIRS DCS TCD BP ECG baseline.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\brachial baseline ECG BP.mat');
 load(filename)
 
 %% Upscaling the data by 3
 ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
-tcd_a = data(datastart(3):dataend(3));
+% tcd_a = data(datastart(3):dataend(3));
 
     
 %% Plotting the frequency spectrum
 Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = tcd_a;
+signal = ecg_a;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -28,10 +28,10 @@ ylabel('|P1(f)|')
 
 %% ECG signal Processing
 % ecg1 = ecg_a(75420:105600);
-ecg1 = ecg_a(1:120000);
+ecg1 = ecg_a(1:60000);
 ecg1 = normalize(ecg1);
-%filter the ECG signal @10Hz using the low pass filter
-ecg1 = lpf(ecg1,5,1000)
+%filter the ECG signal @5Hz using the low pass filter
+ecg1 = lpf(ecg1,5,1000);
 %% finding the maxima to find the individual signals
 y = ecg1;
 x = (1:length(ecg1));
@@ -87,7 +87,7 @@ else
 end
 ecg_ens = ecg_ens';
 %Saving the variable
-writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\Marianne\ecg_ens.csv','Delimiter','comma');
+% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\Marianne\ecg_ens.csv','Delimiter','comma');
 
 %% TCD signal Processing
 tcd = tcd_a(1:120000);
@@ -142,9 +142,9 @@ tcd_ens = ensavg;
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
 %% Processing the blood pressure data
-bp = bp_a(1:105600);
+bp = lpf(bp_a,3,1000);
 
-minima = islocalmin(bp,'MinProminence',10);
+minima = islocalmin(bp,'MinProminence',20);
 x = 1:length(minima);
 plot(x,bp,x(minima),bp(minima),'r*');
 
@@ -189,7 +189,7 @@ ensavg = [ensavg ensavg];
 abd_ens = ensavg;
 
 %Saving the variable
-writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\marianne\bp_ens.csv','Delimiter','comma');
+% writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\marianne\bp_ens.csv','Delimiter','comma');
 %% Processing the DCS data
 
 %% Loading the data for Standalone DCS system
@@ -245,7 +245,7 @@ dcs_3a = interp(dcs_3w,50);
 
 %% Processing the hybrid DCS system data
 
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\DCS\marianne_10122021\20211207\','Data.mat');
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
 load(filename)
 
 %
@@ -313,34 +313,52 @@ xlabel('Time (s)')
 dcs_1 = aDb1(1,:).*10^9;
 dcs_1lp = lpf(dcs_1,3,20);
 dcs_15 = aDb1(2,:).*10^9;
-dcs_15lp = lpf(dcs_15,3,20);
+dcs_15lp = lpf(dcs_15,5,20);
 dcs_2 = aDb1(3,:).*10^9;
-dcs_2lp = lpf(dcs_2,3,20);
+dcs_2lp = lpf(dcs_2,5,20);
 dcs_25 = aDb1(4,:).*10^9;
 dcs_25lp = lpf(dcs_25,5,20);
+
+%% Upsampling the signal
+% dcs_1a = interp(dcs_1lp,50);
+dcs_1a = interp(dcs_1,50);
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1a;
 sg_lp_30 = normalize(sg_lp_30);
-% 
-minima = islocalmin(sg_lp_30,'MinSeparation',600, 'ProminenceWindow',1,'MinProminence',1 ,'FlatSelection', 'last');
-x = 1:length(minima);
-locs = x(minima)
-figure();
-plot(x,sg_lp_30,x(minima),sg_lp_30(minima),'r*');
+% % 
+% minima = islocalmin(sg_lp_30,'MinSeparation',900, 'ProminenceWindow',1,'MinProminence',1 ,'FlatSelection', 'last');
+% x = 1:length(minima);
+% locs = x(minima)
+
+% y = ecg1;
+% x = 1:length(y);
+% [pks,locs] = findpeaks(y, 'MinPeakHeight', 0.5,'MinPeakDist',700,'MinPeakProminence',0.1);
+% figure();
+% plot(x,sg_lp_30,x(locs),pks,'r*');
 
 %% Plotting the data based on the minima
-ini = sg_lp_30(1:850);
-cyc =zeros(sum(minima==1)-1,850); 
+ini = sg_lp_30(locs(1):locs(2));
+cyc =zeros(sum(minima==1)-1,length(ini)); 
 cyc(1,:)= ini;
-count = 1;
+count = 2;
 avg = ini;
-for i=851:1:length(minima)
-    if (minima(i)==1) && (i+949<=length(minima))
+% for i=851:1:length(minima)
+%     if (minima(i)==1) && (i+849<=length(minima))
+%         count = count+1;
+%         plot(sg_lp_30(i:i+849))
+%         hold on
+%         avg = avg+sg_lp_30(i:i+849);
+%          cyc(count,:) = sg_lp_30(i:i+849);
+%         
+%     end
+% end
+for i=1200:1:length(minima)
+    if (minima(i)==1) && (i+length(ini)<=length(minima))
         count = count+1;
-        plot(sg_lp_30(i:i+949))
+        plot(sg_lp_30(i:i+length(ini)-1))
         hold on
-        avg = avg+sg_lp_30(i:i+949);
-         cyc(count,:) = sg_lp_30(i:i+949);
+        avg = avg+sg_lp_30(i:i+length(ini)-1);
+         cyc(count,:) = sg_lp_30(i:i+length(ini)-1);
         
     end
 end
@@ -373,6 +391,16 @@ dcs_1a_ens = ensavg;
 
 
 %% Test Space
+
+y = sg_lp_30;
+x = (1:length(y));
+[pks_d,locs_d] = findpeaks(y, 'MinPeakHeight', 0.5,'MinPeakDist',700,'MinPeakProminence',0.1);  %Determine peaks and Indices
+figure()
+plot(x,y)
+hold on
+plot(x(locs_d),pks_d, '+r')
+hold off
+
 % Plotting the data of different modality.
 % % dcs_1a_raw = normalize(interp(dcs_1,50));
 % % dcs_1a_raw = dcs_1a_raw';
@@ -406,6 +434,7 @@ dcs_1a_ens = ensavg;
 % plot(avg)
 % 
 % %Plotting the ensemble average
+
 % ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
 % ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
 % figure()
@@ -423,31 +452,33 @@ dcs_1a_ens = ensavg;
 % %Saving the variable
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_3cm_ens.csv','Delimiter','comma');
 % 
-
-ini = sg_lp_30(400:1199);
+figure();
+ini = dcs_1(locs_down(1):locs_down(2));
 cyc =zeros(sum(minima==1)-1,length(ini)); 
 cyc(1,:)= ini;
-count = 1;
+x = (1:1:length(ini))/1000;
+count = 2;
 avg = ini;
 for i=2:1:length(locs)-1
     count = count+1;
-    plot(sg_lp_30(locs(i)+200:locs(i+1)+200))
-    sig = sg_lp_30(locs(i)+200:locs(i+1)+200)
-    hold on
+ 
+    sig = dcs_1(locs_down(i):locs_down(i+1));
+    hold on;
     if length(avg) > length(sig)
         sig(length(sig):length(avg)) = 0
     elseif length(avg)< length(sig)
         sig = sig(1:length(avg))
     end
     avg = avg+sig;
+    plot((1:length(sig))/1000,sig);
     cyc(count,:) = sig;
         
 end
 hold off
 avg = avg/count;
-x = (1:1:800)/1000;
+
 figure()
-plot(avg)
+plot(x,avg)
 
 %Plotting the ensemble average
 ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
@@ -467,7 +498,19 @@ legend('Ensemble Average', '95% Confidence Intervals')
 % %Saving the variable
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_3cm_ens.csv','Delimiter','comma');
 
-
+%%
+% for i=1:20
+%     figure()
+%     plot(cyc(i,:));
+%     hold on
+%     plot(cyc_lp(i,:),'--');
+%     hold off
+% end
+ecg_d= zeros(1,length(ecg1)/50)
+for i=1:length(ecg_d-51)
+    ecg_d(i) = median(ecg1(50i+1:50.*(i+1)));
+end
+plot(ecg_d)
 %% Creating the exportable fil for the windkessel model
 final_data = [ecg_ens; abd_ens ;tcd_ens ;dcs_1a_ens ;dcs_3a_ens]
 writematrix(final_data,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\final_file.txt','Delimiter','tab');
