@@ -242,11 +242,9 @@ dcs_3lp = lpf(dcs_3,3,20);
 
 %% Processing the hybrid DCS system data
 
-<<<<<<< HEAD
+
 filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
-=======
 filename=strcat('D:\study\MSc Western Uni\Research MSc\github\Western-MSc\data\DCS\marianne_10122021\20211207\','Data.mat');
->>>>>>> a29f0e75ce9d4429d35adf6d4568aee7e0ca82f3
 load(filename)
 
 
@@ -322,18 +320,17 @@ dcs_2lp = lpf(dcs_2,5,20);
 dcs_25 = aDb1(4,:).*10^9;
 dcs_25lp = lpf(dcs_25,5,20);
 
-<<<<<<< HEAD
+
 %% Upsampling the signal
 % dcs_1a = interp(dcs_1lp,50);
 dcs_1a = interp(dcs_1,50);
-=======
+
 %% Upsampling the signal using the linear interpolation
 x = 1:1:length(dcs_1);
 uf = 50;   % Upsampling factor
 xq = 1:(1/uf):length(dcs_1);
 dcs_1up = interp1(x, dcs_1lp,xq,'linear');
 
->>>>>>> a29f0e75ce9d4429d35adf6d4568aee7e0ca82f3
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1a;
 sg_lp_30 = normalize(sg_lp_30);
