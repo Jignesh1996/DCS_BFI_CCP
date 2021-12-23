@@ -245,8 +245,10 @@ dcs_3a = interp(dcs_3w,50);
 
 %% Processing the hybrid DCS system data
 
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\DCS\marianne_10122021\20211207\','Data.mat');
+filename=strcat('D:\study\MSc Western Uni\Research MSc\github\Western-MSc\data\DCS\marianne_10122021\20211207\','Data.mat');
 load(filename)
+
+
 
 %
 
@@ -317,12 +319,17 @@ dcs_15lp = lpf(dcs_15,3,20);
 dcs_2 = aDb1(3,:).*10^9;
 dcs_2lp = lpf(dcs_2,3,20);
 dcs_25 = aDb1(4,:).*10^9;
-dcs_25lp = lpf(dcs_25,5,20);
+dcs_25lp = lpf(dcs_25,3,20);
+
+%% Upsampling the signal
+x = 1:1:length(l)
+dcs_1up = interp1(x, dcs_1,xq,'linear');
+
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1a;
 sg_lp_30 = normalize(sg_lp_30);
 % 
-minima = islocalmin(sg_lp_30,'MinSeparation',600, 'ProminenceWindow',1,'MinProminence',1 ,'FlatSelection', 'last');
+minima = islocalmin(sg_lp_30,'MinSeparation',900, 'ProminenceWindow',1,'MinProminence',1 ,'FlatSelection', 'last');
 x = 1:length(minima);
 locs = x(minima)
 figure();
@@ -335,12 +342,12 @@ cyc(1,:)= ini;
 count = 1;
 avg = ini;
 for i=851:1:length(minima)
-    if (minima(i)==1) && (i+949<=length(minima))
+    if (minima(i)==1) && (i+849<=length(minima))
         count = count+1;
-        plot(sg_lp_30(i:i+949))
+        plot(sg_lp_30(i:i+849))
         hold on
-        avg = avg+sg_lp_30(i:i+949);
-         cyc(count,:) = sg_lp_30(i:i+949);
+        avg = avg+sg_lp_30(i:i+849);
+         cyc(count,:) = sg_lp_30(i:i+849);
         
     end
 end
