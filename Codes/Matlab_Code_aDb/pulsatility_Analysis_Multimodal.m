@@ -31,7 +31,7 @@ ylabel('|P1(f)|')
 ecg1 = ecg_a(1:60000);
 ecg1 = normalize(ecg1);
 %filter the ECG signal @5Hz using the low pass filter
-ecg1 = lpf(ecg1,5,1000);
+% ecg1 = lpf(ecg1,5,1000);
 %% finding the maxima to find the individual signals
 y = ecg1;
 x = (1:length(ecg1));
@@ -243,9 +243,8 @@ dcs_3lp = lpf(dcs_3,3,20);
 %% Processing the hybrid DCS system data
 
 
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
-filename=strcat('D:\study\MSc Western Uni\Research MSc\github\Western-MSc\data\DCS\marianne_10122021\20211207\','Data.mat');
-load(filename)
+% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
+% load(filename)
 
 
 
@@ -312,7 +311,7 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1 = aDb1(1,:).*10^9;
-dcs_1lp = lpf(dcs_1,3,20);
+dcs_1lp = lpf(dcs_1,5,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf(dcs_15,5,20);
 dcs_2 = aDb1(3,:).*10^9;
@@ -323,16 +322,16 @@ dcs_25lp = lpf(dcs_25,5,20);
 
 %% Upsampling the signal
 % dcs_1a = interp(dcs_1lp,50);
-dcs_1a = interp(dcs_1,50);
+% dcs_1lp = interp(dcs_1,50);
 
 %% Upsampling the signal using the linear interpolation
 x = 1:1:length(dcs_1);
 uf = 50;   % Upsampling factor
-xq = 1:(1/uf):length(dcs_1);
-dcs_1up = interp1(x, dcs_1lp,xq,'linear');
+xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf));
+dcs_1up = interp1(x, dcs_1,xq,'linear');
 
 %% Finding the minima to find the starting of the signal
-sg_lp_30 = dcs_1a;
+sg_lp_30 = dcs_1up;
 sg_lp_30 = normalize(sg_lp_30);
 % % 
 % minima = islocalmin(sg_lp_30,'MinSeparation',900, 'ProminenceWindow',1,'MinProminence',1 ,'FlatSelection', 'last');
@@ -401,13 +400,16 @@ dcs_1a_ens = ensavg;
 
 %% Test Space
 
-y = sg_lp_30;
-x = (1:length(y));
-[pks_d,locs_d] = findpeaks(y, 'MinPeakHeight', 0.5,'MinPeakDist',700,'MinPeakProminence',0.1);  %Determine peaks and Indices
+y = interp(dcs_1,50);
+x = 1:length(y);
+x_d = (1:length(dcs_1));
+[pks_u,locs_u] = findpeaks(y, 'MinPeakHeight', 0.5,'MinPeakDist',600,'MinPeakProminence',0.1);  %Determine peaks and Indices
 figure()
-plot(x,y)
+[pks_d,locs_d] = findpeaks(dcs_1, 'MinPeakHeight', 0.5,'MinPeakProminence',10);
+a = locs_u./locs_d;
+plot(x_d,dcs_1)
 hold on
-plot(x(locs_d),pks_d, '+r')
+plot(x_d(locs_d),pks_d, '+r')
 hold off
 
 % Plotting the data of different modality.
@@ -462,21 +464,21 @@ hold off
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_3cm_ens.csv','Delimiter','comma');
 % 
 figure();
-ini = dcs_1(locs_down(1):locs_down(2));
-cyc =zeros(sum(minima==1)-1,length(ini)); 
+ini = dcs_1up(locs(1):locs(2));
+cyc =zeros(length(pks)-1,length(ini)); 
 cyc(1,:)= ini;
 x = (1:1:length(ini))/1000;
-count = 2;
+count = 0;
 avg = ini;
-for i=2:1:length(locs)-1
+for i=8:1:length(locs)-1
     count = count+1;
  
-    sig = dcs_1(locs_down(i):locs_down(i+1));
+    sig = dcs_1up(locs(i):locs(i+1));
     hold on;
     if length(avg) > length(sig)
-        sig(length(sig):length(avg)) = 0
+        sig(length(sig):length(avg)) = 0;
     elseif length(avg)< length(sig)
-        sig = sig(1:length(avg))
+        sig = sig(1:length(avg));
     end
     avg = avg+sig;
     plot((1:length(sig))/1000,sig);
