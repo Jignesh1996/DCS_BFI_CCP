@@ -311,7 +311,7 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1 = aDb1(1,:).*10^9;
-dcs_1lp = lpf(dcs_1,5,20);
+dcs_1lp = lpf_ffilts(dcs_1,10,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf(dcs_15,5,20);
 dcs_2 = aDb1(3,:).*10^9;
@@ -684,4 +684,47 @@ grid
 title('DCS - 2.7cm Upsampled Signal')
 xlabel('Time (s)')
 ylabel('aDb *10^9 ')
+legend('Ensemble Average', '95% Confidence Intervals')
+
+%%
+
+figure();
+ini = dcs_1(locs_d(1):locs_d(2));
+cyc =zeros(length(pks)-1,length(ini)); 
+cyc(1,:)= ini;
+x = (1:1:length(ini))/1000;
+count = 0;
+avg = ini;
+for i=8:1:length(locs_d)-1
+    count = count+1;
+ 
+    sig = dcs_1(locs_d(i):locs_d(i+1));
+    hold on;
+    if length(avg) > length(sig)
+        sig(length(sig):length(avg)) = 0;
+    elseif length(avg)< length(sig)
+        sig = sig(1:length(avg));
+    end
+    avg = avg+sig;
+    plot((1:length(sig))/1000,sig, 'DisplayName',""+i+"");
+%     legend show
+    cyc(count,:) = sig;
+        
+end
+hold off
+avg = avg/count;
+
+figure()
+plot(x,avg)
+
+%Plotting the ensemble average
+ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
+figure()
+plot(x, ensavg, '-r', 'LineWidth',1)
+hold on;
+plot(x, ensavg+ci95, ':g', 'LineWidth',1.5)
+plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
+hold off
+grid
 legend('Ensemble Average', '95% Confidence Intervals')

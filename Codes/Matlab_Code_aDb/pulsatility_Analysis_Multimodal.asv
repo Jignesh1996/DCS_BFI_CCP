@@ -311,7 +311,7 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1 = aDb1(1,:).*10^9;
-dcs_1lp = lpf(dcs_1,5,20);
+dcs_1lp = lpf_ffilts(dcs_1,10,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf(dcs_15,5,20);
 dcs_2 = aDb1(3,:).*10^9;
@@ -481,8 +481,8 @@ for i=8:1:length(locs)-1
         sig = sig(1:length(avg));
     end
     avg = avg+sig;
-    plot((1:length(sig))/1000,sig, 'displayName');
-    
+    plot((1:length(sig))/1000,sig, 'DisplayName',""+i+"");
+%     legend show
     cyc(count,:) = sig;
         
 end
