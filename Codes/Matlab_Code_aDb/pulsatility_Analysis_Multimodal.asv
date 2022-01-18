@@ -325,11 +325,11 @@ dcs_25lp = lpf(dcs_25,5,20);
 % dcs_1lp = interp(dcs_1,50);
 
 %% Upsampling the signal using the linear interpolation
-x = 1:1:length(dcs_1lp);
+x = 1:1:length(dcs_1);
 uf = 50;   % Upsampling factor
-xq = (1:(1/uf):length(dcs_1lp)+((uf-1)/uf));
-dcs_1up = interp1(x, dcs_1lp,xq,'linear');
-% dcs_1up = lpf(double(dcs_1up),5,1000)
+xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf));
+dcs_1up = interp1(x, dcs_1,xq,'linear');
+
 %% Finding the minima to find the starting of the signal
 sg_lp_30 = dcs_1up;
 sg_lp_30 = normalize(sg_lp_30);
@@ -468,9 +468,9 @@ ini = dcs_1up(locs(1):locs(2));
 cyc =zeros(length(pks)-1,length(ini)); 
 cyc(1,:)= ini;
 x = (1:1:length(ini))/1000;
-count = 2;
+count = 0;
 avg = ini;
-for i=2:1:length(locs)-1
+for i=8:1:length(locs)-1
     count = count+1;
  
     sig = dcs_1up(locs(i):locs(i+1));
@@ -481,7 +481,8 @@ for i=2:1:length(locs)-1
         sig = sig(1:length(avg));
     end
     avg = avg+sig;
-    plot((1:length(sig))/1000,sig);
+    plot((1:length(sig))/1000,sig, 'displayName');
+    
     cyc(count,:) = sig;
         
 end

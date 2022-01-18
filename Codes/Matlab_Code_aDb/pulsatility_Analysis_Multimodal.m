@@ -481,7 +481,8 @@ for i=8:1:length(locs)-1
         sig = sig(1:length(avg));
     end
     avg = avg+sig;
-    plot((1:length(sig))/1000,sig);
+    plot((1:length(sig))/1000,sig, 'DisplayName',""+i+"");
+%     legend show
     cyc(count,:) = sig;
         
 end
