@@ -5,7 +5,7 @@ load(filename)
 %% Upscaling the data by 3
 ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
-% tcd_a = data(datastart(3):dataend(3));
+tcd_a = data(datastart(3):dataend(3));
 
     
 %% Plotting the frequency spectrum
@@ -243,8 +243,8 @@ dcs_3lp = lpf(dcs_3,3,20);
 %% Processing the hybrid DCS system data
 
 
-% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
-% load(filename)
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
+load(filename)
 
 
 
@@ -684,4 +684,46 @@ grid
 title('DCS - 2.7cm Upsampled Signal')
 xlabel('Time (s)')
 ylabel('aDb *10^9 ')
+legend('Ensemble Average', '95% Confidence Intervals')
+
+%%
+
+ini = dcs_1(locs_d(1):locs_d(2));
+cyc =zeros(length(pks)-1,length(ini)); 
+cyc(1,:)= ini;
+x = (1:1:length(ini))/1000;
+count = 0;
+avg = ini;
+for i=1:1:length(locs_d)-1
+    count = count+1;
+ 
+    sig = dcs_1(locs(i):locs(i+1));
+    hold on;
+    if length(avg) > length(sig)
+        sig(length(sig):length(avg)) = 0;
+    elseif length(avg)< length(sig)
+        sig = sig(1:length(avg));
+    end
+    avg = avg+sig;
+    plot((1:length(sig))/1000,sig, 'DisplayName',""+i+"");
+%     legend show
+    cyc(count,:) = sig;
+        
+end
+hold off
+avg = avg/count;
+
+figure()
+plot(x,avg)
+
+%Plotting the ensemble average
+ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
+figure()
+plot(x, ensavg, '-r', 'LineWidth',1)
+hold on;
+plot(x, ensavg+ci95, ':g', 'LineWidth',1.5)
+plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
+hold off
+grid
 legend('Ensemble Average', '95% Confidence Intervals')

@@ -13,3 +13,6 @@ plot(x_d,dcs_1)
 hold on
 plot(x_d(locs_d),pks_d, '+r')
 hold off
+
+%% 
+

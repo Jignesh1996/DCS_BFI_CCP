@@ -5,7 +5,7 @@ load(filename)
 %% Upscaling the data by 3
 ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
-% tcd_a = data(datastart(3):dataend(3));
+tcd_a = data(datastart(3):dataend(3));
 
     
 %% Plotting the frequency spectrum
@@ -243,8 +243,8 @@ dcs_3lp = lpf(dcs_3,3,20);
 %% Processing the hybrid DCS system data
 
 
-% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
-% load(filename)
+filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
+load(filename)
 
 
 
@@ -688,17 +688,16 @@ legend('Ensemble Average', '95% Confidence Intervals')
 
 %%
 
-figure();
 ini = dcs_1(locs_d(1):locs_d(2));
 cyc =zeros(length(pks)-1,length(ini)); 
 cyc(1,:)= ini;
 x = (1:1:length(ini))/1000;
 count = 0;
 avg = ini;
-for i=8:1:length(locs_d)-1
+for i=1:1:length(locs_d)-1
     count = count+1;
  
-    sig = dcs_1(locs_d(i):locs_d(i+1));
+    sig = dcs_1(locs(i):locs(i+1));
     hold on;
     if length(avg) > length(sig)
         sig(length(sig):length(avg)) = 0;
