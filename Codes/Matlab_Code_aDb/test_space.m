@@ -15,4 +15,71 @@ plot(x_d(locs_d),pks_d, '+r')
 hold off
 
 %% 
+dcs_1res = resample(dcs_1,50,1)
+plot(dcs_1res)
+hold on
+plot(dcs_1up)
 
+%%
+xu = (1:1:length(ecg1))/1000;
+xd = (1:1:length(dcs_1))/20;
+
+%%
+ecg_res = resample(ecg1,1,50)
+te = (1:1:length(ecg_res));
+plot(xd,ecg_res,'b')
+legend("Resampled","Original")
+hold on
+plot(xu, ecg1,'r')
+%%
+ini = dcs_1(locs_d(1):locs_d(2));
+cyc =zeros(length(pks)-1,length(ini)); 
+cyc(1,:)= ini;
+x = (1:1:length(ini))/1000;
+count = 0;
+avg = ini;
+for i=1:1:length(locs_d)-1
+    count = count+1;
+ 
+    sig = dcs_1(find(xd==round(xu(locs(i)),1)):find(xd==round(xu(locs(i+1)),1)));
+    hold on;
+    if length(avg) > length(sig)
+        sig(length(sig):length(avg)) = 0;
+    elseif length(avg)< length(sig)
+        sig = sig(1:length(avg));
+    end
+    avg = avg+sig;
+    plot((1:length(sig))/20,sig, 'DisplayName',""+i+"");
+%     legend show
+    cyc(count,:) = sig;
+        
+end
+xlabel("Time(s)")
+ylabel("aDb value")
+title("Marker=ECG R peak, DCS 1cm Baseline Forearm")
+hold off
+avg = avg/count;
+
+figure()
+plot(x,avg)
+
+%Plotting the ensemble average
+ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
+figure()
+plot(x, ensavg, '-r', 'LineWidth',1)
+hold on;
+plot(x, ensavg+ci95, ':g', 'LineWidth',1.5)
+plot(x, ensavg-ci95, ':g', 'LineWidth',1.5)
+hold off
+grid
+legend('Ensemble Average', '95% Confidence Intervals')
+
+%%resampling
+
+%%
+
+figure()
+hold on
+plot(xd,dcs_1/max(dcs_1),'r')
+plot(xd,ecg_res/max(ecg),'b')

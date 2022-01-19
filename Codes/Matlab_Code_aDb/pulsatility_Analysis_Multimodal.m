@@ -33,9 +33,9 @@ ecg1 = normalize(ecg1);
 %filter the ECG signal @5Hz using the low pass filter
 % ecg1 = lpf(ecg1,5,1000);
 %% finding the maxima to find the individual signals
-y = ecg1;
-x = (1:length(ecg1));
-[pks,locs] = findpeaks(y, 'MinPeakHeight', 0.5,'MinPeakDist',700,'MinPeakProminence',0.1);  %Determine peaks and Indices
+y = ecg_res;
+x = (1:length(ecg_res));
+[pks,locs] = findpeaks(y, 'MinPeakHeight', 1,'MinPeakDist',10,'MinPeakProminence',0.1);  %Determine peaks and Indices
 figure()
 plot(x,y)
 hold on
@@ -44,8 +44,8 @@ hold off
 grid
 
 for k1 = 1:numel(locs)-0.1
-    yc{k1} = y(locs(k1)-40:locs(k1+1)-40);                            % Define MUAP Frames
-    xc{k1} = x(locs(k1)-40:locs(k1+1)-40);
+    yc{k1} = y(locs(k1)-2:locs(k1+1)-2);                            % Define MUAP Frames
+    xc{k1} = x(locs(k1)-2:locs(k1+1)-2);
 end
 
 figure()
@@ -464,16 +464,16 @@ hold off
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\dcs_3cm_ens.csv','Delimiter','comma');
 % 
 figure();
-ini = dcs_1up(locs(1):locs(2));
+ini = dcs_1(locs(1):locs(2));
 cyc =zeros(length(pks)-1,length(ini)); 
 cyc(1,:)= ini;
 x = (1:1:length(ini))/1000;
 count = 0;
 avg = ini;
-for i=8:1:length(locs)-1
+for i=1:1:length(locs)-1
     count = count+1;
  
-    sig = dcs_1up(locs(i):locs(i+1));
+    sig = dcs_1(locs(i)-8:locs(i+1)-8);
     hold on;
     if length(avg) > length(sig)
         sig(length(sig):length(avg)) = 0;
@@ -481,11 +481,14 @@ for i=8:1:length(locs)-1
         sig = sig(1:length(avg));
     end
     avg = avg+sig;
-    plot((1:length(sig))/1000,sig, 'DisplayName',""+i+"");
+    plot((1:length(sig))/20,sig, 'DisplayName',""+i+"");
 %     legend show
     cyc(count,:) = sig;
         
 end
+xlabel("Time(s)")
+ylabel("aDb value")
+title("Marker=ECG R peak, DCS 1cm Baseline Brachial")
 hold off
 avg = avg/count;
 
