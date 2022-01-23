@@ -1,11 +1,12 @@
 %% Loading the file
+clear all;
 filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\brachial baseline ECG BP.mat');
 load(filename)
 
 %% Upscaling the data by 3
 ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
-tcd_a = data(datastart(3):dataend(3));
+% tcd_a = data(datastart(3):dataend(3));
 
     
 %% Plotting the frequency spectrum
@@ -33,9 +34,9 @@ ecg1 = normalize(ecg1);
 %filter the ECG signal @5Hz using the low pass filter
 % ecg1 = lpf(ecg1,5,1000);
 %% finding the maxima to find the individual signals
-y = ecg_res;
-x = (1:length(ecg_res));
-[pks,locs] = findpeaks(y, 'MinPeakHeight', 1,'MinPeakDist',10,'MinPeakProminence',0.1);  %Determine peaks and Indices
+y = ecg1;
+x = (1:length(ecg1));
+[pks,locs] = findpeaks(y, 'MinPeakHeight', 5,'MinPeakDist',10,'MinPeakProminence',0.1);  %Determine peaks and Indices
 figure()
 plot(x,y)
 hold on
@@ -44,8 +45,8 @@ hold off
 grid
 
 for k1 = 1:numel(locs)-0.1
-    yc{k1} = y(locs(k1)-2:locs(k1+1)-2);                            % Define MUAP Frames
-    xc{k1} = x(locs(k1)-2:locs(k1+1)-2);
+    yc{k1} = y(locs(k1)-40:locs(k1+1)-40);                            % Define MUAP Frames
+    xc{k1} = x(locs(k1)-40:locs(k1+1)-40);
 end
 
 figure()
@@ -193,8 +194,8 @@ abd_ens = ensavg;
 %% Processing the DCS data
 
 %% Loading the data for Standalone DCS system
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\20211207\Data.mat');
-load(filename)
+% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\20211207\Data.mat');
+% load(filename)
 
 g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
 g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
@@ -243,8 +244,8 @@ dcs_3lp = lpf(dcs_3,3,20);
 %% Processing the hybrid DCS system data
 
 
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
-load(filename)
+% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
+% load(filename)
 
 
 
@@ -311,7 +312,7 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1 = aDb1(1,:).*10^9;
-dcs_1lp = lpf_ffilts(dcs_1,10,20);
+dcs_1lp = lpf(dcs_1,5,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf(dcs_15,5,20);
 dcs_2 = aDb1(3,:).*10^9;

@@ -23,15 +23,12 @@ locs_DCS_time=locs_DCS*0.05;
 locs_ECG_time=locs_ECG*0.001;
 
 time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
-%% Upsampling the DCS singal
-x = 1:1:length(dcs_1);
-uf = 50;   % Upsampling factor
-xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
-dcs_1_interp = interp1(x, dcs_1,xq,'makima');
+
+dcs_1_interp = interp(dcs_1,50);
 
 %% filtering
 
-windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
+windowsize=10; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
 wages=ones(1,windowsize)/windowsize;
 dcs_1_smooth=filtfilt(wages,1,dcs_1_interp); % Y is your time course you want to filter, Y_smoth is filtered data
 ecg1_smooth=filtfilt(wages,1,ecg1);
@@ -78,7 +75,7 @@ Difference=locs_ECG_smooth-locs_DCS_smooth;
 Extract=ones(size(pks_ECG_smooth,2)-1,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,600)
+dcs_1_smooth2=circshift(dcs_1_smooth,400)
 
 for i=1:size(pks_ECG_smooth,2)-1
     locs_ECG_smooth(i)
