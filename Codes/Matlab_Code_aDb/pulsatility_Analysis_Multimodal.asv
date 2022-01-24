@@ -282,7 +282,7 @@ end
 
 % time resultion - aqusition time used to aquire data
 figure();
-t_res=1; % seconds
+t_res=0.05; % seconds
 time=t_res*(1:1:size(aDb1,2));
 
 subplot(2,2,1)
@@ -311,7 +311,7 @@ xlabel('Time (s)')
 
 
 %% Assigning the channels
-dcs_1 = aDb1(1,1:460).*10^9;
+dcs_1 = aDb1(1,1:115).*10^9;
 dcs_1lp = lpf(dcs_1,5,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf(dcs_15,5,20);

@@ -1,8 +1,8 @@
 % clear all
 % close all
 % 
-% load('dcs_1_baseline_forearm.mat')
-% load('ECG_DCS_forearm_exp.mat')
+load('dcs_1_baseline_forearm.mat')
+load('ECG_DCS_forearm_exp.mat')
 
 dcs_1 = dcs_1(1:1200)
 time_DCS=0.05*(1:1:size(dcs_1,2));
@@ -31,13 +31,13 @@ dcs_1_interp = interp1(x, dcs_1,xq,'makima');
 
 %% filtering
 
-windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
+windowsize=10; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
 wages=ones(1,windowsize)/windowsize;
 dcs_1_smooth=filtfilt(wages,1,dcs_1_interp); % Y is your time course you want to filter, Y_smoth is filtered data
 ecg1_smooth=filtfilt(wages,1,ecg1);
 
 [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.75);
-[pks_DCS_smooth,locs_DCS_smooth]=findpeaks(dcs_1_smooth./max(dcs_1_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
+[pks_DCS_smooth,locs_DCS_smooth]=findpeaks(dcs_1_smooth./max(dcs_1_smooth),'MinPeakHeight',0.55,'MinPeakDistance',500);
 
 %%
 
@@ -78,7 +78,7 @@ Difference=locs_ECG_smooth-locs_DCS_smooth;
 Extract=ones(size(pks_ECG_smooth,2)-1,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,600)
+dcs_1_smooth2=circshift(dcs_1_smooth,0)
 
 for i=1:size(pks_ECG_smooth,2)-1
     locs_ECG_smooth(i)
@@ -86,4 +86,8 @@ for i=1:size(pks_ECG_smooth,2)-1
     Extract(i,:)=dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
 end
 %%    
-plot((Extract'))
+x = (1:1:length(Extract'))/1000;
+plot(x,(Extract'))
+xlabel("Time(s)")
+ylabel("aDb value")
+title("Marker=ECG R peak, DCS 1cm Baseline Brachial")
