@@ -10,9 +10,9 @@ bp_a = data(datastart(2):dataend(2));
 
     
 %% Plotting the frequency spectrum
-Fs = 1000;            % Sampling frequency                    
+Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = ecg_a;
+signal = dcs_1lp;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -311,8 +311,8 @@ xlabel('Time (s)')
 
 
 %% Assigning the channels
-dcs_1 = aDb1(1,1:460).*10^9;
-dcs_1lp = lpf(dcs_1,5,20);
+dcs_1 = aDb1(1,:).*10^9;
+dcs_1lp = lpf_ffilts(dcs_1,10,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf(dcs_15,5,20);
 dcs_2 = aDb1(3,:).*10^9;

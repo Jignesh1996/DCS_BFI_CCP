@@ -78,7 +78,7 @@ Difference=locs_ECG_smooth-locs_DCS_smooth;
 Extract=ones(size(pks_ECG_smooth,2)-1,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,0)
+dcs_1_smooth2=circshift(dcs_1_smooth,2*Difference)
 
 for i=1:size(pks_ECG_smooth,2)-1
     locs_ECG_smooth(i)
