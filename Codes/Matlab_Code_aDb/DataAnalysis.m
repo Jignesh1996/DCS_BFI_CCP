@@ -31,13 +31,14 @@ dcs_1_interp = interp1(x, dcs_1,xq,'makima');
 
 %% filtering
 
-windowsize=10; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
-wages=ones(1,windowsize)/windowsize;
+windowsize=50; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
+% wages=ones(1,windowsize)/windowsize;
+wages = window_1;
 dcs_1_smooth=filtfilt(wages,1,dcs_1_interp); % Y is your time course you want to filter, Y_smoth is filtered data
 ecg1_smooth=filtfilt(wages,1,ecg1);
-
+freqz(wages,1,1024);
 [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.75);
-[pks_DCS_smooth,locs_DCS_smooth]=findpeaks(dcs_1_smooth./max(dcs_1_smooth),'MinPeakHeight',0.55,'MinPeakDistance',500);
+[pks_DCS_smooth,locs_DCS_smooth]=findpeaks(dcs_1_smooth./max(dcs_1_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
 
 %%
 
