@@ -6,13 +6,13 @@ load(filename)
 %% Upscaling the data by 3
 ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
-% tcd_a = data(datastart(3):dataend(3));
+tcd_a = data(datastart(3):dataend(3));
 
     
 %% Plotting the frequency spectrum
-Fs = 20;            % Sampling frequency                    
+Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = dcs_1lp;
+signal = tcd_a;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -95,24 +95,24 @@ tcd = tcd_a(1:120000);
 tcd = normalize(tcd);
 tcd = lpf(tcd,5,1000);
 %% Plotting the TCD signal
-minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',800 );
+minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',850 );
 x = 1:length(minima);
 plot(x,tcd,x(minima),tcd(minima),'r*');
 
 l = length(tcd);
-ini = tcd(200:1099);
+ini = tcd(200:1049);
 
-cyc =zeros(sum(minima==1)-1,900); 
+cyc =zeros(sum(minima==1)-1,850); 
 % cyc(1,:)= ini;
 count = 1;
 avg = ini;
-for i=550:1:length(minima)
-    if (minima(i)==1) && (i+899<=length(minima))
+for i=780:1:length(minima)
+    if (minima(i)==1) && (i+849<=length(minima))
         count = count+1;
-        plot(tcd(i:i+899))
+        plot(tcd(i:i+849))
         hold on
-        avg = avg+tcd(i:i+899);
-        cyc(count,:) = tcd(i:i+899);
+        avg = avg+tcd(i:i+849);
+        cyc(count,:) = tcd(i:i+849);
     end
  
 end
