@@ -12,11 +12,11 @@ t = (0:L-1)*T;
 d = designfilt('lowpassfir', ...
     'PassbandFrequency',fn,'StopbandFrequency',sbf, ...
     'PassbandRipple',1,'StopbandAttenuation',120, ...
-    'DesignMethod','equiripple');
+    'DesignMethod','kaiserwin');
 sig_lpf = filtfilt(d,signal);
-[h,t] = impz(d);
-figure();
-plot(t,h);
-freqz(d,1024);
+% [h,t] = impz(d);
+% figure();
+% plot(t,h);
+% freqz(d,1024);
 
 end

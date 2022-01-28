@@ -86,7 +86,7 @@ plot(xd,ecg_res/max(ecg),'b')
 
 %% Alligning the peaks of the DCS signal
 % The idea is to coincide all the cycles by shifting the peaks to coincide
-% with eachother to remove the temporal shift.
+% with eachother to remove the temporal sh
 Extract=ones(size(pks_ECG_smooth,2)-1,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
@@ -100,8 +100,8 @@ for i=1:size(pks_ECG_smooth,2)-1
     sig = signal + (max(base_sig) - max(signal));
     [pks_b,locs_b] = findpeaks(base_sig, 'MinPeakHeight',0.2);
     [pks_s,locs_s] = findpeaks(sig, 'MinPeakHeight',0.2);
-%     if locs_b>=locs_s
-%         sig = shi%%%%%%%% Start from here. Subtract the difference betweent base signal location from the current signal
+    if locs_b>=locs_s
+        sig = shi
    
     if i==5
         break;
@@ -111,10 +111,3 @@ for i=1:size(pks_ECG_smooth,2)-1
 
     Extract(i,:)=sig;
 end
-
-%%
-bp = 1:100:length(dcs_1lp);
-dcs_d = detrend(normalize(dcs_1lp),1,bp);
-plot(normalize(dcs_1lp));
-hold on;
-plot(dcs_d);
