@@ -95,7 +95,7 @@ Extract=Extract*NaN;
 
 dcs_1_smooth2=circshift(dcs_1_smooth,shift)
 
-for i=1:size(pks_ECG_smooth,2)-1
+for i=2:size(pks_ECG_smooth,2)
     locs_ECG_smooth(i)
     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
     signal = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
@@ -112,16 +112,17 @@ x = (1:1:length(Extract'))/1000;
 plot(x,(Extract'))
 xlabel("Time(s)")
 ylabel("aDb value")
-title("Marker=ECG R peak, DCS 1cm")
+title("Marker=ECG R peak, DCS 2.5cm")
 
 %% Plot ensemble average
-ttle = 'DCS 1cm Ensemble Avg';
+ttle = 'DCS 2.5cm Ensemble Avg';
 avg_dcs = ens_avg(Extract,ttle)
 
 %%
-plot(x,avg_d_nf,'b');
+plot(x,avg_dcs,'b');
 hold on; 
-plot(x,avg_tcd,'r');
-legend('Aerage DCS 1cm','Average TCD')
+plot(x,avg_tcd_shift,'r');
+plot(x,avg_bp_shift,'k');
+legend('Aerage DCS 1cm','Average TCD','Average BP')
 xlabel("Time (s)");
-title("Comparision of average plots of TCD and DCS 1 cm plot")
+title("Comparision of average plots of TCD, BP, and DCS 1 cm plot")

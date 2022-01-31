@@ -10,9 +10,9 @@ tcd_a = data(datastart(3):dataend(3));
 
     
 %% Plotting the frequency spectrum
-Fs = 1000;            % Sampling frequency                    
+Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = tcd_a;
+signal = dcs_1;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -312,13 +312,13 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1 = aDb1(1,:).*10^9;
-dcs_1lp = lpf_ffilts(dcs_1,10,20);
+dcs_1lp = lpf_ffilts(dcs_1,15,20);
 dcs_15 = aDb1(2,:).*10^9;
-dcs_15lp = lpf(dcs_15,5,20);
+dcs_15lp = lpf_ffilts(dcs_15,15,20);
 dcs_2 = aDb1(3,:).*10^9;
-dcs_2lp = lpf(dcs_2,5,20);
+dcs_2lp = lpf_ffilts(dcs_2,15,20);
 dcs_25 = aDb1(4,:).*10^9;
-dcs_25lp = lpf(dcs_25,5,20);
+dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
 
 %% Upsampling the signal
@@ -376,7 +376,8 @@ avg = avg/count;
 x = (1:1:length(avg))/1000;
 figure()
 plot(avg)
-
+cyc = Extract;
+x = (1:1:length(cyc))/1000;
 %Plotting the ensemble average
 ensavg = mean(cyc,1);                                                   % Calculate Ensemble Average
 ci95 = 1.96*std(cyc,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         

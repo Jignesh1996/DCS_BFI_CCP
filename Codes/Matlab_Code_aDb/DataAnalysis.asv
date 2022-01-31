@@ -5,12 +5,12 @@
 % load('ECG_DCS_forearm_exp.mat')
 
 % dcs = tcd_a(1:60000)';
-dcs = dcs_1(1:1200);
+dcs = dcs_15lp(1:1200);
 dcs = normalize(dcs);
 
 bp = 1:100:length(dcs);
 dcs_d = detrend(normalize(dcs),1,bp);
-dcs_1 = dcs;
+dcs_1 = dcs_d;
 
 time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg1,2));
@@ -84,7 +84,7 @@ plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
 
 if locs_ECG_smooth(1)>locs_DCS_smooth(1)
     Difference=locs_ECG_smooth(1)-locs_DCS_smooth(1);
-    shift = floor(1.5*Difference);
+    shift = floor(*Difference);
 else
     shift =0;
 end
@@ -111,16 +111,18 @@ end
 x = (1:1:length(Extract'))/1000;
 plot(x,(Extract'))
 xlabel("Time(s)")
-ylabel("Flow velocity")
-title("Marker=ECG R peak, TCD")
+ylabel("aDb value")
+title("Marker=ECG R peak, DCS 1.5cm")
 
 %% Plot ensemble average
-avg_tcd = ens_avg(Extract)
+ttle = 'DCS 1.5cm Ensemble Avg';
+avg_dcs = ens_avg(Extract,ttle)
 
 %%
-plot(x,avg_d_nf,'b');
+plot(x,avg_dcs,'b');
 hold on; 
-plot(x,avg_tcd,'r');
-legend('Aerage DCS 1cm','Average TCD')
+plot(x,avg_tcd_shift,'r');
+plot(x,avg_bp_shift,'k');
+legend('Aerage DCS 1cm','Average TCD','Average BP')
 xlabel("Time (s)");
-title("Comparision of average plots of TCD and DCS 1 cm plot")
+title("Comparision of average plots of TCD, BP, and DCS 1 cm plot")
