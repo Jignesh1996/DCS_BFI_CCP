@@ -93,13 +93,13 @@ ecg_ens = ecg_ens';
 %% TCD signal Processing
 tcd = tcd_a(1:120000);
 % tcd = normalize(tcd);
-tcd = lpf_ffilts(tcd,30,1000);
+tcd = lpf(tcd,5,1000);
 %% Plotting the TCD signal
 minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',850 );
 x = 1:length(minima);
 plot(x,tcd,x(minima),tcd(minima),'r*');
 
-l = length(tcd);
+l = length(tcd);`
 ini = tcd(200:1049);
 
 cyc =zeros(sum(minima==1)-1,850); 

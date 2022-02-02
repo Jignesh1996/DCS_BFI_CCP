@@ -4,19 +4,19 @@
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
-% dcs = tcd_a(1:60000)';
-dcs = dcs_1(1:1200);
-dcs = normalize(dcs);
+dcs = tcd(1:60000);
+% dcs = dcs_3lp(1:1200);
+% dcs = normalize(dcs);
 
 bp = 1:100:length(dcs);
 dcs_d = detrend(normalize(dcs),1,bp);
-dcs_1 = dcs_d;
+dcs_1 = dcs;
 
-time_DCS=0.05*(1:1:size(dcs_1,2));
-time_ECG=0.001*(1:1:size(ecg1,2));
-
-% time_DCS=0.001*(1:1:size(dcs_1,2));
+% time_DCS=0.05*(1:1:size(dcs_1,2));
 % time_ECG=0.001*(1:1:size(ecg1,2));
+
+time_DCS=0.001*(1:1:size(dcs_1,2));
+time_ECG=0.001*(1:1:size(ecg1,2));
 
 figure()
 hold on
@@ -37,8 +37,8 @@ time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
 x = 1:1:length(dcs_1);
 uf = 50;   % Upsampling factor
 xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
-dcs_1_interp = interp1(x, dcs_1,xq,'makima');
-% dcs_1_interp = dcs_1
+% dcs_1_interp = interp1(x, dcs_1,xq,'makima');
+dcs_1_interp = dcs_1;
 
 %% filtering
 % 
@@ -93,9 +93,9 @@ end
 Extract=ones(size(pks_ECG_smooth,2)-1,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,shift)
+dcs_1_smooth2=circshift(dcs_1_smooth,0)
 
-for i=2:size(pks_ECG_smooth,2)
+for i=1:size(pks_ECG_smooth,2)-1
     locs_ECG_smooth(i)
     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
     signal = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
@@ -107,6 +107,15 @@ for i=2:size(pks_ECG_smooth,2)
 
     Extract(i,:)=signal;
 end
+
+%% Plotting the shifted DCS and ECG signal
+x = (1:1:length(dcs_1_smooth2))/1000;
+plot(x,normalize(dcs_1_smooth2));
+hold on;
+plot(x,normalize(ecg1_smooth));
+xlabel("Time (s)");
+legend("DCS 1cm","ECG")
+
 %%    
 x = (1:1:length(Extract'))/1000;
 plot(x,(Extract'))

@@ -5,7 +5,7 @@
 % load('ECG_DCS_forearm_exp.mat')
 
 % dcs = tcd_a(1:60000)';
-dcs = dcs_15lp(1:1200);
+dcs = dcs_1(1:1200);
 dcs = normalize(dcs);
 
 bp = 1:100:length(dcs);
@@ -84,7 +84,7 @@ plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
 
 if locs_ECG_smooth(1)>locs_DCS_smooth(1)
     Difference=locs_ECG_smooth(1)-locs_DCS_smooth(1);
-    shift = floor(*Difference);
+    shift = floor(1.5*Difference);
 else
     shift =0;
 end
@@ -93,9 +93,9 @@ end
 Extract=ones(size(pks_ECG_smooth,2)-1,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,shift)
+dcs_1_smooth2=circshift(dcs_1_smooth,900)
 
-for i=1:size(pks_ECG_smooth,2)-1
+for i=1:size(pks_ECG_smooth,2)
     locs_ECG_smooth(i)
     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
     signal = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
@@ -107,15 +107,23 @@ for i=1:size(pks_ECG_smooth,2)-1
 
     Extract(i,:)=signal;
 end
+
+%% Plotting the shifted DCS and ECG signal
+x = (1:1:length(dcs_1_smooth2))/1000;
+plot(x,normalize(dcs_1_smooth2));
+hold on;
+plot(x,normalizecg1_smooth);
+xlabel("Time (s)");
+
 %%    
 x = (1:1:length(Extract'))/1000;
 plot(x,(Extract'))
 xlabel("Time(s)")
 ylabel("aDb value")
-title("Marker=ECG R peak, DCS 1.5cm")
+title("Marker=ECG R peak, DCS 2.5cm")
 
 %% Plot ensemble average
-ttle = 'DCS 1.5cm Ensemble Avg';
+ttle = 'DCS 2.5cm Ensemble Avg';
 avg_dcs = ens_avg(Extract,ttle)
 
 %%

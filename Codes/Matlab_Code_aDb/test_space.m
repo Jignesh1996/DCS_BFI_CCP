@@ -118,3 +118,4 @@ dcs_d = detrend(normalize(dcs_1lp),1,bp);
 plot(normalize(dcs_1lp));
 hold on;
 plot(dcs_d);
+
