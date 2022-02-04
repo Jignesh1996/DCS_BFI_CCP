@@ -4,7 +4,7 @@
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
-dcs = tcd(1:60000);
+dcs = bp_a(1:60000);
 % dcs = dcs_3lp(1:1200);
 % dcs = normalize(dcs);
 
@@ -90,12 +90,12 @@ else
 end
 %% Extracting data
 
-Extract=ones(size(pks_ECG_smooth,2)-1,min(diff(locs_ECG_smooth)));
+Extract=ones(size(pks_ECG_smooth,2)-2,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,0)
+dcs_1_smooth2=circshift(dcs_1_smooth,-1075)
 
-for i=1:size(pks_ECG_smooth,2)-1
+for i=1:size(pks_ECG_smooth,2)-2
     locs_ECG_smooth(i)
     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
     signal = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
@@ -125,7 +125,7 @@ title("Marker=ECG R peak, DCS 2.5cm")
 
 %% Plot ensemble average
 ttle = 'DCS 2.5cm Ensemble Avg';
-avg_dcs = ens_avg(Extract,ttle)
+avg_bp = ens_avg(Extract,ttle)
 
 %%
 plot(x,avg_dcs,'b');
