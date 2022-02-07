@@ -244,6 +244,7 @@ dcs_3lp = lpf(dcs_3,3,20);
 
 %% Processing the hybrid DCS system data
 
+aDb1 = hybrid_dcs(Data,Data_tau);
 
 % filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
 % load(filename)
@@ -252,32 +253,32 @@ dcs_3lp = lpf(dcs_3,3,20);
 
 %
 
-g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
-g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
-g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
-g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
-
-% aDb calculations
-
-rho = [1 1.5 2 2.5]; %source detector separations in cm 
-mua = 0.1; %cm^-1 baseline absorption coefficient
-mus = 10; %cm^-1 baseline reduced scattering coefficient
-
-tau_values=Data_tau;
-
-for chan=1:size(g2,1)
-    for i=1:size(g2,2)
-        rsd=rho(chan);
-        g2_temp(i,:)=squeeze(g2(chan,i,:));
-        LB = [0];
-        UB = [inf];
-        Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
-        beta= squeeze(g2(chan,i,1)); %0.1568;
-        options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
-        [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
-        aDb1(chan,i) = FittedParams(1);
-    end
-end
+% g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+% g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+% g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+% g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+% 
+% % aDb calculations
+% 
+% rho = [1 1.5 2 2.5]; %source detector separations in cm 
+% mua = 0.1; %cm^-1 baseline absorption coefficient
+% mus = 10; %cm^-1 baseline reduced scattering coefficient
+% 
+% tau_values=Data_tau;
+% 
+% for chan=1:size(g2,1)
+%     for i=1:size(g2,2)
+%         rsd=rho(chan);
+%         g2_temp(i,:)=squeeze(g2(chan,i,:));
+%         LB = [0];
+%         UB = [inf];
+%         Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
+%         beta= squeeze(g2(chan,i,1)); %0.1568;
+%         options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
+%         [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
+%         aDb1(chan,i) = FittedParams(1);
+%     end
+% end
 
 %% Data plotting
 
@@ -312,7 +313,7 @@ xlabel('Time (s)')
 
 
 %% Assigning the channels
-dcs_1 = aDb1(1,:).*10^9;
+dcs_1cm = aDb1(1,:).*10^9;
 dcs_1lp = lpf_ffilts(dcs_1,15,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf_ffilts(dcs_15,15,20);
@@ -321,10 +322,6 @@ dcs_2lp = lpf_ffilts(dcs_2,15,20);
 dcs_25 = aDb1(4,:).*10^9;
 dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
-
-%% Upsampling the signal
-% dcs_1a = interp(dcs_1lp,50);
-% dcs_1lp = interp(dcs_1,50);
 
 %% Upsampling the signal using the linear interpolation
 x = 1:1:length(dcs_1);

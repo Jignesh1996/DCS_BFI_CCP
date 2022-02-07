@@ -4,19 +4,19 @@
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
-dcs = bp_a(1:60000);
-% dcs = dcs_3lp(1:1200);
+% dcs = bp_a(1:60000);
+dcs = dcs_15lp(1:1200);
 % dcs = normalize(dcs);
 
 bp = 1:100:length(dcs);
-dcs_d = detrend(normalize(dcs),1,bp);
+% dcs_d = detrend(normalize(dcs),1,bp);
 dcs_1 = dcs;
 
-% time_DCS=0.05*(1:1:size(dcs_1,2));
-% time_ECG=0.001*(1:1:size(ecg1,2));
-
-time_DCS=0.001*(1:1:size(dcs_1,2));
+time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg1,2));
+
+% time_DCS=0.001*(1:1:size(dcs_1,2));
+% time_ECG=0.001*(1:1:size(ecg1,2));
 
 figure()
 hold on
@@ -37,8 +37,8 @@ time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
 x = 1:1:length(dcs_1);
 uf = 50;   % Upsampling factor
 xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
-% dcs_1_interp = interp1(x, dcs_1,xq,'makima');
-dcs_1_interp = dcs_1;
+dcs_1_interp = interp1(x, dcs_1,xq,'makima');
+% dcs_1_interp = dcs_1;
 
 %% filtering
 % 
@@ -84,7 +84,7 @@ plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
 
 if locs_ECG_smooth(1)>locs_DCS_smooth(1)
     Difference=locs_ECG_smooth(1)-locs_DCS_smooth(1);
-    shift = floor(1.5*Difference);
+    shift = floor(1.75*Difference);
 else
     shift =0;
 end
@@ -93,7 +93,7 @@ end
 Extract=ones(size(pks_ECG_smooth,2)-2,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,-1075)
+dcs_1_smooth2=circshift(dcs_1_smooth,775)
 
 for i=1:size(pks_ECG_smooth,2)-2
     locs_ECG_smooth(i)
@@ -109,12 +109,12 @@ for i=1:size(pks_ECG_smooth,2)-2
 end
 
 %% Plotting the shifted DCS and ECG signal
-x = (1:1:length(dcs_1_smooth2))/1000;
-plot(x,normalize(dcs_1_smooth2));
-hold on;
-plot(x,normalize(ecg1_smooth));
-xlabel("Time (s)");
-legend("DCS 1cm","ECG")
+% x = (1:1:length(dcs_1_smooth2))/1000;
+% plot(x,normalize(dcs_1_smooth2));
+% hold on;
+% plot(x,normalize(ecg1_smooth));
+% xlabel("Time (s)");
+% legend("DCS 1cm","ECG")
 
 %%    
 x = (1:1:length(Extract'))/1000;
@@ -125,13 +125,13 @@ title("Marker=ECG R peak, DCS 2.5cm")
 
 %% Plot ensemble average
 ttle = 'DCS 2.5cm Ensemble Avg';
-avg_bp = ens_avg(Extract,ttle)
+avg_dcs_15 = ens_avg(Extract,ttle)
 
 %%
-plot(x,avg_dcs,'b');
-hold on; 
-plot(x,avg_tcd_shift,'r');
-plot(x,avg_bp_shift,'k');
-legend('Aerage DCS 1cm','Average TCD','Average BP')
-xlabel("Time (s)");
-title("Comparision of average plots of TCD, BP, and DCS 1 cm plot")
+% plot(x,avg_dcs,'b');
+% hold on; 
+% plot(x,avg_tcd_shift,'r');
+% plot(x,avg_bp_shift,'k');
+% legend('Aerage DCS 1cm','Average TCD','Average BP')
+% xlabel("Time (s)");
+% title("Comparision of average plots of TCD, BP, and DCS 1 cm plot")
