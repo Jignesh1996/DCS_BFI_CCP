@@ -149,8 +149,8 @@ end
 %% Taking average of the cosecutive 5 cycles to reduce the effect of noisy signal
 
 step_size = 5; 
-Extract=zeros(ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
-% Extract=Extract*NaN;
+Extract=zeros(length(d),ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
+Extract=Extract*NaN;
 
 dcs_1_smooth2=circshift(dcs_1_smooth,775)
 
@@ -170,7 +170,7 @@ for i=1:step_size:size(pks_ECG_smooth,2)-2
     sig = sig./count;
       
 
-    Extract(floor(i/step_size)+1,:)=sig;
+    Extract(sig,floor(i/step_size)+1,:)=sig;
 end
 
 x = (1:1:length(Extract'))/1000;
