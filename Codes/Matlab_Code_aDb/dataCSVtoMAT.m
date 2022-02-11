@@ -2,12 +2,11 @@ clear all
 close all
 %--------------------------------------------------------------------------
 
-% Folder name  - provide folder name for which you want to convert the data
-Folder='apnea3_304530';
+
 
 %--------------------------------------------------------------------------
 
-Directory="D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Marianne_2mmin_BSL_20211202_v2\";
+Directory="D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\DCS\Farah\Farah Data 2_10_2022\DCS\20220210 - 4\";
 
 files_temp=dir(Directory);
 filesFlags = ~[files_temp.isdir];
