@@ -1,0 +1,103 @@
+function ccp = ccp_measure(varargin)
+ecg1 = varargin{1};
+s = varargin{2};
+bp = varargin{3};
+bp = bp(1:length(ecg1));
+%Upsampling the signal if the signal is dcs
+if length(s)<length(ecg1)
+%         signal = interp(singal,50);
+    x = 1:1:length(s);
+    uf = length(ecg1)/length(s);   % Upsampling factor
+    xq = (1:(1/uf):length(s)+((uf-1)/uf)); 
+    sig_up = interp1(x, s,xq,'makima');
+else
+    sig_up = s(1:length(ecg1));
+end
+d = [sig_up; bp];
+
+
+for sig=1:length(varargin)-1
+    signal = d(sig,:);
+   
+    time_signal=0.001*(1:1:size(signal,2));
+    time_ECG=0.001*(1:1:size(ecg1,2));
+    
+    figure()
+    hold on
+    plot(time_signal,signal/max(signal),'r')
+    plot(time_ECG,ecg1/max(ecg1),'b')
+    
+    %Finding the peaks of the signal
+    [pks_sig,locs_sig]=findpeaks(signal/max(signal),'MinPeakHeight',0.75);
+    [pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.75);
+    
+    %Filtering the signal
+    
+    windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
+    wages=ones(1,windowsize)/windowsize;
+    % wages = window_1;
+    sig_smooth=filtfilt(wages,1,signal); % Y is your time course you want to filter, Y_smoth is filtered data
+    ecg1_smooth=filtfilt(wages,1,ecg1);
+    
+    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
+    [pks_sig_smooth,locs_sig_smooth]=findpeaks(sig_smooth./max(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
+    
+    %
+    fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+    hold on
+    plot(sig_smooth/max(sig_smooth),'r')
+    plot(locs_sig_smooth, pks_sig_smooth,'*k')
+    
+    plot(ecg1_smooth/max(ecg1_smooth),'b')
+    plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
+    
+    if locs_ECG_smooth(1)>locs_sig_smooth(1)
+        Difference=locs_ECG_smooth(1)-locs_sig_smooth(1);
+        shift = floor(1.75*Difference);
+    else
+        shift =0;
+    end
+
+    Extract=ones(2,size(pks_ECG_smooth,2)-2,min(diff(locs_ECG_smooth)));
+    Extract=Extract*NaN;
+    if sig==2
+        dcs_1_smooth2=circshift(sig_smooth,-1075);
+    else
+        dcs_1_smooth2=circshift(sig_smooth,775);
+    end
+    
+    for i=1:size(pks_ECG_smooth,2)-2
+        locs_ECG_smooth(i);
+        locs_ECG_smooth(i)+min(diff(locs_ECG_smooth));
+        signal = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
+%         base_sig = dcs_1_smooth2(1,locs_ECG_smooth(2):locs_ECG_smooth(2)+min(diff(locs_ECG_smooth))-1);
+%         sig = signal + (max(base_sig) - max(signal));
+      
+        
+    %     Extract(i,:)=dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
+    
+        Extract(sig,i,:)=signal;
+    end
+
+    avg_sig = Extract(sig,:,:);
+    avg_sig = reshape(avg_sig,[length(Extract(1,:,1)), length(Extract(1,1,:))]);
+
+    figure();
+    x = (1:1:length(avg_sig'))/1000;
+    plot(x,(avg_sig'))
+    xlabel("Time(s)")
+    ylabel("aDb value")
+    title("Marker=ECG R peak, DCS 2.5cm")
+    
+
+    if sig==1
+        avg = zeros(2,length(avg_sig(1,:)));
+    end
+
+    ttle = 'DCS 2.5cm Ensemble Avg';
+    avg(sig,:) = ens_avg(avg_sig,ttle);
+    
+
+end
+ccp = avg;
+end

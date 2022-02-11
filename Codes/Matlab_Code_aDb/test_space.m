@@ -119,3 +119,4 @@ plot(normalize(dcs_1lp));
 hold on;
 plot(dcs_d);
 
+%% Signal reconstruction using harmonics

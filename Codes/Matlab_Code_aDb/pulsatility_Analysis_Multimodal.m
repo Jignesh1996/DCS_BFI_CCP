@@ -1,7 +1,7 @@
 %% Loading the file
-clear all;
-filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\brachial baseline ECG BP.mat');
-load(filename)
+% clear all;
+% filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\brachial baseline ECG BP.mat');
+% load(filename)
 
 %% Upscaling the data by 3
 ecg_a = data(datastart(1):dataend(1));
@@ -12,7 +12,7 @@ tcd_a = data(datastart(3):dataend(3));
 %% Plotting the frequency spectrum
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = dcs_25_lp;
+signal = dcs_25lp;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -29,7 +29,7 @@ ylabel('|P1(f)|')
 
 %% ECG signal Processing
 % ecg1 = ecg_a(75420:105600);
-ecg1 = ecg_a(1:60000);
+ecg1 = ecg_a(1:120000);
 ecg1 = normalize(ecg1);
 %filter the ECG signal @5Hz using the low pass filter
 % ecg1 = lpf(ecg1,5,1000);
@@ -314,7 +314,7 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1cm = aDb1(1,:).*10^9;
-dcs_1lp = lpf_ffilts(dcs_1,15,20);
+dcs_1lp = lpf_ffilts(dcs_1cm,15,20);
 dcs_15 = aDb1(2,:).*10^9;
 dcs_15lp = lpf_ffilts(dcs_15,15,20);
 dcs_2 = aDb1(3,:).*10^9;
