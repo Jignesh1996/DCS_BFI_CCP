@@ -324,18 +324,17 @@ dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
 %% Calculating the Critical closing pressure
 
-ccp_tcd  = ccp_measure(ecg1,tcd,bp_a,130);
+ccp_tcd  = ccp_measure(ecg1,tcd,bp_a,15);
 % ccp_dcs  = ccp_measure(ecg1,dcs_25lp,bp,10);
-% close all;
+close all;
 % scatter(1:length(ccp_tcd),ccp_tcd,'red');
 % hold on;
 % scatter(1:length(ccp_dcs),ccp_dcs,'blue');
 
 %%
 load ccp_var_stack.mat;
-bp_stack = stack(1:floor(length(stack(:,1))/2),:);
-bp_stack = bp_stack.*0.6;
-sig_stack = stack(floor(length(stack(:,1))/2)+1:length(stack(:,1)),:);
+bp_stack = stack(1:,:);
+sig_stack = stack(14:26,:);
 %%
 [pks_signal,locs_signal] = max(sig_stack');
 [pks_bp,locs_bp] = max(bp_stack');
@@ -353,14 +352,10 @@ for i=1:length(locs_bp)
 %     plot(1:length(sig),bp,'b');
 %     hold on;
     figure();
-    scatter(bp_stack(i,:),sig_stack(i,:));
+    scatter(bp,sig);
     hold on;
     ccp(i) = mean(x(round(f,2)==0));
-    a = 0:1:max(bp)+10;
-    f_eval = polyval(p,a);
-    scatter(a,f_eval,'r','+');
-    title("CCP using TCD from only the tail data");
-    xlabel(bp)
+    scatter(x,f,'r');
 end
 hold off;
 % figure();

@@ -1,7 +1,30 @@
 function ccp = ccp_measure(varargin)
+
+%%% This function calculates the value of critical closing pressure using
+%%% the blood pressure and the DCS signal or TCD signal. It uses regression
+%%% method to find the intercept of the dynamic pressure-flow graph between
+%%% the DCS/TCD and ABP graph.
+%%% This fuction uses a full cycle to calculate the CCP rather than only
+%%% the tail.
+
+
+
+%%%% Written by Jignesh Mistry %%%%
+
+
+% Mandatory arguments
 ecg1 = varargin{1};
 s = varargin{2};
 bp = varargin{3};
+
+% Non-mandatory arguments
+
+if(nargin>3 && ~isempty(varargin{4}) )
+    step_size=varargin{4};
+else
+    step_size = 10;
+end
+
 bp = bp(1:length(ecg1));
 %Upsampling the signal if the signal is dcs
 if length(s)<length(ecg1)
@@ -20,7 +43,7 @@ end
 d = [sig_up; bp];
 
 
-for sig=1:length(varargin)-1
+for sig=1:length(d(:,1))
     signal = d(sig,:);
    
     time_signal=0.001*(1:1:size(signal,2));
@@ -32,8 +55,8 @@ for sig=1:length(varargin)-1
     plot(time_ECG,ecg1/max(ecg1),'b')
     
     % Finding the peaks of the signal
-    [pks_sig,locs_sig]=findpeaks(signal/max(signal),'MinPeakHeight',0.75);
-    [pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.75);
+    [pks_sig,locs_sig]=findpeaks(signal/max(signal),'MinPeakHeight',0.35);
+    [pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.65);
     
     % Filtering the signal
     
@@ -45,7 +68,7 @@ for sig=1:length(varargin)-1
     
     [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
     [pks_sig_smooth,locs_sig_smooth]=findpeaks(sig_smooth./max(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
-    
+    disp(length(pks_ECG_smooth))
     % Plotting the signal
     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
     hold on
@@ -85,10 +108,11 @@ for sig=1:length(varargin)-1
 %     
 %         Extract(sig,i,:)=signal;
 %     end
-    step_size = 10; 
-    Extract=zeros(length(d(:,1)),ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
-    Extract=Extract*NaN;
-    
+    if sig ==1
+        Extract=zeros(length(d(:,1)),ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
+        Extract=Extract*NaN;
+    end
+
     for i=1:step_size:size(pks_ECG_smooth,2)-2
         sig_a = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
         cnt = 1;
@@ -121,7 +145,7 @@ for sig=1:length(varargin)-1
     % Finding the ensemble average of the signal
     if sig==1
         avg = zeros(2,length(avg_sig(1,:)));
-    end
+    end 
 
     if sig==1 && count==0
         ttle = 'DCS 2.5cm Ensemble Avg';
@@ -136,18 +160,24 @@ for sig=1:length(varargin)-1
 
 end
 
-disp(size(Extract))
+
 
 % Code the calculation of the CCP using the polyfit function
+
 bp_stack = reshape(Extract(2,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
-dcs_stack = reshape(Extract(1,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
+sig_stack = reshape(Extract(1,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
+% disp(bp_stack)
+% plot(bp_stack)
+stack = [bp_stack;sig_stack];
+save("ccp_var_stack.mat","stack");
 ccp = zeros(1,length(bp_stack(:,1)));
 for i=1:length(bp_stack(:,1))
-    p = polyfit(bp_stack(i,:)',dcs_stack(i,:)',1);
+    p = polyfit(bp_stack(i,:)',sig_stack(i,:)',1);
     x = -20:0.005:130;
     f = polyval(p,x);
-    fprintf("%d",i);
+    
     ccp(i) = mean(x(round(f,2)==0));
+%     fprintf("%d",ccp(i));
 end
 
 end

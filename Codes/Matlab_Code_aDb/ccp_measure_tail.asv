@@ -4,8 +4,7 @@ function ccp = ccp_measure(varargin)
 %%% the blood pressure and the DCS signal or TCD signal. It uses regression
 %%% method to find the intercept of the dynamic pressure-flow graph between
 %%% the DCS/TCD and ABP graph.
-%%% This fuction uses a full cycle to calculate the CCP rather than only
-%%% the tail.
+%%% This fuction uses only the tail of the cycle to calculate the CCP.
 
 
 
@@ -25,6 +24,7 @@ else
     step_size = 10;
 end
 
+step_size = varargin{4};
 bp = bp(1:length(ecg1));
 %Upsampling the signal if the signal is dcs
 if length(s)<length(ecg1)
@@ -163,13 +163,12 @@ end
 
 
 % Code the calculation of the CCP using the polyfit function
-
 bp_stack = reshape(Extract(2,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
 sig_stack = reshape(Extract(1,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
+
+[pks_signal,locs_signal] = findpeaks(sig_stack);
 % disp(bp_stack)
 % plot(bp_stack)
-stack = [bp_stack;sig_stack]
-save("ccp_var_stack.mat","stack");
 ccp = zeros(1,length(bp_stack(:,1)));
 for i=1:length(bp_stack(:,1))
     p = polyfit(bp_stack(i,:)',sig_stack(i,:)',1);
