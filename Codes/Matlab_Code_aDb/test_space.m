@@ -120,3 +120,101 @@ hold on;
 plot(dcs_d);
 
 %% Signal reconstruction using harmonics
+step = 50;
+final = zeros(1,step);
+for i=1:step
+    final = final + squeeze(Data(i+800,4,:));
+end
+final = final/step;
+plot(final)
+
+%%
+Fs = 1000;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period    
+signal = ecg1;
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
+
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+% calculating the inverse fft to get the amplitude of the signal
+
+
+
+f = Fs*(0:(L/2))/L;
+figure()
+plot(f,P1) 
+hold on;
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+m = max(P1(100:length(P1)));
+
+
+[p_hr,l_hr] = findpeaks(P1(100:length(P1)), "MinPeakHeight", m-0.01);
+f_hr = Fs*(l_hr+98)/(L);
+scatter(f_hr,p_hr);
+hold off;
+
+y = Y;
+a = abs(ifft(y,40960));
+figure();
+plot(1:1:length(a),normalize(a))
+% figure();
+hold on;
+plot(1:1:length(a),ecg1(1:length(a)))
+
+%%
+signal = bp_a;
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
+
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+f = Fs*(0:(L/2))/L;
+plot(f,P1) 
+hold on;
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+% m = max(P1(100:length(P1)));
+% 
+% [p_sig,l_sig] = findpeaks(P1(100:length(P1)), "MinPeakHeight", m-0.01);
+% f_sig = Fs*(l_sig+98)/(L);
+% scatter(f_sig,p_sig);
+
+
+y = Y(1:l_hr+150);
+% y = Y;
+a = abs(ifft(y,4096))/30;
+figure();
+plot(a)
+
+
+
+%%
+
+t_bp = 0:(2*pi*l_bp)/794:2*pi*l_bp;
+sin_bp = p_ecg*sin(t_bp);
+plot(t_bp,sin_bp);
+hold on;
+t_sig = 0:(2*pi*l_sig)/794:2*pi*l_sig;
+sin_sig = p_sig*sin(t_sig);
+plot(t_sig,sin_sig);
+
+figure();
+plot(sin_sig,sin_bp)
+
+%%
+pBP =  (max(bp_a)+ 2*min(bp_a))/3;  % MAP pressure
+psig = mean(signal);   % mean value of signal
+
+CrCP = pBP - (psig/p_sig)*p_ecg;

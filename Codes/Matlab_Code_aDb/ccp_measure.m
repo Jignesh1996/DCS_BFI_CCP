@@ -34,6 +34,8 @@ if length(s)<length(ecg1)
     xq = (1:(1/uf):length(s)+((uf-1)/uf)); 
     sig_up = interp1(x, s,xq,'makima');
     count  = 0;
+    disp(length(sig_up))
+    disp(length(ecg1))
 else
     sig_up = s(1:length(ecg1));
     count = 1;    
@@ -68,7 +70,7 @@ for sig=1:length(d(:,1))
     
     [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
     [pks_sig_smooth,locs_sig_smooth]=findpeaks(sig_smooth./max(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
-    disp(length(pks_ECG_smooth))
+%     disp(length(pks_ECG_smooth))
     % Plotting the signal
     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
     hold on
@@ -109,15 +111,18 @@ for sig=1:length(d(:,1))
 %         Extract(sig,i,:)=signal;
 %     end
     if sig ==1
-        Extract=zeros(length(d(:,1)),ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
+        Extract=zeros(length(d(:,1)),floor(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
         Extract=Extract*NaN;
     end
 
     for i=1:step_size:size(pks_ECG_smooth,2)-2
+        if size(pks_ECG_smooth,2)-2-i <step_size
+            break
+        end
         sig_a = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
         cnt = 1;
         for j=1:1:step_size-1
-            if i+j>size(pks_ECG_smooth,2)-2
+            if i+j>size(pks_ECG_smooth,2)-3
                 break;
             end
             locs_ECG_smooth(i+j);
@@ -126,14 +131,15 @@ for sig=1:length(d(:,1))
             sig_a = sig_a+cycle;
             cnt = cnt+1;
         end
+        
         sig_a = sig_a./cnt;
           
     
         Extract(sig,floor(i/step_size)+1,:)=sig_a;
     end
 
-    avg_sig = Extract(sig,:,:);
-    avg_sig = reshape(avg_sig,[length(Extract(1,:,1)), length(Extract(1,1,:))]); % Reshaping the signal to make it a 2D matrix
+    avg_sig = squeeze(Extract(sig,:,:));
+%     avg_sig = reshape(avg_sig,[length(Extract(1,:,1)), length(Extract(1,1,:))]); % Reshaping the signal to make it a 2D matrix
 
     figure();
     x = (1:1:length(avg_sig'))/1000;
@@ -164,20 +170,29 @@ end
 
 % Code the calculation of the CCP using the polyfit function
 
-bp_stack = reshape(Extract(2,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
-sig_stack = reshape(Extract(1,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
-% disp(bp_stack)
+bp_stack = squeeze(Extract(2,:,:));
+sig_stack = squeeze(Extract(1,:,:));
+% disp(bp_stack);
 % plot(bp_stack)
 stack = [bp_stack;sig_stack];
 save("ccp_var_stack.mat","stack");
 ccp = zeros(1,length(bp_stack(:,1)));
 for i=1:length(bp_stack(:,1))
-    p = polyfit(bp_stack(i,:)',sig_stack(i,:)',1);
-    x = -20:0.005:130;
-    f = polyval(p,x);
-    
-    ccp(i) = mean(x(round(f,2)==0));
-%     fprintf("%d",ccp(i));
+%     p = polyfit(bp_stack(i,:)',sig_stack(i,:)',1);
+%     x = -20:0.005:130;
+%     f = polyval(p,x);
+%     
+%     ccp(i) = mean(x(round(f,2)==0));
+    p = robustfit(bp_stack(i,:)',sig_stack(i,:)');
+    x= -10:1:max(max(bp_stack,[],2));
+    y = p(1)+p(2)*x;
+    figure();
+    plot(x,y);
+    hold on; 
+    scatter(bp_stack(i,:)',sig_stack(i,:)')
+    hold off;
+    ccp(i) = -p(1)/p(2);   % simplifying the linear equation y=m*x + c for y=0 will lead to this equation 
+    fprintf("%d",ccp(i));
 end
 
 end

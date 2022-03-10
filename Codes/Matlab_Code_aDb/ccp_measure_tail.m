@@ -70,13 +70,13 @@ for sig=1:length(d(:,1))
     [pks_sig_smooth,locs_sig_smooth]=findpeaks(sig_smooth./max(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
     
     % Plotting the signal
-    fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
-    hold on
-    plot(sig_smooth/max(sig_smooth),'r')
-    plot(locs_sig_smooth, pks_sig_smooth,'*k')
-    
-    plot(ecg1_smooth/max(ecg1_smooth),'b')
-    plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
+%     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+%     hold on
+%     plot(sig_smooth/max(sig_smooth),'r')
+%     plot(locs_sig_smooth, pks_sig_smooth,'*k')
+%     
+%     plot(ecg1_smooth/max(ecg1_smooth),'b')
+%     plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
     
     if locs_ECG_smooth(1)>locs_sig_smooth(1)
         Difference=locs_ECG_smooth(1)-locs_sig_smooth(1);
@@ -109,12 +109,15 @@ for sig=1:length(d(:,1))
 %         Extract(sig,i,:)=signal;
 %     end
     if sig ==1
-        Extract=zeros(length(d(:,1)),ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
+        Extract=zeros(length(d(:,1)),floor(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
         Extract=Extract*NaN;
     end
 
     for i=1:step_size:size(pks_ECG_smooth,2)-2
         sig_a = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
+        if size(pks_ECG_smooth,2)-2-i <step_size
+            break
+        end
         cnt = 1;
         for j=1:1:step_size-1
             if i+j>size(pks_ECG_smooth,2)-2
@@ -163,20 +166,37 @@ end
 
 
 % Code the calculation of the CCP using the polyfit function
-bp_stack = reshape(Extract(2,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
-sig_stack = reshape(Extract(1,:,:),[length(Extract(1,:,1)), length(Extract(1,1,:))]);
-
-[pks_signal,locs_signal] = findpeaks(sig_stack);
-% disp(bp_stack)
+bp_stack = squeeze(Extract(2,:,:));
+sig_stack = squeeze(Extract(1,:,:));
+% disp(bp_stack);
 % plot(bp_stack)
+stack = [bp_stack;sig_stack];
+save("ccp_var_stack.mat","stack");
 ccp = zeros(1,length(bp_stack(:,1)));
 for i=1:length(bp_stack(:,1))
-    p = polyfit(bp_stack(i,:)',sig_stack(i,:)',1);
-    x = -20:0.005:130;
-    f = polyval(p,x);
+    tail_start = 600;
+%     p = polyfit(bp_stack(i,tail_start:size(bp_stack,2))',sig_stack(i,tail_start:size(bp_stack,2))',1);
+%     x = -20:0.005:130;
+%     f = polyval(p,x);
+%     
+%     ccp(i) = mean(x(round(f,2)==0));
+
+%     
+    p = robustfit(bp_stack(i,tail_start:size(bp_stack,2))',sig_stack(i,tail_start:size(bp_stack,2))');
+    x= -10:1:max(max(bp_stack,[],2));
+    y = p(1)+p(2)*x;
+    disp(p(1))
+    figure();
+    plot(x,y,'MarkerIndices',10);
+    hold on; 
+    scatter(bp_stack(i,tail_start:size(bp_stack,2))',sig_stack(i,tail_start:size(bp_stack,2))')
     
-    ccp(i) = mean(x(round(f,2)==0));
-%     fprintf("%d",ccp(i));
+    ccp(i) = -p(1)/p(2);   % simplifying the linear equation y=m*x + c for y=0 will lead to this equation 
+    scatter(ccp(i),0,'black','filled')
+    text(ccp(i)+5,0,"CrCP",'Color','red','FontSize',14)
+    hold off;
+    fprintf("%d",ccp(i));
 end
+
 
 end

@@ -5,7 +5,9 @@
 % load('ECG_DCS_forearm_exp.mat')
 
 % dcs = bp_a(1:60000);
-dcs = dcs_25lp(1:2400);
+% dcs = dcs_1lp(1800:length(dcs_1cm));
+uf = length(ecg1)/length(dcs_1cm); 
+ecg1 = ecg1(uf*1800:length(bp_a));
 
 
 % bp = 1:100:length(dcs);
@@ -35,7 +37,7 @@ locs_ECG_time=locs_ECG*0.001;
 time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
 %% Upsampling the DCS singal
 x = 1:1:length(dcs_1);
-uf = 50;   % Upsampling factor
+uf = length(ecg1)/length(dcs_1);   % Upsampling factor
 xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
 dcs_1_interp = interp1(x, dcs_1,xq,'makima');
 % dcs_1_interp = dcs_1;
@@ -47,7 +49,7 @@ wages=ones(1,windowsize)/windowsize;
 % wages = window_1;
 dcs_1_smooth=filtfilt(wages,1,dcs_1_interp); % Y is your time course you want to filter, Y_smoth is filtered data
 ecg1_smooth=filtfilt(wages,1,ecg1);
-freqz(wages,1,1024);
+
 [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
 [pks_DCS_smooth,locs_DCS_smooth]=findpeaks(dcs_1_smooth./max(dcs_1_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
 
@@ -93,14 +95,15 @@ end
 Extract=ones(size(pks_ECG_smooth,2)-2,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,775)
+dcs_1_smooth2=circshift(dcs_1_smooth,-200)
 
 for i=1:size(pks_ECG_smooth,2)-2
     locs_ECG_smooth(i)
     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
-    signal = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
-    base_sig = dcs_1_smooth2(1,locs_ECG_smooth(2):locs_ECG_smooth(2)+min(diff(locs_ECG_smooth))-1);
-    sig = signal + (max(base_sig) - max(signal));
+    signal = Data(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1,:,:);
+    base_sig = Data(locs_ECG_smooth(1):locs_ECG_smooth(1)+min(diff(locs_ECG_smooth))-1,:,:);
+    sig = base_sig+ sig;
+    
   
     
 %     Extract(i,:)=dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);

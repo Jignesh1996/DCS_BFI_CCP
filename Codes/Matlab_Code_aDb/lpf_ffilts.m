@@ -3,7 +3,6 @@ Fs = fs;
 
 fn = fc/fs;
 sbf = fn/0.85;
-fprintf("%d",sbf)
 T = 1/Fs;             % Sampling period    
 
 L = length(signal);             % Length of signal

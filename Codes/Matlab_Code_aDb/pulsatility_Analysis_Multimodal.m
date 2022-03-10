@@ -8,7 +8,16 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 tcd_a = data(datastart(3):dataend(3));
 
+ecg1 = ecg_a(1:120000);
+ecg1 = normalize(ecg1);
+ecg1 = lpf_ffilts(ecg1,15,1000);
     
+tcd = tcd_a(1:length(ecg1));
+% tcd = normalize(tcd);
+tcd = lpf_ffilts(tcd,30,1000);
+
+bp_a = bp_a(1:length(ecg1));
+bp_a = lpf(bp_a,3,1000);
 %% Plotting the frequency spectrum
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
@@ -27,16 +36,10 @@ title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
-%% ECG signal Processing
-% ecg1 = ecg_a(75420:105600);
-ecg1 = ecg_a(1:120000);
-ecg1 = normalize(ecg1);
-%filter the ECG signal @5Hz using the low pass filter
-% ecg1 = lpf(ecg1,5,1000);
 %% finding the maxima to find the individual signals
 y = ecg1;
 x = (1:length(ecg1));
-[pks,locs] = findpeaks(y, 'MinPeakHeight', 5,'MinPeakDist',10,'MinPeakProminence',0.1);  %Determine peaks and Indices
+[pks,locs] = findpeaks(y, 'MinPeakHeight', 0.5,'MinPeakDist',500,'MinPeakProminence',0.1);  %Determine peaks and Indices
 figure()
 plot(x,y)
 hold on
@@ -45,8 +48,8 @@ hold off
 grid
 
 for k1 = 1:numel(locs)-0.1
-    yc{k1} = y(locs(k1)-40:locs(k1+1)-40);                            % Define MUAP Frames
-    xc{k1} = x(locs(k1)-40:locs(k1+1)-40);
+    yc{k1} = y(locs(k1)-60:locs(k1+1)-60);                            % Define MUAP Frames
+    xc{k1} = x(locs(k1)-60:locs(k1+1)-60);
 end
 
 figure()
@@ -91,28 +94,28 @@ ecg_ens = ecg_ens';
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\Marianne\ecg_ens.csv','Delimiter','comma');
 
 %% TCD signal Processing
-tcd = tcd_a(1:120000);
+tcd = tcd_a(1:length(ecg1));
 % tcd = normalize(tcd);
 tcd = lpf_ffilts(tcd,30,1000);
 %% Plotting the TCD signal
-minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',850 );
+minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',950 );
 x = 1:length(minima);
 plot(x,tcd,x(minima),tcd(minima),'r*');
 
 l = length(tcd);
-ini = tcd(200:1049);
+ini = tcd(200:1149);
 
-cyc =zeros(sum(minima==1)-1,850); 
+cyc =zeros(sum(minima==1)-1,950); 
 % cyc(1,:)= ini;
 count = 1;
 avg = ini;
-for i=780:1:length(minima)
-    if (minima(i)==1) && (i+849<=length(minima))
+for i=1:1:length(minima)
+    if (minima(i)==1) && (i+949<=length(minima))
         count = count+1;
-        plot(tcd(i:i+849))
+        plot(tcd(i:i+949))
         hold on
-        avg = avg+tcd(i:i+849);
-        cyc(count,:) = tcd(i:i+849);
+        avg = avg+tcd(i:i+949);
+        cyc(count,:) = tcd(i:i+949);
     end
  
 end
@@ -143,9 +146,10 @@ tcd_ens = ensavg;
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
 %% Processing the blood pressure data
+bp_a = bp_a(1:length(ecg1));
 bp_a = lpf(bp_a,3,1000);
 bp_a = bp_a(1:length(tcd));
-
+bp = bp_a;
 minima = islocalmin(bp,'MinProminence',20);
 x = 1:length(minima);
 plot(x,bp,x(minima),bp(minima),'r*');
@@ -223,6 +227,7 @@ for chan=1:size(g2,1)
         UB = [inf];
         Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
         beta= squeeze(g2(chan,i,1)); %0.1568;
+        beta= squeeze(mean(g2(chan,1:500,1))); %0.1568;
         options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
         [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
         aDb1(chan,i) = FittedParams(1);
@@ -237,6 +242,41 @@ dcs_3 = aDb1(2,:).*10^9;
 dcs_1lp = lpf(dcs_1,3,20);
 dcs_3lp = lpf(dcs_3,3,20);
 
+%% plotting
+Chan=1;
+aDb=aDb1(chan,1);
+
+rho=3;
+
+ua = mua; %cm^-1 baseline absorption coefficient
+us = mus; %cm^-1 baseline reduced scattering coefficient
+tau=tau_values;
+
+v=3;
+zo = 1/(us); %first point source term in cm
+% zo = 1/(ua+us); %first point source term in cm
+D = 1/(3*(us)); %diffusion coefficient in cm
+% D = 1/(3*(ua+us));%diffusion coefficient in cm
+zb = 2*D*(1+0.493)/(1-0.493); %2nd point source term in cm
+r1 = sqrt(rho.^2+zo.^2);
+r2 = sqrt((zo+2*zb).^2+(rho.^2));
+n = 1.4;%refractive index of the medium
+c=v/n;
+lamda = 780e-7; %786.5e-007;%wavelength of the light in cm
+k = (2*pi*n)/lamda;%Wavenumber of light in the medium
+k_D = sqrt((3*us*ua)+(6*us^2*k.^2*aDb*tau));
+Amp = (3*us)/(4*pi);
+% beta = 0.15;
+% Field autocorrelation function
+G1 = Amp.*((exp(-k_D.*r1)./r1)-(exp(-k_D.*r2)./r2));
+g1 = (G1)./max(G1);
+g2_1_fit = beta.*(g1.^2);
+
+semilogx(tau_values,squeeze(g2(2,3,:)))
+hold on
+semilogx(tau_values,g2_1_fit)
+
+
 %% upsampling the data
 
 % Don't use interp, instead use interp1
@@ -244,7 +284,7 @@ dcs_3lp = lpf(dcs_3,3,20);
 
 %% Processing the hybrid DCS system data
 
-aDb1 = hybrid_dcs(Data,Data_tau);
+% aDb1 = hybrid_dcs(Data,Data_tau);
 
 % filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\Test Data DCS baseline\20211214-4\','Data.mat');
 % load(filename)
@@ -253,32 +293,66 @@ aDb1 = hybrid_dcs(Data,Data_tau);
 
 %
 
-% g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
-% g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
-% g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
-% g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
-% 
-% % aDb calculations
-% 
-% rho = [1 1.5 2 2.5]; %source detector separations in cm 
-% mua = 0.1; %cm^-1 baseline absorption coefficient
-% mus = 10; %cm^-1 baseline reduced scattering coefficient
-% 
-% tau_values=Data_tau;
-% 
-% for chan=1:size(g2,1)
-%     for i=1:size(g2,2)
-%         rsd=rho(chan);
-%         g2_temp(i,:)=squeeze(g2(chan,i,:));
-%         LB = [0];
-%         UB = [inf];
-%         Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
-%         beta= squeeze(g2(chan,i,1)); %0.1568;
-%         options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
-%         [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
-%         aDb1(chan,i) = FittedParams(1);
-%     end
-% end
+g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+
+% aDb calculations
+
+rho = [1 1.5 2 2.5]; %source detector separations in cm 
+mua = 0.1; %cm^-1 baseline absorption coefficient
+mus = 10; %cm^-1 baseline reduced scattering coefficient
+
+tau_values=Data_tau;
+
+for chan=1:size(g2,1)
+    for i=1:size(g2,2)
+        disp(i);
+        rsd=rho(chan);
+        g2_temp(i,:)=squeeze(g2(chan,i,:));
+        LB = [0];
+        UB = [inf];
+        Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
+        beta= squeeze(g2(chan,1:i,1)); %0.1568;
+        options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
+        [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
+        aDb1(chan,i) = FittedParams(1);
+    end
+end
+
+Chan=1;
+aDb=aDb1(chan,1);
+
+rho=3;
+
+ua = mua; %cm^-1 baseline absorption coefficient
+us = mus; %cm^-1 baseline reduced scattering coefficient
+tau=tau_values;
+
+v=3;
+zo = 1/(us); %first point source term in cm
+% zo = 1/(ua+us); %first point source term in cm
+D = 1/(3*(us)); %diffusion coefficient in cm
+% D = 1/(3*(ua+us));%diffusion coefficient in cm
+zb = 2*D*(1+0.493)/(1-0.493); %2nd point source term in cm
+r1 = sqrt(rho.^2+zo.^2);
+r2 = sqrt((zo+2*zb).^2+(rho.^2));
+n = 1.4;%refractive index of the medium
+c=v/n;
+lamda = 780e-7; %786.5e-007;%wavelength of the light in cm
+k = (2*pi*n)/lamda;%Wavenumber of light in the medium
+k_D = sqrt((3*us*ua)+(6*us^2*k.^2*aDb*tau));
+Amp = (3*us)/(4*pi);
+% beta = 0.15;
+% Field autocorrelation function
+G1 = Amp.*((exp(-k_D.*r1)./r1)-(exp(-k_D.*r2)./r2));
+g1 = (G1)./max(G1);
+g2_1_fit = beta.*(g1.^2);
+
+semilogx(tau_values,squeeze(g2(2,3,:)))
+hold on
+semilogx(tau_values,g2_1_fit)
 
 %% Data plotting
 
@@ -323,18 +397,21 @@ dcs_25 = aDb1(4,:).*10^9;
 dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
 %% Calculating the Critical closing pressure
-
-ccp_tcd  = ccp_measure(ecg1,tcd,bp_a,130);
+close all;
+ccp_tail_dcs  = ccp_measure(ecg1,dcs_1lp,bp_a,20);
 % ccp_dcs  = ccp_measure(ecg1,dcs_25lp,bp,10);
 % close all;
 % scatter(1:length(ccp_tcd),ccp_tcd,'red');
 % hold on;
 % scatter(1:length(ccp_dcs),ccp_dcs,'blue');
+plot(ccp_tail_dcs);
+ylabel("CrCP (mmHg)");
+title("CrCP using Tail, TCD averaged over 25 cycles")
 
 %%
 load ccp_var_stack.mat;
 bp_stack = stack(1:floor(length(stack(:,1))/2),:);
-bp_stack = bp_stack.*0.6;
+% bp_stack = bp_stack.*0.6; % validate it from the paper
 sig_stack = stack(floor(length(stack(:,1))/2)+1:length(stack(:,1)),:);
 %%
 [pks_signal,locs_signal] = max(sig_stack');
@@ -353,14 +430,15 @@ for i=1:length(locs_bp)
 %     plot(1:length(sig),bp,'b');
 %     hold on;
     figure();
-    scatter(bp_stack(i,:),sig_stack(i,:));
+    scatter(bp,sig);
     hold on;
     ccp(i) = mean(x(round(f,2)==0));
     a = 0:1:max(bp)+10;
     f_eval = polyval(p,a);
     scatter(a,f_eval,'r','+');
-    title("CCP using TCD from only the tail data");
-    xlabel(bp)
+    title("CCP using DCS from only the tail data");
+    xlabel("ABP")
+    ylabel("TCD")
 end
 hold off;
 % figure();
@@ -368,13 +446,18 @@ hold off;
 %%
 ccp = zeros(1,length(bp_stack(:,1)));
 for i=1:length(bp_stack(:,1))
-    p = polyfit(bp_stack(i,:)',sig_stack(i,:)',1);
+    p = robustfit(bp_stack(i,:)',sig_stack(i,:)');
     x = -20:0.005:130;
-    f = polyval(p,x);
+    f = p(1)*x+p(2);
     
     ccp(i) = mean(x(round(f,2)==0));
 %     fprintf("%d",ccp(i));
 end
+%% robustfit implementation
+p = robustfit(bp_stack(1,:)',sig_stack(1,:)');
+x= -10:1:100;
+y = p(1)+p(2)*x;
+c = -p(1)/p(2);
 %% Upsampling the signal using the linear interpolation
 x = 1:1:length(dcs_1);
 uf = 50;   % Upsampling factor

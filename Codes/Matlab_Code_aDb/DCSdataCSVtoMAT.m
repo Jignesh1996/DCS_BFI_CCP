@@ -2,11 +2,12 @@ clear all
 close all
 %--------------------------------------------------------------------------
 
-
+% Folder name  - provide folder name for which you want to convert the data
+Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory="D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Data\DCS\Farah\Farah Data 2_10_2022\DCS\20220210 - 4\";
+Directory=strcat(pwd, '\DCS\',Folder,'\');
 
 files_temp=dir(Directory);
 filesFlags = ~[files_temp.isdir];
@@ -27,7 +28,9 @@ Data_tau=load (file);
 
 for f=1:1:size(subFiles,1)-1
     file=strcat(Directory, filename,num2str(f),'.csv');
-    Data(f,:,:)=load (file);
+    temp=load(file);
+    Data(f,:,:)=temp(1:4,:);
+    clear temp
 end
 
 clearvars -except Directory Data_tau Data

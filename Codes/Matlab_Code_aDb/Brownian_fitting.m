@@ -24,6 +24,7 @@ Amp = (3*us)/(4*pi);
 G1 = Amp*((exp(-k_D*r1)./r1)-(exp(-k_D*r2)./r2));
 g1 = (G1)./max(G1);
 g2_1_fit = beta*(g1.^2);
+% plot(g2_1_fit);
 
 %% Vector to minimize;
 Error_Vector = g2_1_fit - g2_1_raw;
