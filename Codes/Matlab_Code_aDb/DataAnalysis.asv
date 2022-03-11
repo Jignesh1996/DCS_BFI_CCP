@@ -4,12 +4,10 @@
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
-ecg1 = ecg_a;
-ecg1 = normalize(ecg1);
 
-dcs = dcs_25lp(5500:6000);
+dcs = dcs_1lp(1:800);
 uf = length(ecg1)/length(dcs_1cm); 
-ecg1 = ecg1(5500*50:6000*50);
+ecg1 = ecg1(1:size(dcs,2)*50);
 
 
 % bp = 1:100:length(dcs);
@@ -30,8 +28,8 @@ plot(time_ECG,ecg1/max(ecg1),'b')
 
 %% Find peaks
 
-[pks_DCS,locs_DCS]=findpeaks(dcs_1/max(dcs_1),'MinPeakHeight',0.65)
-[pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.5)
+[pks_DCS,locs_DCS]=findpeaks(dcs_1/max(dcs_1),'MinPeakHeight',0.75)
+[pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.75)
 
 locs_DCS_time=locs_DCS*0.05;
 locs_ECG_time=locs_ECG*0.001;
@@ -50,7 +48,7 @@ windowsize=5; % how many points you want to use (it will depend on your resoluti
 wages=ones(1,windowsize)/windowsize;
 % wages = window_1;
 dcs_1_smooth=filtfilt(wages,1,dcs_1_interp); % Y is your time course you want to filter, Y_smoth is filtered data
-    ecg1_smooth=filtfilt(wages,1,ecg1);
+ecg1_smooth=filtfilt(wages,1,ecg1);
 
 [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
 [pks_DCS_smooth,locs_DCS_smooth]=findpeaks(dcs_1_smooth./max(dcs_1_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
@@ -94,12 +92,12 @@ else
 end
 %% Extracting data
 
-Extract=ones(size(pks_ECG_smooth,2)-3,min(diff(locs_ECG_smooth)));
+Extract=ones(size(pks_ECG_smooth,2)-2,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,950);
+dcs_1_smooth2=circshift(dcs_1_smooth,800);
 
-for i=2:size(pks_ECG_smooth,2)-2
+for i=1:size(pks_ECG_smooth,2)-2
     locs_ECG_smooth(i)
     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
     signal = dcs_1_smooth2(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
@@ -108,7 +106,7 @@ for i=2:size(pks_ECG_smooth,2)-2
     
   
     
-    Extract(i-1,:)=normalize(dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1));
+    Extract(i,:)=dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
 
 %     Extract(i,:)=signal
 

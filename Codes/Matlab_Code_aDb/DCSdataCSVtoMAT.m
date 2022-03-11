@@ -1,5 +1,5 @@
-clear all
-close all
+clear all;
+close all;
 %--------------------------------------------------------------------------
 
 % Folder name  - provide folder name for which you want to convert the data
@@ -7,7 +7,9 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory=strcat(pwd, '\DCS\',Folder,'\');
+Directory = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\MPCM Study\DCS\20220309 - 8\";
+
+fprintf("Start....\n")
 
 files_temp=dir(Directory);
 filesFlags = ~[files_temp.isdir];
@@ -36,7 +38,7 @@ end
 clearvars -except Directory Data_tau Data
 filename=strcat(Directory,'Data.mat'); 
 save(filename,'Data','Data_tau');
-
+fprintf("Complete!!\n")
 %--------------------------------------------------------------------------
 
 

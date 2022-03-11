@@ -10,7 +10,7 @@ tcd_a = data(datastart(3):dataend(3));
 
 ecg1 = ecg_a(1:120000);
 ecg1 = normalize(ecg1);
-ecg1 = lpf_ffilts(ecg1,15,1000);
+% ecg1 = lpf_ffilts(ecg1,15,1000);
     
 tcd = tcd_a(1:length(ecg1));
 % tcd = normalize(tcd);
@@ -21,7 +21,7 @@ bp_a = lpf(bp_a,3,1000);
 %% Plotting the frequency spectrum
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = dcs_25lp;
+signal = dcs_2lp;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 

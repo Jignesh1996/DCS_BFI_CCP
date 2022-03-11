@@ -163,40 +163,46 @@ hold off;
 y = Y;
 a = abs(ifft(y,40960));
 figure();
-plot(1:1:length(a),a)
-FIGURE();
-plot(1:1:length(ecg1),ecg1)
+plot(1:1:length(a),normalize(a))
+% figure();
+hold on;
+plot(1:1:length(a),ecg1(1:length(a)))
 
 %%
-signal = tcd_a;
-L = length(signal);             % Length of signal
-t = (0:L-1)*T;  
+signal = [bp_a;tcd];
+for i=1:size(signal,2)
+    
+    L = length(signal);             % Length of signal
+    t = (0:L-1)*T;  
+    
+    Y = fft(signal);
+    P2 = abs(Y/L);
+    P1 = P2(1:L/2+1);
+    P1(2:end-1) = 2*P1(2:end-1);
+    
+    f = Fs*(0:(L/2))/L;
+    plot(f,P1) 
+    hold on;
+    title('Single-Sided Amplitude Spectrum of X(t)')
+    xlabel('f (Hz)')
+    ylabel('|P1(f)|')
+    
+    amp_bp = sum(P1(1:l_hr+50));
+    
+    % m = max(P1(100:length(P1)));
+    % 
+    % [p_sig,l_sig] = findpeaks(P1(100:length(P1)), "MinPeakHeight", m-0.01);
+    % f_sig = Fs*(l_sig+98)/(L);
+    % scatter(f_sig,p_sig);
+    
+    
+    y = Y(1:l_hr+150);
+    % y = Y;
+    a = abs(ifft(y,4096));
+    figure();
+    plot(a)
 
-Y = fft(signal);
-P2 = abs(Y/L);
-P1 = P2(1:L/2+1);
-P1(2:end-1) = 2*P1(2:end-1);
-
-f = Fs*(0:(L/2))/L;
-plot(f,P1) 
-hold on;
-title('Single-Sided Amplitude Spectrum of X(t)')
-xlabel('f (Hz)')
-ylabel('|P1(f)|')
-
-% m = max(P1(100:length(P1)));
-% 
-% [p_sig,l_sig] = findpeaks(P1(100:length(P1)), "MinPeakHeight", m-0.01);
-% f_sig = Fs*(l_sig+98)/(L);
-% scatter(f_sig,p_sig);
-
-
-y = Y(1:l_hr+150);
-a = abs(ifft(y,4096));
-figure();
-plot(a)
-
-
+end
 
 %%
 
