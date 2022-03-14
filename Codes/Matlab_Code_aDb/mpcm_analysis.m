@@ -69,8 +69,8 @@ dcs_25 = aDb1(4,:).*10^9;
 dcs_25lp = lpf_ffilts(dcs_25,7,20);
 
 %% Detrending the signal
-s = dcs_15lp;
-s_str = "DCS 1.5 cm";
+s = dcs_2lp;
+s_str = "DCS 2 cm";
 breakpoints = 1:50:length(s);
 y = detrend(s,1,breakpoints);
 plot(y);
@@ -101,12 +101,18 @@ xlabel("Time (s)");
 ylabel("DCS 2cm aDb");
 
 figure();
-env_diff_smooth = smooth(env_diff,100);
+env_diff_smooth = smooth(env_diff,200);
 plot(env_diff_smooth);
 title("Difference in pulsitility i.e. max-min for each pulse");
 xlabel("Time (s)");
 ylabel("Pulse difference");
 %% % Change in the pulsatility
-per_change = (100 * (envMean)./max(envMean)) ;
+avg_sig = smooth(s,150);
+per_change = (100*(env_diff_smooth(10:size(env_diff_smooth,1)-10))./mean(env_diff_smooth(1:700))) ;
 plot(per_change);
 %% Calculating the piecewise SNR in signal
+
+
+% Steps to finish in this processing
+% Plot the changes in the pulsitility of the signal and SNR 
+% Plot the SNR graph with frequency specreum of SNR for each phase

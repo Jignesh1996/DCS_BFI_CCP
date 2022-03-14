@@ -107,6 +107,7 @@ title("Difference in pulsitility i.e. max-min for each pulse");
 xlabel("Time (s)");
 ylabel("Pulse difference");
 %% % Change in the pulsatility
-per_change = (100 * (envMean)./max(envMean)) ;
+avg_sig = 
+per_change = (100 * (envMean)./mean(envMean(1:700))) ;
 plot(per_change);
 %% Calculating the piecewise SNR in signal
