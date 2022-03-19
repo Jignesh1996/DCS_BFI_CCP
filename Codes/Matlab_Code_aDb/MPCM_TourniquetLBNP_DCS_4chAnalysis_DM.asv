@@ -30,7 +30,7 @@ g2_3_temp=squeeze(Data_cut(:,3,:)-1); %g2-1 curve generation
 g2_4_temp=squeeze(Data_cut(:,4,:)-1); %g2-1 curve generation
 
 % average g2 curve for 4 channels
-if TR==0    
+if TR==0
     g2(1,:,:)=(g2_4_temp);
     g2(2,:,:)=(g2_1_temp+g2_2_temp)/2;
     g2(2,:,:)=(g2_3_temp);
@@ -58,18 +58,13 @@ else % for TR
 end
 
 %% Plotting the g2 curves for different parts of signals
-
-semilogx(Data_tau,squeeze((g2(4,2500,:))),'r')
+semilogx(Data_tau,squeeze((g2(1,2500,:))),'r')
 hold on
-semilogx(Data_tau,squeeze((g2(4,2520,:))),'g')
-semilogx(Data_tau,squeeze((g2(4,2540,:))),'b')
-semilogx(Data_tau,squeeze((g2(4,2560,:))),'magenta')
+semilogx(Data_tau,squeeze((g2(4,2500,:))),'g')
+semilogx(Data_tau,squeeze((g2(3,2500,:))),'b')
+semilogx(Data_tau,squeeze((g2(4,2500,:))),'magenta')
 ylabel('g_2')
 legend('1 cm','1.5 cm','2 cm','2.5 cm')
-d = [squeeze((g2(4,2500,:))),squeeze((g2(4,2520,:))),squeeze((g2(4,2540,:))),squeeze((g2(4,2560,:)))];
-avg_g2 = mean(d,2);
-avg_g2 = smooth(avg_g2,5);
-plot(Data_tau,avg_g2);
 %%
 %  j=1;
 %  for i=1:moving_window:size(g2,1)

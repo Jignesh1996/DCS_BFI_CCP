@@ -224,3 +224,112 @@ pBP =  (max(bp_a)+ 2*min(bp_a))/3;  % MAP pressure
 psig = mean(signal);   % mean value of signal
 
 CrCP = pBP - (psig/p_sig)*p_ecg;
+
+
+%% Averaging g2 curves to improve the SNR
+
+g2_1_temp=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+
+% average g2 curve for 4 channels
+g2(1,:,:)=(g2_1_temp);
+g2(2,:,:)=(g2_2_temp);
+g2(3,:,:)=(g2_3_temp);
+g2(4,:,:)=(g2_4_temp);
+
+ 
+
+dcs = squeeze(g2(1,:,:));
+ecg1 = ecg_a;
+ecg1 = normalize(ecg1);
+if length(dcs)<length(ecg1)  % shifting only if it is a DCS signal else not so condition is check the length of the signal
+    ecg1 = circshift(ecg1,-750);
+end
+ecg1 = ecg1(1:size(dcs,2)*50);
+
+
+% bp = 1:100:length(dcs);
+% dcs_d = detrend(normalize(dcs),1,bp); 
+% [dcs_1,filter_obj] = bandpass(dcs,[0.5 6],20,'ImpulseResponse','fir');
+dcs_1 = dcs;
+plot(dcs_1)
+time_DCS=0.05*(1:1:size(dcs_1,2));
+time_ECG=0.001*(1:1:size(ecg1,2));
+
+figure()
+hold on
+plot(time_DCS,dcs_1/max(dcs_1),'r')
+plot(time_ECG,ecg1/max(ecg1),'b')
+
+
+% Find peaks
+[pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.5);
+
+locs_DCS_time=locs_DCS*0.05;
+locs_ECG_time=locs_ECG*0.001;
+
+time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
+% Upsampling the DCS singal
+x = 1:1:length(dcs_1);
+uf = 50;   % Upsampling factor
+xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
+dcs_1_interp = interp1(x, dcs_1,xq,'makima');
+% dcs_1_interp = dcs_1;
+
+
+%
+fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+hold on
+plot(dcs_1_smooth/max(dcs_1_smooth),'r')
+plot(locs_DCS_smooth, pks_DCS_smooth,'*k')
+
+plot(ecg1_smooth/max(ecg1_smooth),'b')
+plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
+
+if locs_ECG_smooth(1)>locs_DCS_smooth(1)
+    Difference=locs_ECG_smooth(1)-locs_DCS_smooth(1);
+    shift = floor(1.75*Difference);
+else
+    shift =0;
+end
+% Extracting data
+
+Extract=ones(size(pks_ECG_smooth,2)-3,min(diff(locs_ECG_smooth)));
+Extract=Extract*NaN;
+
+dcs_1_smooth2=circshift(dcs_1_smooth,00);
+
+for i=2:size(pks_ECG_smooth,2)-2
+    locs_ECG_smooth(i)
+    locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
+    signal = dcs_1_smooth2(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
+  
+    for j=1:
+        temp(1,:,:)=mean(g2(1,floor((locs_ECG_smooth(i-2:i+2))/50),:));
+    end
+
+end
+
+%% Smoothing the g2 curve with the moving average window for individual curve
+g2_smooth = zeros(size(g2));
+for i=1:size(g2,2)
+    g2_smooth(1,i,:) = smooth(g2(1,i,:),5);
+    g2_smooth(2,i,:) = smooth(g2(2,i,:),5);
+    g2_smooth(3,i,:) = smooth(g2(3,i,:),5);
+    g2_smooth(4,i,:) = smooth(g2(4,i,:),5);
+    
+end
+
+%% Plotting g2 curves for whole signal
+for i=1:5
+    semilogx(Data_tau,squeeze(g2_smooth(4,i,:)));
+    hold on;
+end;
+%%
+for i=1:size(g2,1)
+    Data_smooth(:,i,:) = g2(i,:,:);
+end
+%% 
+aDb1_smooth = hybrid_dcs(Data_smooth,Data_tau);

@@ -4,18 +4,23 @@
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
+
+
+dcs = aDb1(1,:);
+uf = length(ecg1)/length(dcs_1cm); 
 ecg1 = ecg_a;
 ecg1 = normalize(ecg1);
-
-dcs = dcs_25lp(5500:6000);
-uf = length(ecg1)/length(dcs_1cm); 
-ecg1 = ecg1(5500*50:6000*50);
+if length(dcs)<length(ecg1)  % shifting only if it is a DCS signal else not so condition is check the length of the signal
+    ecg1 = circshift(ecg1,-750);
+end
+ecg1 = ecg1(1:size(dcs,2)*50);
 
 
 % bp = 1:100:length(dcs);
 % dcs_d = detrend(normalize(dcs),1,bp); 
+% [dcs_1,filter_obj] = bandpass(dcs,[0.5 6],20,'ImpulseResponse','fir');
 dcs_1 = dcs;
-
+plot(dcs_1)
 time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg1,2));
 
@@ -28,7 +33,7 @@ plot(time_DCS,dcs_1/max(dcs_1),'r')
 plot(time_ECG,ecg1/max(ecg1),'b')
 
 
-%% Find peaks
+% Find peaks
 
 [pks_DCS,locs_DCS]=findpeaks(dcs_1/max(dcs_1),'MinPeakHeight',0.65)
 [pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.5)
@@ -37,25 +42,25 @@ locs_DCS_time=locs_DCS*0.05;
 locs_ECG_time=locs_ECG*0.001;
 
 time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
-%% Upsampling the DCS singal
+% Upsampling the DCS singal
 x = 1:1:length(dcs_1);
-uf = length(ecg1)/length(dcs_1);   % Upsampling factor
+uf = 50;   % Upsampling factor
 xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
 dcs_1_interp = interp1(x, dcs_1,xq,'makima');
 % dcs_1_interp = dcs_1;
 
-%% filtering
+% filtering
 % 
 windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
 wages=ones(1,windowsize)/windowsize;
 % wages = window_1;
-dcs_1_smooth=filtfilt(wages,1,dcs_1_interp); % Y is your time course you want to filter, Y_smoth is filtered data
-    ecg1_smooth=filtfilt(wages,1,ecg1);
+dcs_1_smooth=dcs_1_interp; % Y is your time course you want to filter, Y_smoth is filtered data
+ecg1_smooth=filtfilt(wages,1,ecg1);
 
 [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
 [pks_DCS_smooth,locs_DCS_smooth]=findpeaks(dcs_1_smooth./max(dcs_1_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
 
-%%
+%
 
 % [pks_DCS_interp,locs_DCS_interp]=findpeaks(dcs_1_interp/max(dcs_1_interp),'MinPeakHeight',0.8)
 % locs_DCS_time_interp=locs_DCS_interp*0.001;
@@ -76,7 +81,7 @@ dcs_1_smooth=filtfilt(wages,1,dcs_1_interp); % Y is your time course you want to
 % plot(time_ECG,circshift(temp(1,:),time_shift2_pt),'r');
 % plot(time_ECG,ecg1/max(ecg1),'b')
 
-%%
+%
 
 fig1=figure('units','centimeters', 'Position',[2 2 35 13]) %18 width 15 heigh
 hold on
@@ -92,12 +97,12 @@ if locs_ECG_smooth(1)>locs_DCS_smooth(1)
 else
     shift =0;
 end
-%% Extracting data
+% Extracting data
 
 Extract=ones(size(pks_ECG_smooth,2)-3,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,950);
+dcs_1_smooth2=circshift(dcs_1_smooth,00);
 
 for i=2:size(pks_ECG_smooth,2)-2
     locs_ECG_smooth(i)
@@ -108,13 +113,34 @@ for i=2:size(pks_ECG_smooth,2)-2
     
   
     
-    Extract(i-1,:)=normalize(dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1));
+    Extract(i-1,:)=(dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1));
+    
 
 %     Extract(i,:)=signal
 
 end
 
-%% Plotting the shifted DCS and ECG signal
+% % Testing with adding the nan values at the end of tail
+% 
+% Extract=ones(size(pks_ECG_smooth,2)-3,(max(diff(locs_ECG_smooth))));
+% Extract=Extract*NaN;
+% 
+% dcs_1_smooth2=circshift(dcs_1_smooth,900);
+% 
+% for i=2:size(pks_ECG_smooth,2)-2
+%     locs_ECG_smooth(i)
+%     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
+%     signal = (dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i+1)));
+% %     signal(size(signal,2):size(Extract))
+% 
+%     Extract(i-1,1:size(signal,2))=signal;
+%     
+% 
+% %     Extract(i,:)=signal
+% 
+% end
+
+% Plotting the shifted DCS and ECG signal
 % x = (1:1:length(dcs_1_smooth2))/1000;
 % plot(x,normalize(dcs_1_smooth2));
 % hold on;
@@ -122,16 +148,18 @@ end
 % xlabel("Time (s)");
 % legend("DCS 1cm","ECG")
 
-%%    
+%    
 x = (1:1:length(Extract'))/1000;
+figure();
 plot(x,(Extract'))
 xlabel("Time(s)")
 ylabel("aDb value")
 title("Marker=ECG R peak, DCS 2.5cm")
 
-%% Plot ensemble average
+% Plot ensemble average
+
 ttle = 'DCS 2.5cm Ensemble Avg';
-avg_dcs_1 = ens_avg(Extract,ttle)
+avg_dcs_1 = ens_avg(Extract,ttle);
 
 %% 
 % plot(x,avg_dcs,'b');
@@ -155,7 +183,7 @@ end
 %% Taking average of the cosecutive 5 cycles to reduce the effect of noisy signal
 
 step_size = 5; 
-Extract=zeros(length(d),ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
+Extract=zeros(size(pks_ECG_smooth,2)-3,ceil(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
 dcs_1_smooth2=circshift(dcs_1_smooth,775)

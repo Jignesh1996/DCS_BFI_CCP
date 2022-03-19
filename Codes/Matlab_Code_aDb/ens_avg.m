@@ -3,8 +3,8 @@ x = (1:1:length(signals(1,:)))/1000;
 count = length(signals(:,1));
 
 %Plotting the ensemble average
-ensavg = mean(signals,1);                                                   % Calculate Ensemble Average
-ci95 = 1.96*std(signals,[],1)/sqrt(count);                             % Calculate 95% Confidence Intervals         
+ensavg = mean(signals,1,"omitnan");                                                   % Calculate Ensemble Average
+ci95 = 1.96*std(signals,[],1,"omitnan")/sqrt(count);                             % Calculate 95% Confidence Intervals         
 figure()
 plot(x, ensavg, '-r', 'LineWidth',1)
 hold on;
