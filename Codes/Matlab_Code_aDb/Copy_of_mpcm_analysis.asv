@@ -137,7 +137,7 @@ tic;
 % file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\",...
 %     "20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309
 %     - 7\"]; % Files for LBNP with tnqt
-file_list = ["20220218 - 6\","20220217 - 4\","20220217 - 8\","20220218 - 4\"] % File list for CCA
+file_list = ["20220218 - 6\","20220217 - 4\","20220217 - 8\","20220218 - 3\"] % File list for CCA
 file_name = ["MPCM002","MPCM003","MPCM004","MPCM005","MPCM006","MPCM007","MPCM008","MPCM009","MPCM010"]';
 g2_avg = zeros(length(file_list),3,4,50)*NaN;  % this dimension represents 1: #of files, 2:#of segments averaged,3:#of channels,4:tau points
 for j=1:length(file_list)
@@ -157,7 +157,7 @@ for j=1:length(file_list)
     % average g2 curve for 4 channels
     g2(1,:,:)=(g2_1_temp);
     g2(2,:,:)=(g2_2_temp);
-    g2(3,:,:)=(g2_3_temp);
+    g2(3,:,:)=(g2_3_temp); 
     g2(4,:,:)=(g2_4_temp);
 
     g2_avg(j,1,:,:) = squeeze(mean(g2(:,1:600,:),2));
@@ -270,7 +270,10 @@ end
 
 close all;
 tic;
-file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\","20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309 - 7\"];
+% file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\",...
+%     "20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309
+%     - 7\"]; % Files for LBNP with tnqt
+file_list = ["20220218 - 6\","20220217 - 4\","20220217 - 8\","20220218 - 3\"] % File list for CCA
 file_name = ["MPCM002","MPCM003","MPCM004","MPCM005","MPCM006","MPCM007","MPCM008","MPCM009","MPCM010"];
 perchange_val = zeros(length(file_list),4)*NaN;
 for j=1:length(file_list)
@@ -282,6 +285,23 @@ for j=1:length(file_list)
     
     aDb1 = hybrid_dcs(Data,Data_tau);
     
+    %%
+    mua = 0.17; %cm^-1 baseline absorption coefficient
+    mus = 10; 
+    
+    Channel=1;
+    Curve_no=1;
+    rho = [1 1.5 2 2.5];
+
+    beta=g2(Curve_no,Channel,1);
+    aDb=aDb1(Channel,Curve_no);
+    
+    g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb)
+
+    plot(Data_tau,squeeze(Data(Curve_no, Channel,:))-1,'k')
+    hold on
+    plot(Data_tau,g2_fit,'r')
+    %%
     
     % time resultion - aqusition time used to aquire data
     

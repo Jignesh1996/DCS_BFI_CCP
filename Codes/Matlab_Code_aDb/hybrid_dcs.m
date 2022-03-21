@@ -30,4 +30,20 @@ for chan=1:size(g2,1)
 %     it is wrong to plot that, cause we need 50 tau points for adb  as
 %     well
 end
+ 
+Channel=4;
+Curve_no=1;
+rho = [1 1.5 2 2.5];
+
+beta=g2(Channel, Curve_no,1);
+aDb=aDb(Channel,Curve_no);
+
+g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb)
+
+plot(Data_tau,squeeze(g2(1,1,:)),'k')
+hold on
+plot(Data_tau,g2_fit,'r')
+
+
 end
+

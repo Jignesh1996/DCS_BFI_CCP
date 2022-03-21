@@ -157,7 +157,7 @@ for j=1:length(file_list)
     % average g2 curve for 4 channels
     g2(1,:,:)=(g2_1_temp);
     g2(2,:,:)=(g2_2_temp);
-    g2(3,:,:)=(g2_3_temp);
+    g2(3,:,:)=(g2_3_temp); 
     g2(4,:,:)=(g2_4_temp);
 
     g2_avg(j,1,:,:) = squeeze(mean(g2(:,1:600,:),2));
@@ -285,6 +285,23 @@ for j=1:length(file_list)
     
     aDb1 = hybrid_dcs(Data,Data_tau);
     
+    %%
+    mua = 0.17; %cm^-1 baseline absorption coefficient
+    mus = 10; 
+    
+    Channel=1;
+    Curve_no=1;
+    rho = [1 1.5 2 2.5];
+
+    beta=g2(Curve_no,Channel,1);
+    aDb=aDb1(Channel,Curve_no);
+    
+    g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb)
+
+    plot(Data_tau,squeeze(Data(Curve_no, Channel,:))-1,'k')
+    hold on
+    plot(Data_tau,g2_fit,'r')
+    %%
     
     % time resultion - aqusition time used to aquire data
     
