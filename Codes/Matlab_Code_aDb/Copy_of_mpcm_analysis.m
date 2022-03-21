@@ -134,7 +134,10 @@ toc;
 close all;
 clear all;
 tic;
-file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\","20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309 - 7\"];
+% file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\",...
+%     "20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309
+%     - 7\"]; % Files for LBNP with tnqt
+file_list = ["20220218 - 6\","20220217 - 4\","20220217 - 8\","20220218 - 3\"] % File list for CCA
 file_name = ["MPCM002","MPCM003","MPCM004","MPCM005","MPCM006","MPCM007","MPCM008","MPCM009","MPCM010"]';
 g2_avg = zeros(length(file_list),3,4,50)*NaN;  % this dimension represents 1: #of files, 2:#of segments averaged,3:#of channels,4:tau points
 for j=1:length(file_list)
@@ -267,7 +270,10 @@ end
 
 close all;
 tic;
-file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\","20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309 - 7\"];
+% file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\",...
+%     "20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309
+%     - 7\"]; % Files for LBNP with tnqt
+file_list = ["20220218 - 6\","20220217 - 4\","20220217 - 8\","20220218 - 3\"] % File list for CCA
 file_name = ["MPCM002","MPCM003","MPCM004","MPCM005","MPCM006","MPCM007","MPCM008","MPCM009","MPCM010"];
 perchange_val = zeros(length(file_list),4)*NaN;
 for j=1:length(file_list)
@@ -442,7 +448,7 @@ for j=1:length(file_list)
     perchange_val(j,4) = mean(squeeze(per_change(j,4,1:600)))- mean(squeeze(per_change(j,4,1800:2400)));
 
 
-%     break
+    break
 
 end
 toc;

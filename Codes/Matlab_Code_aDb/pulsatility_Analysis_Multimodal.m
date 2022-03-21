@@ -8,7 +8,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:120000);
+ecg1 = ecg_a(1:180000);
 ecg1 = normalize(ecg1);
 % ecg1 = lpf_ffilts(ecg1,15,1000);
     
@@ -21,7 +21,7 @@ bp_a = lpf(bp_a,3,1000);
 %% Plotting the frequency spectrum
 Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = bp_a;
+signal = tcd;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -398,13 +398,13 @@ dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
 %% Calculating the Critical closing pressure
 close all;
-ccp_tail_dcs  = ccp_measure(ecg1,dcs_1lp,bp_a,20);
+ccp_dcs  = ccp_measure(ecg1,tcd,bp_a,50);
 % ccp_dcs  = ccp_measure(ecg1,dcs_25lp,bp,10);
 % close all;
 % scatter(1:length(ccp_tcd),ccp_tcd,'red');
 % hold on;
 % scatter(1:length(ccp_dcs),ccp_dcs,'blue');
-plot(ccp_tail_dcs);
+plot(ccp_dcs);
 ylabel("CrCP (mmHg)");
 title("CrCP using Tail, TCD averaged over 25 cycles")
 
