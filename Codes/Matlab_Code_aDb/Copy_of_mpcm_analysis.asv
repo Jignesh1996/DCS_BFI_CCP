@@ -2,13 +2,14 @@ close all;
 tic;
 file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\","20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309 - 7\"];
 file_name = ["MPCM002","MPCM003","MPCM004","MPCM005","MPCM006","MPCM007","MPCM008","MPCM009","MPCM010"];
+
 for j=1:length(file_list)
 
     % Read files;
     dcs_dir = strcat("C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\MPCM Study\DCS\",file_list(j),"Data.mat") ;     % Directory for DCS data
     
     load(dcs_dir);
-    
+    data_mat_all(j,:,:,:) = Data;
     aDb1 = hybrid_dcs(Data,Data_tau);
     
     
@@ -114,11 +115,11 @@ for j=1:length(file_list)
     figure();
     l = length(30:length(per_change)-10);
     x_pc = (1:1:l)/20;
-    plot(x_pc,squeeze(per_change(j,1,30:end-10)),'DisplayName','per_change_dcs_25');
+    plot(x_pc,squeeze(per_change(j,1,30:end-10)),'DisplayName','per_change_dcs_1');
     hold on;
     plot(x_pc,squeeze(per_change(j,2,30:end-10)),'DisplayName','per_change_dcs_15');
-    plot(x_pc,squeeze(per_change(j,3,30:end-10)),'DisplayName','per_change_dcs_1');
-    plot(x_pc,squeeze(per_change(j,4,30:end-10)),'DisplayName','per_change_dcs_2');
+    plot(x_pc,squeeze(per_change(j,3,30:end-10)),'DisplayName','per_change_dcs_2');
+    plot(x_pc,squeeze(per_change(j,4,30:end-10)),'DisplayName','per_change_dcs_25');
     hold off;
     legend("DCS 1cm","DCS 1.5cm","DCS 2cm","DCS 2.5cm"); 
     title("Percent change in pulse amplitude with pressure cuff "+file_name(j));
@@ -270,11 +271,10 @@ end
 
 close all;
 tic;
-% file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\",...
-%     "20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309
-%     - 7\"]; % Files for LBNP with tnqt
-file_list = ["20220218 - 6\","20220217 - 4\","20220217 - 8\","20220218 - 3\"] % File list for CCA
-file_name = ["MPCM002","MPCM003","MPCM004","MPCM005","MPCM006","MPCM007","MPCM008","MPCM009","MPCM010"];
+file_list = ["20220218 - 8\","20220217\","20220217 - 6\","20220218 - 4\",...
+    "20220223 - 2\","20220223 - 6\","20220304\","20220309 - 5\","20220309 - 7\"]; % Files for LBNP with tnqt
+% file_list = ["20220218 - 6\","20220217 - 4\","20220217 - 8\","20220218 - 3\"] % File list for CCA
+% file_name = ["MPCM002","MPCM003","MPCM004","MPCM005","MPCM006","MPCM007","MPCM008","MPCM009","MPCM010"];
 perchange_val = zeros(length(file_list),4)*NaN;
 for j=1:length(file_list)
 
@@ -285,25 +285,31 @@ for j=1:length(file_list)
     
     aDb1 = hybrid_dcs(Data,Data_tau);
     
-    %%
-    mua = 0.17; %cm^-1 baseline absorption coefficient
+    % Plots the fitted g2 curve
+    if exist("g2")
+        clear g2
+    end
+    mua = 0.1; %cm^-1 baseline absorption coefficient
     mus = 10; 
-    
+
+    g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+    g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+    g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+    g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+
     Channel=1;
-    Curve_no=1;
+    Curve_no=1500;
     rho = [1 1.5 2 2.5];
 
-    beta=g2(Curve_no,Channel,1);
+    beta=g2(Channel,Curve_no,1);
     aDb=aDb1(Channel,Curve_no);
     
-    g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb)
+    g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb);
 
-    plot(Data_tau,squeeze(Data(Curve_no, Channel,:))-1,'k')
+    semilogx(Data_tau,squeeze(Data(Curve_no, Channel,:))-1,'k')
     hold on
-    plot(Data_tau,g2_fit,'r')
-    %%
-    
-    % time resultion - aqusition time used to aquire data
+    semilogx(Data_tau,g2_fit,'r')
+    %
     
     
     % Assigning the channels
@@ -360,7 +366,7 @@ for j=1:length(file_list)
         snr_val(j,i,4) = db2mag(snr(s(4900:5400),20));
         snr_val(j,i,5) = db2mag(snr(s(5400:6000),20));
 
-        env_diff_smooth(i,:) = smooth(env_diff(i,:),300);
+        env_diff_smooth(i,:) = smooth(env_diff(i,:),400,'rlowess');
 
         avg_sig(j,i,:) = smooth(s,'sgolay');
         per_change(j,i,:) = (100*(env_diff_smooth(i,:))./mean(env_diff_smooth(i,1:600))) ;
@@ -465,7 +471,7 @@ for j=1:length(file_list)
     perchange_val(j,4) = mean(squeeze(per_change(j,4,1:600)))- mean(squeeze(per_change(j,4,1800:2400)));
 
 
-    break
+%     break
 
 end
 toc;

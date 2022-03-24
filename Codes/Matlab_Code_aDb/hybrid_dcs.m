@@ -31,18 +31,18 @@ for chan=1:size(g2,1)
 %     well
 end
  
-Channel=4;
+Channel=1;
 Curve_no=1;
 rho = [1 1.5 2 2.5];
 
 beta=g2(Channel, Curve_no,1);
-aDb=aDb(Channel,Curve_no);
+aDb1=aDb(Channel,Curve_no);
 
-g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb)
+g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb1)
 
-plot(Data_tau,squeeze(g2(1,1,:)),'k')
+semilogx(Data_tau,squeeze(g2(1,1,:)),'k')
 hold on
-plot(Data_tau,g2_fit,'r')
+semilogx(Data_tau,g2_fit,'r')
 
 
 end

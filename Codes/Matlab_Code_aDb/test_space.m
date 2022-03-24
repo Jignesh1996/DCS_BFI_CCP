@@ -301,16 +301,16 @@ Extract=Extract*NaN;
 
 dcs_1_smooth2=circshift(dcs_1_smooth,00);
 
-for i=2:size(pks_ECG_smooth,2)-2
-    locs_ECG_smooth(i)
-    locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
-    signal = dcs_1_smooth2(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
-  
-    for j=1:
-        temp(1,:,:)=mean(g2(1,floor((locs_ECG_smooth(i-2:i+2))/50),:));
-    end
-
-end
+% for i=2:size(pks_ECG_smooth,2)-2
+%     locs_ECG_smooth(i)
+%     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
+%     signal = dcs_1_smooth2(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
+%   
+%     for j=1:
+%         temp(1,:,:)=mean(g2(1,floor((locs_ECG_smooth(i-2:i+2))/50),:));
+%     end
+% 
+% end
 
 %% Smoothing the g2 curve with the moving average window for individual curve
 g2_smooth = zeros(size(g2));
@@ -326,10 +326,35 @@ end
 for i=1:5
     semilogx(Data_tau,squeeze(g2_smooth(4,i,:)));
     hold on;
-end;
-%%
-for i=1:size(g2,1)
-    Data_smooth(:,i,:) = g2(i,:,:);
 end
-%% 
-aDb1_smooth = hybrid_dcs(Data_smooth,Data_tau);
+%%
+% for i=1:size(g2,1)
+%     Data_smooth(:,i,:) = g2(i,:,:);
+% end
+%%
+mu= [0.1,0.15,0.17]; %cm^-1 baseline absorption coefficient
+mus = 10; 
+for i=1:length(mu)
+
+    g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+    g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+    g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+    g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+
+    mua = mu(i);
+
+    Channel=4;
+    Curve_no=400;
+    rho = [1 1.5 2 2.5];
+
+    beta=g2(Channel,Curve_no,1);
+    aDb=aDb1(Channel,Curve_no);
+    
+    g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb);
+
+    semilogx(Data_tau,squeeze(Data(Curve_no, Channel,:))-1,'k')
+    hold on
+    semilogx(Data_tau,g2_fit)
+   
+
+end

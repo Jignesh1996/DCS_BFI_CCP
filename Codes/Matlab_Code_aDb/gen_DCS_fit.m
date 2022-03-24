@@ -1,7 +1,5 @@
 function g2_fit=gen_DCS_fit(tau,ua,us,rho,beta,aDb) %for one param add 'beta' after rho
 
-
-
 % Define the parameters used in the correlation function
 v=3;
 zo = 1/(us); %first point source term in cm
