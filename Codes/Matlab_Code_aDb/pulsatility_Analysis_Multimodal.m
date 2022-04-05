@@ -8,9 +8,9 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:180000);
+ecg1 = ecg_a(1:120000);
 ecg1 = normalize(ecg1);
-% ecg1 = lpf_ffilts(ecg1,15,1000);
+ecg1 = lpf(ecg1,5,1000);
     
 tcd = tcd_a(1:length(ecg1));
 % tcd = normalize(tcd);
@@ -19,9 +19,9 @@ tcd = lpf_ffilts(tcd,30,1000);
 bp_a = bp_a(1:length(ecg1));
 bp_a = lpf(bp_a,3,1000);
 %% Plotting the frequency spectrum
-Fs = 1000;            % Sampling frequency                    
+Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = tcd;
+signal = dcs_1lp;
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -96,7 +96,7 @@ ecg_ens = ecg_ens';
 %% TCD signal Processing
 tcd = tcd_a(1:length(ecg1));
 % tcd = normalize(tcd);
-tcd = lpf_ffilts(tcd,30,1000);
+tcd = lpf_ffilts(tcd,15,1000);
 %% Plotting the TCD signal
 minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',950 );
 x = 1:length(minima);
@@ -396,9 +396,18 @@ dcs_2lp = lpf_ffilts(dcs_2,15,20);
 dcs_25 = aDb1(4,:).*10^9;
 dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
+
+
+%% Shifting the signal to time allign the DCS signal to ECG
+break_pt = 1:100:size(tcd,2);
+[a,l_bp] = findpeaks(normalize(bp_a),"MinPeakHeight",1) ;
+[a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1);
+shift = l_bp(1)-l_tcd(1);
+tcd_shift = circshift(tcd,-30)
 %% Calculating the Critical closing pressure
 close all;
-ccp_dcs  = ccp_measure(ecg1,tcd,bp_a,50);
+l = 600;
+ccp_dcs  = ccp_measure(ecg1(1:l*50),dcs_2lp(1:l),bp_a(1:l*50),shift,20);
 % ccp_dcs  = ccp_measure(ecg1,dcs_25lp,bp,10);
 % close all;
 % scatter(1:length(ccp_tcd),ccp_tcd,'red');
@@ -407,7 +416,7 @@ ccp_dcs  = ccp_measure(ecg1,tcd,bp_a,50);
 plot(ccp_dcs);
 ylabel("CrCP (mmHg)");
 title("CrCP using Tail, TCD averaged over 25 cycles")
-
+% close all
 %%
 load ccp_var_stack.mat;
 bp_stack = stack(1:floor(length(stack(:,1))/2),:);

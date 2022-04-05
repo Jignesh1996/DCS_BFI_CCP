@@ -15,19 +15,20 @@ plot(x_d(locs_d),pks_d, '+r')
 hold off
 
 %% 
-dcs_1res = resample(dcs_1,50,1)
+dcs_1res = resample(dcs_1cm,50,1)
 plot(dcs_1res)
 hold on
-plot(dcs_1up)
+% plot(dcs_1up)
 
 %%
 xu = (1:1:length(ecg1))/1000;
-xd = (1:1:length(dcs_1))/20;
+xd = (1:1:length(dcs_1lp(1:1200)))/20;
 
 %%
-ecg_res = resample(ecg1,1,50)
-te = (1:1:length(ecg_res));
-plot(xd,ecg_res,'b')
+ecg_res = resample(ecg1,1,50,0);
+% ecg_res = resample(ecg_res,1,5);
+te = (1:1:length(ecg_res))/50;
+plot(te,ecg_res,'b')
 legend("Resampled","Original")
 hold on
 plot(xu, ecg1,'r')
@@ -169,11 +170,45 @@ plot(1:1:length(a),normalize(a))
 hold on;
 plot(1:1:length(a),ecg1(1:length(a)))
 
-%%
-sig = [bp_a;tcd];
-amp = zeros(1,size(sig,1));
+
+
+%% CrCP calculation using the Frequency method
+
+% Preprocessing the data
+ecg_a = data(datastart(1):dataend(1));
+bp_a = data(datastart(2):dataend(2));
+tcd_a = data(datastart(3):dataend(3));
+
+ecg1 = ecg_a(1:60000);
+ecg1 = normalize(ecg1);
+ecg1 = lpf(ecg1,5,1000);
+    
+tcd = tcd_a(1:length(ecg1));
+% tcd = normalize(tcd);
+tcd = lpf_ffilts(tcd,30,1000);
+
+bp_a = bp_a(1:length(ecg1));
+bp_a = lpf(bp_a,3,1000);
+
+% DCS data processing
+aDb1 = hybrid_dcs(Data,Data_tau);
+
+dcs_1cm = aDb1(1,:).*10^9;
+dcs_1lp = lpf_ffilts(dcs_1cm,15,20);
+dcs_15 = aDb1(2,:).*10^9;
+dcs_15lp = lpf_ffilts(dcs_15,15,20);
+dcs_2 = aDb1(3,:).*10^9;
+dcs_2lp = lpf_ffilts(dcs_2,15,20);
+dcs_25 = aDb1(4,:).*10^9;
+dcs_25lp = lpf_ffilts(dcs_25,15,20);
+
+sig = [ecg1];
+p_0 = zeros(1,size(sig,1));
+p_f = zeros(1,size(sig,1));
 for i=1:size(sig,1)
     signal = sig(i,:);
+    Fs = 1000; 
+    T = 1/Fs; 
     L = length(signal);             % Length of signal
     t = (0:L-1)*T;  
     
@@ -181,6 +216,7 @@ for i=1:size(sig,1)
     P2 = abs(Y/L);
     P1 = P2(1:L/2+1);
     P1(2:end-1) = 2*P1(2:end-1);
+    P1_ecg = P1;
     figure();
     f = Fs*(0:(L/2))/L;
     plot(f,P1) 
@@ -188,42 +224,137 @@ for i=1:size(sig,1)
     title('Single-Sided Amplitude Spectrum of X(t)')
     xlabel('f (Hz)')
     ylabel('|P1(f)|')
-    
-    amp(i) = sum(P1(10:l_hr+50));
-    
-    % m = max(P1(100:length(P1)));
-    % 
-    % [p_sig,l_sig] = findpeaks(P1(100:length(P1)), "MinPeakHeight", m-0.01);
-    % f_sig = Fs*(l_sig+98)/(L);
-    % scatter(f_sig,p_sig);
-    
+    m = max(P1(50:length(P1)))
+    [p_sig,l_sig] = findpeaks(P1(50:length(P1)), "MinPeakHeight", m-0.03);
+    l_sig = l_sig(1);
+    p_sig = p_sig(1);
+    p_sig = p_sig+P1(1);
+    f_sig = Fs*(l_sig+49)/(L);
+    scatter(f_sig,p_sig);
+    l_hr = l_sig+49;
     
     y = Y(1:l_hr+150);
     % y = Y;
-    a = abs(ifft(y,4096));
+    a = abs(ifft(y(1:200),4096));
     figure();
     plot(a)
 
 end
 
+%Calculating the amplitude at f(hr) for DCS signal
+Fs = 20;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period    
+signal = dcs_15lp(1:1200);
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
+
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+P1_DCS = P1;
+
+pDCS = P1(1);
+pDCS_f = max(P1((f_sig*L/Fs)-20:(f_sig*L/Fs)+20));
+
+%Calculating the amplitude at f(hr) for ABP signal
+signal = tcd(1:60000);
+Fs = 1000;   
+T = 1/Fs;  
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
+
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+P1_TCD = P1;
+pTCD = P1(1);
+% pTCD_f = P1(l_hr);
+pTCD_f = max(P1((f_sig*L/Fs)-20:(f_sig*L/Fs)+20));
+
+%Calculating the amplitude at f(hr) for ABP signal
+signal = bp_a(1:60000);
+Fs = 1000;   
+T = 1/Fs;  
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
+
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+P1_abp = P1;
+pABP = P1(1);
+% pABP_f = P1(l_hr);
+pABP_f = max(P1((f_sig*L/Fs)-20:(f_sig*L/Fs)+20));
+
 %%
+close all;
+t = 0:0.01:1/f_sig;
 
-t_bp = 0:(2*pi*l_bp)/794:2*pi*l_bp;
-sin_bp = p_ecg*sin(t_bp);
-plot(t_bp,sin_bp);
+sin_dcs =pDCS+ pDCS_f*sin(2*pi*f_sig*t);
+figure()
+a = 0:0.05:1;
+plot(a,normalize(dcs_15lp(34:54)));
 hold on;
-t_sig = 0:(2*pi*l_sig)/794:2*pi*l_sig;
-sin_sig = p_sig*sin(t_sig);
-plot(t_sig,sin_sig);
+plot(t,normalize(sin_dcs))
+title("Fundamental DCS")
 
+sin_tcd =pTCD+ pTCD_f*sin(2*pi*f_sig*t);
+figure()
+x = 0:0.001:1;
+plot(x,normalize(tcd(100:1100)));
+hold on;
+plot(t,normalize(sin_tcd))
+title("Fundamental TCD")
+
+pBP =  (max(bp_a)+ 2*min(bp_a))/3;  % MAP pressure 
+sin_bp =pBP+ pABP_f*sin(2*pi*f_sig*t);
 figure();
-plot(sin_sig,sin_bp)
+plot(x,normalize(bp_a(100:1100)));
+hold on;
+plot(t,normalize(sin_bp))
+title("Fundamental BP")
+figure();
+scatter(sin_bp,sin_tcd)
+title("Scatter plot of TCD vs BP")
+
+
+
+p_tcd = robustfit(sin_bp,sin_tcd);
+x= -p_tcd(1)/p_tcd(2):1:max(max(sin_bp,[],2));
+y = p_tcd(1)+p_tcd(2)*x;
+figure();
+plot(x,y);
+hold on; 
+scatter(sin_bp,sin_tcd)
+xlabel("ABP (mmHg)")
+ylabel("CBFV (cm/s)")
+title("Regression TCD vs BP")
+hold off;
+ccp_tcd = -p_tcd(1)/p_tcd(2);   % simplifying the linear equation y=m*x + c for y=0 will lead to this equation 
+fprintf("\nCcCP TCD is = %d\n",ccp_tcd);
+
+p_dcs = robustfit(sin_bp,sin_dcs);
+x= -p_dcs(1)/p_dcs(2):1:max(max(sin_bp,[],2));
+y = p_dcs(1)+p_dcs(2)*x;
+figure();
+plot(x,y);
+xlabel("ABP (mmHg)")
+ylabel("cBFi (aDb)")
+hold on; 
+scatter(sin_bp,sin_dcs)
+title("Regression DCS vs BP")
+hold off;
+ccp_dcs = -p_dcs(1)/p_dcs(2);   % simplifying the linear equation y=m*x + c for y=0 will lead to this equation 
+fprintf("CrCP DCS is = %d\n",ccp_dcs);
 
 %%
 pBP =  (max(bp_a)+ 2*min(bp_a))/3;  % MAP pressure
 psig = mean(signal);   % mean value of signal
 
-CrCP = pBP - (psig/p_sig)*p_ecg;
+CrCP = pBP - (pABP_f/pTCD_f)*pTCD;
 
 
 %% Averaging g2 curves to improve the SNR
@@ -344,7 +475,7 @@ for i=1:length(mu)
     mua = mu(i);
 
     Channel=4;
-    Curve_no=400;
+    Curve_no=100;
     rho = [1 1.5 2 2.5];
 
     beta=g2(Channel,Curve_no,1);
@@ -358,3 +489,92 @@ for i=1:length(mu)
    
 
 end
+%% Calculating the residuals for the fit
+% Plots the fitted g2 curve
+if exist("g2")
+    clear g2
+end
+mua = 0.17; %cm^-1 baseline absorption coefficient
+mus = 10; 
+
+g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+g2(2,:,:)=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+g2(3,:,:)=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+g2_fit = zeros(size(g2))*NaN;
+
+for i=1:size(g2,1)
+    for j=1:size(g2,2)
+        Channel=i;
+        Curve_no=j;
+        rho = [1 1.5 2 2.5]; 
+    
+        beta=g2(Channel,Curve_no,1);
+        aDb=aDb1(Channel,Curve_no);
+        
+        g2_fit(i,j,:)=squeeze(gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb));
+    
+%         semilogx(Data_tau,squeeze(Data(Curve_no, Channel,:))-1,'k')
+%         hold on
+%         semilogx(Data_tau,squeeze(g2_fit(i,j,:)),'r')
+%         break
+    end
+end
+residual = (g2_fit-g2).^2; % This is a squared difference between the g2 curve and its fitting
+res_error = sum(residual,3);
+
+%% Calcluating the moving average of the g2 curve ans smoothing the signal
+g2 = Data;
+for i=2:size(Data,1)-1
+    for j=1:size(Data,2)
+        g2(i,j,:) = mean(g2(i-1:i+1,j,:)); %Moving average of 3 points  || This improves the SNR by 1.1 dB for baseline
+%         g2(i,j,:) = (g2(i-1,j,:)+g2(i,j,:)*2+g2(i+1,j,:))./4; % Weighted moving average of g2 curve 
+    end
+end
+adb_smooth = hybrid_dcs(g2,Data_tau);
+
+%% Average of the aDb signal
+
+% for i=2:size(aDb1,2)-1
+%     adb_avg(1,i-1) = mean(aDb1(1,i-1:i+1));
+% end
+% plot(adb_avg,'b');
+% hold on;
+% plot(adb_smooth(1,:),'r');
+% plot(aDb1(1,:),'k')
+
+%% g2 average on consecutive cycle
+% Advancing the ECG signal to remove the time delay
+ecg_ad = circshift(ecg1,-700);
+% Finding the R-R peaks of ECG signal
+
+if exist("g2")
+    clear g2
+end
+mua = 0.17; %cm^-1 baseline absorption coefficient
+mus = 10; 
+
+g2 = Data;
+g2_avg = zeros(size(g2))*NaN;
+
+
+
+[h_pks,l_pks] = findpeaks(normalize(ecg1),"MinPeakHeight",2.5);
+hd_pks = floor(h_pks./50);
+ld_pks = floor(l_pks./50);
+% g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
+
+for i=1:size(ld_pks,2)-5
+    min_length = min(diff(ld_pks(i:i+5)));
+    base_sig = g2(ld_pks(i):ld_pks(i)+min_length,:,:);
+    for j=1:4
+        base_sig = base_sig + g2(ld_pks(i+j):ld_pks(i+j)+min_length,:,:);
+%         adb_1 = hybrid_dcs(base_sig,Data_tau);
+       
+    end
+    g2(ld_pks(i):ld_pks(i)+min_length,:,:) = base_sig./5;
+end
+
+adb_avg = hybrid_dcs(g2,Data_tau);
+figure();
+aDb1 = hybrid_dcs(Data(1:1200,:,:),Data_tau);

@@ -1,25 +1,25 @@
 % clear all
-% close all
+close all
 % 
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
 
 
-dcs = aDb1(1,:);
+dcs =dcs_15lp(1:1200);
 uf = length(ecg1)/length(dcs_1cm); 
 ecg1 = ecg_a;
 ecg1 = normalize(ecg1);
 if length(dcs)<length(ecg1)  % shifting only if it is a DCS signal else not so condition is check the length of the signal
-    ecg1 = circshift(ecg1,-750);
+    ecg1 = circshift(ecg1,-850);
 end
 ecg1 = ecg1(1:size(dcs,2)*50);
 
 
-% bp = 1:100:length(dcs);
-% dcs_d = detrend(normalize(dcs),1,bp); 
+bp = 1:100:length(dcs);
+dcs_d = detrend(normalize(dcs),1,bp); 
 % [dcs_1,filter_obj] = bandpass(dcs,[0.5 6],20,'ImpulseResponse','fir');
-dcs_1 = dcs;
+dcs_1 = dcs_d;
 plot(dcs_1)
 time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg1,2));
@@ -106,7 +106,7 @@ dcs_1_smooth2=circshift(dcs_1_smooth,00);
 
 for i=2:size(pks_ECG_smooth,2)-2
     locs_ECG_smooth(i)
-    locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
+    locs_ECG_smooth(i)+min(diff(locs_ECG_smooth));
     signal = dcs_1_smooth2(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
 %     base_sig = Data(locs_ECG_smooth(1):locs_ECG_smooth(1)+min(diff(locs_ECG_smooth))-1,:,:);
 %     sig = base_sig+ sig;

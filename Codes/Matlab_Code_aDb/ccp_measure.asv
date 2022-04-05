@@ -25,7 +25,7 @@ else
     step_size = 10;
 end
 
-
+ecg1 = ecg(1:length(s)*50);
 %Upsampling the signal if the signal is dcs
 if length(s)<length(ecg)
 %         signal = interp(singal,50);
@@ -34,20 +34,18 @@ if length(s)<length(ecg)
     xq = (1:(1/uf):length(s)+((uf-1)/uf)); 
     sig_up = interp1(x, s,xq,'makima');  % Upsampling the signal
     count  = 0;
-    ecg1 = ecg(1:length(s)*50);
     disp(length(sig_up))
     disp(length(ecg))
 else
-    sig_up = s;
+    sig_up = s(1:length(ecg1));
     count = 1;    
-    ecg1 = ecg(1:length(s));
 end
 
 bp = bp(1:length(ecg1));
 % Stacking the DCS/TCD signal with BP to make a single matrix for the processing
 d = [sig_up; bp];
 % disp(d)
-plot(normalize(circshift(sig_up,0)));
+plot(normalize(circshift(sig_up,shift)));
 hold on;
 plot(normalize(bp));
 
@@ -81,11 +79,7 @@ for sig=1:length(d(:,1))
     
     [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
     [pks_sig_smooth,locs_sig_smooth]=findpeaks(sig_smooth./max(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
-
-    if length(locs_ECG_smooth)<step_size
-        step_size = length(locs_ECG_smooth)-1;
-    end
-    disp(length(pks_ECG_smooth))
+%     disp(length(pks_ECG_smooth))
     % Plotting the signal
     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
     hold on
@@ -133,14 +127,14 @@ for sig=1:length(d(:,1))
         Extract=zeros(length(d(:,1)),floor(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
         Extract=Extract*NaN;
     end
-    ind = 1;
-    for i=1:step_size:size(pks_ECG_smooth,2)-1
+
+    for i=1:step_size:size(pks_ECG_smooth,2)
 %         if size(pks_ECG_smooth,2)-i <step_size
 %             break
 %         end
         sig_a = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
         cnt = 1;
-        
+        ind = 1;
         for j=1:1:step_size-1
             if i+j>size(pks_ECG_smooth,2)-1
                 break;
@@ -159,7 +153,7 @@ for sig=1:length(d(:,1))
         ind = ind+1;
         disp(ceil(i/step_size));
     end
-%     disp(Extract)
+    disp(Extract)
     avg_sig = squeeze(Extract(sig,:,:));
 %     avg_sig = reshape(avg_sig,[length(Extract(1,:,1)), length(Extract(1,1,:))]); % Reshaping the signal to make it a 2D matrix
 %     disp(avg_sig)
@@ -195,9 +189,8 @@ end
 
 bp_stack = squeeze(Extract(2,:,:));
 sig_stack = squeeze(Extract(1,:,:));
-% disp(sig_stack);
+% disp(bp_stack);
 % plot(bp_stack);
-disp(size(sig_stack))
 stack = [bp_stack;sig_stack];
 save("ccp_var_stack.mat","stack");
 ccp = zeros(1,length(bp_stack(:,1)));
