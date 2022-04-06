@@ -124,7 +124,7 @@ for j=1:length(file_list)
     %Calculating the amplitude at f(hr) for DCS signal
     Fs = 20;            % Sampling frequency                    
     T = 1/Fs;             % Sampling period    
-    signal = dcs_1lp(1:sig_roi*Fs);
+    signal = dcs_2lp(1:sig_roi*Fs);
     L = length(signal);             % Length of signal
     t = (0:L-1)*T;  
     

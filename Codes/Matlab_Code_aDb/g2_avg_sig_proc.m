@@ -8,7 +8,7 @@ close all;
 
 
 % Read files;
-dcs_dir = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\MPCM Study\DCS\20220223 - 2\Data.mat" ;     % Directory for DCS data
+dcs_dir = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\MPCM Study\DCS\20220217\Data.mat" ;     % Directory for DCS data
 param_dir = nan;   % Directory for ECG,BP data
 
 load(dcs_dir);
@@ -86,11 +86,13 @@ for k=1:size(adb_lp,1)
     adb_lp(k,:) = detrend(adb_lp(k,:),1,breakpoints);
 end
 %% Averaging thr g2 curve
-ecg_ad = circshift(ecg1,-700); % Advancing the ECG signal to match the DCS signal
+close all;
+
+ecg_ad = circshift(ecg1,-950); % Advancing the ECG signal to match the DCS signal
 % Finding the R-R peaks of ECG signal
 
 if exist("g2")
-    clear g2
+    clear g2;
 end
 mua = 0.17; %cm^-1 baseline absorption coefficient
 mus = 10; 
@@ -100,11 +102,11 @@ g2_avg = zeros(size(g2))*NaN;
 
 
 
-[h_pks,l_pks] = findpeaks(normalize(ecg1),"MinPeakHeight",2.5);
+[h_pks,l_pks] = findpeaks(normalize(ecg_ad),"MinPeakHeight",2.5);
 
 fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
 hold on
-plot(normalize(ecg1),'r')
+plot(normalize(ecg_ad),'r')
 plot(l_pks, h_pks,'*k')
 hd_pks = floor(h_pks./50);
 ld_pks = floor(l_pks./50);
@@ -122,5 +124,11 @@ for i=1:size(ld_pks,2)-5
 end
 
 adb_avg = hybrid_dcs(g2,Data_tau);
+adb_avg = adb_avg;
 figure();
 aDb1 = hybrid_dcs(Data,Data_tau);
+aDb1 = aDb1;
+figure();
+snr(adb_avg(4,:),20);
+figure();
+plot(adb_avg(4,:),'b'); hold on; plot(aDb1(4,:),'r');

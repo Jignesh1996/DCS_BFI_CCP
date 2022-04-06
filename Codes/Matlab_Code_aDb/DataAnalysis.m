@@ -6,12 +6,12 @@ close all
 
 
 
-dcs =dcs_15lp(1:1200);
+dcs =dcs_25lp_avg_ff;
 uf = length(ecg1)/length(dcs_1cm); 
 ecg1 = ecg_a;
 ecg1 = normalize(ecg1);
 if length(dcs)<length(ecg1)  % shifting only if it is a DCS signal else not so condition is check the length of the signal
-    ecg1 = circshift(ecg1,-850);
+    ecg1 = circshift(ecg1,-630);
 end
 ecg1 = ecg1(1:size(dcs,2)*50);
 
@@ -46,12 +46,12 @@ time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
 x = 1:1:length(dcs_1);
 uf = 50;   % Upsampling factor
 xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
-dcs_1_interp = interp1(x, dcs_1,xq,'makima');
+dcs_1_interp = interp1(x, dcs_1,xq,'v5cubic');
 % dcs_1_interp = dcs_1;
 
 % filtering
 % 
-windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
+windowsize=10; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
 wages=ones(1,windowsize)/windowsize;
 % wages = window_1;
 dcs_1_smooth=dcs_1_interp; % Y is your time course you want to filter, Y_smoth is filtered data

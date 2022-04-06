@@ -179,7 +179,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:120000);
+ecg1 = ecg_a(1:60000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
@@ -191,8 +191,7 @@ bp_a = bp_a(1:length(ecg1));
 bp_a = lpf(bp_a,3,1000);
 
 % DCS data processing
-% aDb1 = hybrid_dcs(Data,Data_tau);
-aDb1 = adb_avg;
+aDb1 = hybrid_dcs(Data,Data_tau);
 
 dcs_1cm = aDb1(1,:).*10^9;
 dcs_1lp = lpf_ffilts(dcs_1cm,15,20);
@@ -245,7 +244,7 @@ end
 %Calculating the amplitude at f(hr) for DCS signal
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = dcs_25lp;
+signal = dcs_15lp(1:1200);
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -259,7 +258,7 @@ pDCS = P1(1);
 pDCS_f = max(P1((f_sig*L/Fs)-20:(f_sig*L/Fs)+20));
 
 %Calculating the amplitude at f(hr) for ABP signal
-signal = tcd(1:length(ecg1));
+signal = tcd(1:60000);
 Fs = 1000;   
 T = 1/Fs;  
 L = length(signal);             % Length of signal
@@ -275,7 +274,7 @@ pTCD = P1(1);
 pTCD_f = max(P1((f_sig*L/Fs)-20:(f_sig*L/Fs)+20));
 
 %Calculating the amplitude at f(hr) for ABP signal
-signal = bp_a(1:length(ecg1));
+signal = bp_a(1:60000);
 Fs = 1000;   
 T = 1/Fs;  
 L = length(signal);             % Length of signal
@@ -594,15 +593,9 @@ dcs_25lp_pc = interp1(x, dcs_1,xq,'pchip');
 dcs_25lp_v5 = interp1(x, dcs_1,xq,'v5cubic');
 dcs_25lp_spl = interp1(x, dcs_1,xq,'spline');
 
-t = (0:1:length(s)-1)./20;
-tu = (0:1:length(dcs_25lp_l)-1)./1000;
-
+t = x./20;
+tu = (1:1:length(dcs_25lp_l))./1000;
+plot(tu,normalize(dcs_25lp_spl));
 hold on;
 plot(t,normalize(s),'b');
-plot(tu,normalize(dcs_25lp_m));
 plot(tu,normalize(dcs_25lp_spl));
-plot(tu,normalize(dcs_25lp_l));
-plot(tu,normalize(dcs_25lp_cb));
-plot(tu,normalize(dcs_25lp_pc));
-plot(tu,normalize(dcs_25lp_v5));
-legend("Original",'makima','spline','linear','cubic','pchip','v5')
