@@ -606,3 +606,5 @@ plot(tu,normalize(dcs_25lp_cb));
 plot(tu,normalize(dcs_25lp_pc));
 plot(tu,normalize(dcs_25lp_v5));
 legend("Original",'makima','spline','linear','cubic','pchip','v5')
+
+%% Signal Distortions mesurement metrics

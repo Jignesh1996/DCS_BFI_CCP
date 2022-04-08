@@ -11,9 +11,10 @@ function ccp = ccp_measure(varargin)
 %%%% Written by Jignesh Mistry %%%%
 
 
+
 % Mandatory arguments
-ecg1 = varargin{1};
-s = varargin{2};
+ecg = varargin{1};
+s = varargin{2};   % Flow signal
 bp = varargin{3};
 
 % Non-mandatory arguments
@@ -24,24 +25,49 @@ else
     step_size = 10;
 end
 
-step_size = varargin{4};
-bp = bp(1:length(ecg1));
+
 %Upsampling the signal if the signal is dcs
-if length(s)<length(ecg1)
+if length(s)<length(ecg)
 %         signal = interp(singal,50);
     x = 1:1:length(s);
-    uf = length(ecg1)/length(s);   % Upsampling factor
+    uf = length(ecg)/length(s);   % Upsampling factor
     xq = (1:(1/uf):length(s)+((uf-1)/uf)); 
-    sig_up = interp1(x, s,xq,'makima');
+    sig_up = interp1(x, s,xq,'makima');  % Upsampling the signal
     count  = 0;
+    ecg1 = ecg(1:length(s)*50);
+    sig_up = circshift(sig_up,690);
+%     disp(length(sig_up))
+%     disp(length(ecg))
 else
-    sig_up = s(1:length(ecg1));
+    sig_up = s;
     count = 1;    
+    ecg1 = ecg(1:length(s));
 end
 
+% shifting the signal to time align both bp and flow signals
+bp = bp(1:length(ecg1));
+[a_bp,l_bp] = findpeaks(normalize(bp),"MinPeakHeight",1.5,'MinPeakDistance',500) ;
+[a_sig,l_dcs] = findpeaks(normalize(sig_up),"MinPeakHeight",1.5,'MinPeakDistance',500);
+shift = l_bp(1)-l_dcs(1);
+bp = circshift(bp,0);
+% disp(length(l_dcs))
+% figure();
+% plot(normalize(bp),'r')
+% hold on;
+% plot(l_bp, a_bp,'*k')
+% hold on;   
+% plot(normalize(sig_up),'b')
+% plot(l_dcs, a_sig,'*k')
 % Stacking the DCS/TCD signal with BP to make a single matrix for the processing
 d = [sig_up; bp];
 
+% disp(d)
+figure();
+
+% disp(shift)
+plot(normalize(circshift(sig_up,0)));
+hold on;
+plot(normalize(bp));
 
 for sig=1:length(d(:,1))
     signal = d(sig,:);
@@ -58,6 +84,9 @@ for sig=1:length(d(:,1))
     [pks_sig,locs_sig]=findpeaks(signal/max(signal),'MinPeakHeight',0.35);
     [pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.65);
     
+    
+
+    
     % Filtering the signal
     
     windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
@@ -68,57 +97,59 @@ for sig=1:length(d(:,1))
     
     [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
     [pks_sig_smooth,locs_sig_smooth]=findpeaks(sig_smooth./max(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
-    
-    % Plotting the signal
-%     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
-%     hold on
-%     plot(sig_smooth/max(sig_smooth),'r')
-%     plot(locs_sig_smooth, pks_sig_smooth,'*k')
-%     
-%     plot(ecg1_smooth/max(ecg1_smooth),'b')
-%     plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
-    
-    if locs_ECG_smooth(1)>locs_sig_smooth(1)
-        Difference=locs_ECG_smooth(1)-locs_sig_smooth(1);
-        shift = floor(1.75*Difference);
-    else
-        shift =0;
+
+    if length(locs_ECG_smooth)<step_size
+        step_size = length(locs_ECG_smooth)-1;
     end
+    disp(length(pks_ECG_smooth))
+    % Plotting the signal
+    fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+    hold on
+    plot(sig_smooth/max(sig_smooth),'r')
+    plot(locs_sig_smooth, pks_sig_smooth,'*k')
+    
+    plot(ecg1_smooth/max(ecg1_smooth),'b')
+    plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
+    
+
+    % Change this condition, this is not right, becuase irrespective the
+    % difference may not be there in every case
+    % Make sure that the flow signal and BP signal both are peak alligned
+%     if locs_ECG_smooth(1)>locs_sig_smooth(1)
+%         Difference=locs_ECG_smooth(1)-locs_sig_smooth(1);
+%         shift = floor(1.75*Difference);
+%     else
+%         shift =0;
+%     end
 
     % Extracting the cycle from the signal using R peak as a marker
 %     Extract=ones(2,size(pks_ECG_smooth,2)-2,min(diff(locs_ECG_smooth)));
 %     Extract=Extract*NaN;
     if sig==2
-        dcs_1_smooth2=circshift(sig_smooth,-1075); % Personalizing the shift according to the signal
+        dcs_1_smooth2=circshift(sig_smooth,0); % Personalizing the shift according to the signal
     elseif count==0
-        dcs_1_smooth2=circshift(sig_smooth,775);
+        dcs_1_smooth2=circshift(sig_smooth,0);
     else
         dcs_1_smooth2=circshift(sig_smooth,0);
     end
-    
-%     for i=1:size(pks_ECG_smooth,2)-2
-%         locs_ECG_smooth(i);
-%         locs_ECG_smooth(i)+min(diff(locs_ECG_smooth));
-%         signal = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
-% %         base_sig = dcs_1_smooth2(1,locs_ECG_smooth(2):locs_ECG_smooth(2)+min(diff(locs_ECG_smooth))-1);
-% %         sig = signal + (max(base_sig) - max(signal));
-%       
-%         
-%     %     Extract(i,:)=dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
-%     
-%         Extract(sig,i,:)=signal;
-%     end
+ 
+% Defining the size of the variable  
     if sig ==1
-        Extract=zeros(length(d(:,1)),floor(size(pks_ECG_smooth,2)/step_size),min(diff(locs_ECG_smooth)));
+        Extract=zeros(length(d(:,1)),floor(size(pks_ECG_smooth,2)/step_size)-3,min(diff(locs_ECG_smooth)));
         Extract=Extract*NaN;
     end
+    disp(floor(size(pks_ECG_smooth,2)/step_size)-2)
+    ind = 1;
 
-    for i=1:step_size:size(pks_ECG_smooth,2)-2
+    % Taking the average of the signal with average of step_size number of
+    % cycles to remove the possible occurance of noise
+    for i=2:step_size:size(pks_ECG_smooth,2)-2
+%         if size(pks_ECG_smooth,2)-i <step_size
+%             break
+%         end
         sig_a = dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
-        if size(pks_ECG_smooth,2)-2-i <step_size
-            break
-        end
         cnt = 1;
+        
         for j=1:1:step_size-1
             if i+j>size(pks_ECG_smooth,2)-2
                 break;
@@ -129,18 +160,21 @@ for sig=1:length(d(:,1))
             sig_a = sig_a+cycle;
             cnt = cnt+1;
         end
+        
         sig_a = sig_a./cnt;
           
     
-        Extract(sig,floor(i/step_size)+1,:)=sig_a;
+        Extract(sig,ind,:)=sig_a;
+        ind = ind+1;
     end
-
-    avg_sig = Extract(sig,:,:);
-    avg_sig = reshape(avg_sig,[length(Extract(1,:,1)), length(Extract(1,1,:))]); % Reshaping the signal to make it a 2D matrix
+%     disp(Extract)
+% Reshaping the signal to remove the extra dimension
+    avg_sig = squeeze(Extract(sig,:,:));
 
     figure();
     x = (1:1:length(avg_sig'))/1000;
     plot(x,(avg_sig'))
+    legend("1","2","3","4")
     xlabel("Time(s)")
     ylabel("aDb value")
     title("Marker=ECG R peak, DCS 2.5cm")
@@ -174,7 +208,7 @@ stack = [bp_stack;sig_stack];
 save("ccp_var_stack.mat","stack");
 ccp = zeros(1,length(bp_stack(:,1)));
 for i=1:length(bp_stack(:,1))
-    tail_start = 600;
+    tail_start = 500;
 %     p = polyfit(bp_stack(i,tail_start:size(bp_stack,2))',sig_stack(i,tail_start:size(bp_stack,2))',1);
 %     x = -20:0.005:130;
 %     f = polyval(p,x);

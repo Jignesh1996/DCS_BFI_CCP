@@ -194,7 +194,5 @@ ylabel("CrCP_t (mmHg)");
 title("CrCP_t using Tail, TCD averaged over 25 cycles")
 legend("TCD","DCS 1cm","DCS 1.5cm","DCS 2cm","DCS 2.5cm");
 
-% Using the Harmonics (Frequency) method
-
-
+% Using the Harmonics f
 

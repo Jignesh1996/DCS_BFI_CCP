@@ -16,13 +16,14 @@ tcd = tcd_a(1:length(ecg1));
 % tcd = normalize(tcd);
 tcd = lpf_ffilts(tcd,30,1000);
 
-bp_a = bp_a(1:length(ecg1));
-bp_a = lpf(bp_a,3,1000);
+bp = bp_a(1:length(ecg1));
+bp = lpf_ffilts(bp,40,1000);
 %% Plotting the frequency spectrum
-Fs = 20;            % Sampling frequency                    
+Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = dcs_1lp;
-L = length(signal);             % Length of signal
+signal = bp_a;
+L = length(signal);     
+% Length of signal
 t = (0:L-1)*T;  
 
 Y = fft(signal);
@@ -146,10 +147,10 @@ tcd_ens = ensavg;
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
 %% Processing the blood pressure data
-bp_a = bp_a(1:length(ecg1));
-bp_a = lpf(bp_a,3,1000);
-bp_a = bp_a(1:length(tcd));
-bp = bp_a;
+bp = bp(1:length(ecg1));
+bp = lpf(bp,3,1000);
+bp = bp(1:length(tcd));
+bp = bp;
 minima = islocalmin(bp,'MinProminence',20);
 x = 1:length(minima);
 plot(x,bp,x(minima),bp(minima),'r*');
@@ -388,26 +389,28 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1cm = aDb1(1,:).*10^9;
-dcs_1lp = lpf_ffilts(dcs_1cm,15,20);
+dcs_1lp = lpf_ffilts(dcs_1cm,7,20);
 dcs_15 = aDb1(2,:).*10^9;
-dcs_15lp = lpf_ffilts(dcs_15,15,20);
+dcs_15lp = lpf_ffilts(dcs_15,7,20);
 dcs_2 = aDb1(3,:).*10^9;
-dcs_2lp = lpf_ffilts(dcs_2,15,20);
+dcs_2lp = lpf_ffilts(dcs_2,7,20);
 dcs_25 = aDb1(4,:).*10^9;
-dcs_25lp = lpf_ffilts(dcs_25,15,20);
+dcs_25lp = lpf_ffilts(dcs_25,7,20);
 
 
 
 %% Shifting the signal to time allign the DCS signal to ECG
 break_pt = 1:100:size(tcd,2);
-[a,l_bp] = findpeaks(normalize(bp_a),"MinPeakHeight",1) ;
+bp_shift = circshift(bp,-1180)
+[a,l_bp] = findpeaks(normalize(bp_shift),"MinPeakHeight",1.5,'MinPeakDistance',500) ;
 [a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1);
 shift = l_bp(1)-l_tcd(1);
-tcd_shift = circshift(tcd,-30)
+tcd_shift = circshift(tcd,-100)
+
 %% Calculating the Critical closing pressure
 close all;
-l = 600;
-ccp_dcs  = ccp_measure(ecg1(1:l*50),dcs_2lp(1:l),bp_a(1:l*50),shift,20);
+l = 2400;
+ccp_dcs  = ccp_measure_tail(ecg1(1:l*50),dcs_2lp(1:l),bp_shift(1:l*50),60);
 % ccp_dcs  = ccp_measure(ecg1,dcs_25lp,bp,10);
 % close all;
 % scatter(1:length(ccp_tcd),ccp_tcd,'red');
