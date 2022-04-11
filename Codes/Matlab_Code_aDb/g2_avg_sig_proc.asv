@@ -111,22 +111,32 @@ plot(l_pks, h_pks,'*k')
 hd_pks = floor(h_pks./50);
 ld_pks = floor(l_pks./50);
 % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-
-for i=1:size(ld_pks,2)-5
-    min_length = min(diff(ld_pks(i:i+5)));
+avg_window_width = 50;
+for i=1:size(ld_pks,2)
+    if size(ld_pks,2)-i < avg_window_width
+        avg_window_width = avg_window_width-1
+    end
+    min_length = min(diff(ld_pks(i:i+avg_window_width)));
     base_sig = g2(ld_pks(i):ld_pks(i)+min_length,:,:);
-    for j=1:4
+   
+    for j=1:avg_window_width-1
         base_sig = base_sig + g2(ld_pks(i+j):ld_pks(i+j)+min_length,:,:);
 %         adb_1 = hybrid_dcs(base_sig,Data_tau);
        
     end
-    g2(ld_pks(i):ld_pks(i)+min_length,:,:) = base_sig./5;
+    g2(ld_pks(i):ld_pks(i)+min_length,:,:) = base_sig./avg_window_width;
 end
 
 adb_avg = hybrid_dcs(g2,Data_tau);
-adb_avg = adb_avg;
+adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
 figure();
 aDb1 = hybrid_dcs(Data,Data_tau);
 aDb1 = aDb1;
 figure();
-snr(adb_avg(4,:),20);
+snr(adb_avg(4,1200:5000),20);
+figure();
+plot(adb_avg(4,:),'b'); hold on; plot(aDb1(4,:),'r');
+title("Comparision of g2 averaging for cuff data")
+legend("g2 Averaged signal","Raw signal")
+xlabel("samples (Time = samples/20)");
+ylabel("aDb")

@@ -1,87 +1,22 @@
-close all;
-clear all;
+function crcp_freq = crcp_freq_method(ecg,tcd,bp_a,dcs)
 
-tic;
-dcs_path = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\MPCM Study\DCS\";
-param_path =  "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\MPCM Study\20220310\";
-file_list = ["20220218 - 3\"]; %Edit this list
-file_name = ["MPCM005"];
-body_param_files = ["MPCM005_tcd_20220218.mat"] ;
+%%% This function calculates the value of critical closing pressure using
+%%% the blood pressure and the DCS signal or TCD signal. It uses regression
+%%% method to find the intercept of the dynamic pressure-flow graph between
+%%% the DCS/TCD and ABP graph.
+%%% This fuction uses a harmonics of the signal and then reconstructing the
+%%% sinusoidal signal with the fundamental harmonics frequency and using
+%%% that to calculate the critical closing pressure. 
 
-for j=1:length(file_list)
 
-    % Read files;
-    dcs_dir = strcat(dcs_path,file_list(j),"Data.mat") ;     % Directory for DCS data
-    
-    load(dcs_dir);
-    data_mat_all(j,:,:,:) = Data;
-    aDb1 = hybrid_dcs(Data,Data_tau);
-    
-    % time resultion - aqusition time used to aquire data
-    figure();
-    sgtitle(file_name(j))
-    t_res=1; % seconds
-    time=t_res*(1:1:size(aDb1,2));
-    
-    subplot(2,2,1)
-    
-    plot(time,aDb1(1,:))
-    title('{\itr}_{SD}=1 cm')
-    % set(gca,'xticklabel',{})
-    
-    subplot(2,2,2)
-    
-    plot(time,aDb1(2,:))
-    title('{\itr}_{SD}=1.5 cm')
-    xlabel('Time (s)')
-    
-    subplot(2,2,3)
-    
-    plot(time,aDb1(3,:))
-    title('{\itr}_{SD}=2 cm')
-    % set(gca,'xticklabel',{})
-    
-    subplot(2,2,4)
-    
-    plot(time,aDb1(4,:))
-    title('{\itr}_{SD}=2.5 cm')
-    xlabel('Time (s)')
-    
-    % Assigning the channels
-    dcs_1cm = aDb1(1,:).*10^9;
-    dcs_1lp = lpf_ffilts(dcs_1cm,10,20);
-    dcs_15 = aDb1(2,:).*10^9;
-    dcs_15lp = lpf_ffilts(dcs_15,10,20);
-    dcs_2 = aDb1(3,:).*10^9;
-    dcs_2lp = lpf_ffilts(dcs_2,10,20);
-    dcs_25 = aDb1(4,:).*10^9;
-    dcs_25lp = lpf_ffilts(dcs_25,7,20);
-    
-    % Recombine the DCS signal
-    adb_lp = [dcs_1lp;dcs_15lp;dcs_2lp;dcs_25lp];
 
-    %Loading the ECG,TCD and BP file
-    param_file = strcat(param_path,body_param_files(j));
-    load(param_file);
+%%%% Written by Jignesh Mistry %%%%
 
-    ecg_a = data(datastart(1):dataend(1));
-    bp_a = data(datastart(2):dataend(2));
-    tcd_a = data(datastart(3):dataend(3));
-    
-    sig_roi = 60; % Length of signal under consideration
-    
-    ecg1 = ecg_a(1:sig_roi*1000);
-    ecg1 = normalize(ecg1);
-    ecg1 = lpf(ecg1,5,1000);
-        
-    tcd = tcd_a(1:length(ecg1));
-    % tcd = normalize(tcd);
-    tcd = lpf(tcd,15,1000);
-    
-    bp_a = bp_a(1:length(ecg1));
-    bp_a = lpf(bp_a,3,1000);
 
     
+    
+
+    ecg1 = ecg;
 
     % Calculating the FFT for frequency spectrum
     sig = [ecg1];
@@ -121,10 +56,11 @@ for j=1:length(file_list)
     
     end
     
+    
     %Calculating the amplitude at f(hr) for DCS signal
     Fs = 20;            % Sampling frequency                    
     T = 1/Fs;             % Sampling period    
-    signal = dcs_2lp(1:sig_roi*Fs);
+    signal = dcs;
     L = length(signal);             % Length of signal
     t = (0:L-1)*T;  
     
@@ -169,22 +105,29 @@ for j=1:length(file_list)
     
     %
     t = 0:0.01:1/f_sig;
-    
+
     sin_dcs =pDCS+ pDCS_f*sin(2*pi*f_sig*t);
     figure()
-    plot(t,sin_dcs)
+    a = 0:0.05:1;
+    plot(a,normalize(dcs(2:22)));
+    hold on;
+    plot(t,normalize(sin_dcs))
     title("Fundamental DCS")
     
     sin_tcd =pTCD+ pTCD_f*sin(2*pi*f_sig*t);
     figure()
-    plot(t,sin_tcd)
+    x = 0:0.001:1;
+    plot(x,normalize(tcd(100:1100)));
+    hold on;
+    plot(t,normalize(sin_tcd))
     title("Fundamental TCD")
-
-
-    pBP =  (max(bp_a)+ 2*min(bp_a))/3;
-    sin_bp =pABP+ pABP_f*sin(2*pi*f_sig*t);
+    
+    pBP =  (max(bp_a)+ 2*min(bp_a))/3;  % MAP pressure 
+    sin_bp =pBP+ pABP_f*sin(2*pi*f_sig*t);
     figure();
-    plot(t,sin_bp)
+    plot(x,normalize(bp_a(100:1100)));
+    hold on;
+    plot(t,normalize(sin_bp))
     title("Fundamental BP")
     figure();
     scatter(sin_bp,sin_tcd)
@@ -220,4 +163,5 @@ for j=1:length(file_list)
     ccp_dcs = -p_dcs(1)/p_dcs(2);   % simplifying the linear equation y=m*x + c for y=0 will lead to this equation 
     fprintf("CrCP DCS is = %d\n",ccp_dcs);
     
+    crcp_freq = [ccp_tcd;ccp_dcs];
 end
