@@ -136,7 +136,7 @@ figure();
 snr(adb_avg(4,1200:5000),20);
 figure();
 plot(adb_avg(4,:),'b'); hold on; plot(aDb1(4,:),'r--');
-title("Comparision of g2 averaging for cuff data")
+title("Comparision of g2 averaging for cuff data MPCM004 width=50 cycles")
 legend("g2 Averaged signal","Raw signal")
 xlabel("samples (Time = samples/20)");
 ylabel("aDb")
