@@ -80,13 +80,7 @@ for sig=1:length(d(:,1))
     plot(time_signal,signal/max(signal),'r')
     plot(time_ECG,ecg1/max(ecg1),'b')
     
-    % Finding the peaks of the signal
-    [pks_sig,locs_sig]=findpeaks(signal/max(signal),'MinPeakHeight',0.35);
-    [pks_ECG,locs_ECG]=findpeaks(ecg1/max(ecg1),'MinPeakHeight',0.65);
-    
-    
-
-    
+ 
     % Filtering the signal
     
     windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
@@ -95,8 +89,8 @@ for sig=1:length(d(:,1))
     sig_smooth=filtfilt(wages,1,signal); % Y is your time course you want to filter, Y_smoth is filtered data
     ecg1_smooth=filtfilt(wages,1,ecg1);
     
-    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65);
-    [pks_sig_smooth,locs_sig_smooth]=findpeaks(sig_smooth./max(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
+    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(normalize(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',500);
+    [pks_sig_smooth,locs_sig_smooth]=findpeaks(normalize(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
 
     if length(locs_ECG_smooth)<step_size
         step_size = length(locs_ECG_smooth)-1;
@@ -105,10 +99,10 @@ for sig=1:length(d(:,1))
     % Plotting the signal
     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
     hold on
-    plot(sig_smooth/max(sig_smooth),'r')
+    plot(normalize(sig_smooth),'r')
     plot(locs_sig_smooth, pks_sig_smooth,'*k')
     
-    plot(ecg1_smooth/max(ecg1_smooth),'b')
+    plot(normalize(ecg1_smooth),'b')
     plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
     
 
@@ -142,7 +136,7 @@ for sig=1:length(d(:,1))
     ind = 1;
 
     % Taking the average of the signal with average of step_size number of
-    % cycles to remove the possible occurance of noise
+    % cycles to remove the possible occurance of ny
     for i=2:step_size:size(pks_ECG_smooth,2)-2
 %         if size(pks_ECG_smooth,2)-i <step_size
 %             break

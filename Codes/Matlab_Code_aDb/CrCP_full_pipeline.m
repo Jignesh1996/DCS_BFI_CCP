@@ -16,7 +16,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:120000);
+ecg1 = ecg_a(1:300000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
@@ -137,7 +137,12 @@ end
 % Write a code for checking the quality of the signal
 
 %% Temporal alignment the TCD, ABP, and DCS signals
-
+break_pt = 1:100:size(tcd,2);
+bp_shift = circshift(bp,0)
+[a,l_bp] = findpeaks(normalize(bp_shift),"MinPeakHeight",1.5,'MinPeakDistance',500) ;
+[a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1);
+shift = l_bp(1)-l_tcd(1);
+tcd_shift = circshift(tcd,-shift);
 
 %% CrCP calculation 
 
@@ -158,7 +163,7 @@ ccp_dcs2 = mean(CrCP(4,1:end-1));
 CrCP(5,:) = ccp_measure(ecg1(1:l*50),dcs_25lp(1:l),bp_shift(1:l*50),avg_pt);
 ccp_dcs25 = mean(CrCP(4,1:end-1));
 
-close all
+% close all
 figure();
 plot(CrCP(1,1:end-1));
 hold on;
@@ -171,7 +176,7 @@ title("CrCP using Tail, TCD averaged over 25 cycles")
 legend("TCD","DCS 1cm","DCS 1.5cm","DCS 2cm","DCS 2.5cm");
 
 
-% Using tail of the cycle
+%% Using tail of the cycle
 ccp = ccp_measure_tail(ecg1(1:l*50),tcd_shift(1:l*50),bp_shift(1:l*50),avg_pt);
 CrCP_t = zeros(5,size(ccp,2));
 CrCP_t(1,:) = ccp;
@@ -198,7 +203,8 @@ ylabel("CrCP_t (mmHg)");
 title("CrCP_t using Tail, TCD averaged over 25 cycles")
 legend("TCD","DCS 1cm","DCS 1.5cm","DCS 2cm","DCS 2.5cm");
 
-% Using the Harmonics (Frequency) method
+%% Using the Harmonics (Frequency) method
+close all;
 CrCP_harmonics = zeros(4,2)*NaN;
 CrCP_harmonics(1,:) = crcp_freq_method(ecg1,tcd,bp_a,dcs_1lp);
 CrCP_harmonics(2,:) = crcp_freq_method(ecg1,tcd,bp_a,dcs_15lp);
