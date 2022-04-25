@@ -203,10 +203,18 @@ abd_ens = ensavg;
 % filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\20211207\Data.mat');
 % load(filename)
 
-g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
-g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
-g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
-g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+% g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+% g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+% g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+% g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+
+
+
+%This changed for g2 averaging
+g2(1,:,:)=squeeze(Data_avg(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(Data_avg(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(Data_avg(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(Data_avg(:,4,:)-1); %g2-1 curve generation
 
 % average g2 curve for large source detector separation
 for i=1:size(g2,2)

@@ -88,7 +88,7 @@ end
 %% Averaging thr g2 curve
 close all;
 
-ecg_ad = circshift(ecg1,-950); % Advancing the ECG signal to match the DCS signal
+ecg_ad = circshift(ecg1,-1350); % Advancing the ECG signal to match the DCS signal
 % Finding the R-R peaks of ECG signal
 
 if exist("g2")
@@ -127,15 +127,15 @@ for i=1:size(ld_pks,2)
     g2(ld_pks(i):ld_pks(i)+min_length,:,:) = base_sig./avg_window_width;
 end
 
-adb_avg = hybrid_dcs(g2,Data_tau);
+adb_avg = standalone_dcs(g2,Data_tau);
 adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
 figure();
-aDb1 = hybrid_dcs(Data,Data_tau);
+aDb1 = standalone_dcs(Data,Data_tau);
 aDb1 = aDb1;
 figure();
-snr(adb_avg(4,1200:5000),20);
+snr(adb_avg(2,1200:5000),20);
 figure();
-plot(adb_avg(4,:),'b'); hold on; plot(aDb1(4,:),'r--');
+plot(adb_avg(2,:),'b'); hold on; plot(aDb1(4,:),'r--');
 title("Comparision of g2 averaging for cuff data MPCM004 width=50 cycles")
 legend("g2 Averaged signal","Raw signal")
 xlabel("samples (Time = samples/20)");

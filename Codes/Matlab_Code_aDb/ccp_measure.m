@@ -35,7 +35,7 @@ if length(s)<length(ecg)
     sig_up = interp1(x, s,xq,'makima');  % Upsampling the signal
     count  = 0;
     ecg1 = ecg(1:length(s)*50);
-    sig_up = circshift(sig_up,690);
+    sig_up = circshift(sig_up,520);
 %     disp(length(sig_up))
 %     disp(length(ecg))
 else

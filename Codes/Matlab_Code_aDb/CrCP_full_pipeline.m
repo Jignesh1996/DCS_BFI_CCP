@@ -16,12 +16,12 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:300000);
+ecg1 = ecg_a(1:60000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
 tcd = tcd_a(1:length(ecg1));
-% tcd = normalize(tcd);
+
 tcd = lpf_ffilts(tcd,12,1000);
 
 bp = bp_a(1:length(ecg1));
@@ -75,7 +75,7 @@ end
 mua = 0.17; %cm^-1 baseline absorption coefficient
 mus = 10; 
 
-g2 = Data;
+g2 = Data(1:1200,:,:);
 g2_avg = zeros(size(g2))*NaN;
 
 
@@ -89,7 +89,7 @@ plot(l_pks, h_pks,'*k')
 hd_pks = floor(h_pks./50);
 ld_pks = floor(l_pks./50);
 % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-avg_window_width = 50;
+avg_window_width = 10;
 for i=1:size(ld_pks,2)
     if size(ld_pks,2)-i < avg_window_width
         avg_window_width = avg_window_width-1
@@ -111,20 +111,18 @@ figure();
 aDb1 = hybrid_dcs(Data,Data_tau);
 aDb1 = aDb1;
 figure();
-snr(adb_avg(4,1200:5000),20);
-figure();
 plot(adb_avg(4,:),'b'); hold on; plot(aDb1(4,:),'r');
 
 %% Filtering the signal
 
 dcs_1cm = adb_avg(1,:).*10^9;
-dcs_1lp = lpf_ffilts(dcs_1cm,10,20);
+dcs_1lp = lpf_ffilts(dcs_1cm,15,20);
 dcs_15 = adb_avg(2,:).*10^9;
-dcs_15lp = lpf_ffilts(dcs_15,10,20);
+dcs_15lp = lpf_ffilts(dcs_15,15,20);
 dcs_2 = adb_avg(3,:).*10^9;
-dcs_2lp = lpf_ffilts(dcs_2,10,20);
+dcs_2lp = lpf_ffilts(dcs_2,15,20);
 dcs_25 = adb_avg(4,:).*10^9;
-dcs_25lp = lpf_ffilts(dcs_25,10,20);
+dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
 %% Recombine the DCS signal
 adb_lp = [dcs_1lp;dcs_15lp;dcs_2lp;dcs_25lp]; %Recombining the filtered signal
@@ -140,16 +138,18 @@ end
 break_pt = 1:100:size(tcd,2);
 bp_shift = circshift(bp,0)
 [a,l_bp] = findpeaks(normalize(bp_shift),"MinPeakHeight",1.5,'MinPeakDistance',500) ;
-[a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1);
-shift = l_bp(1)-l_tcd(1);
-tcd_shift = circshift(tcd,-shift);
-
+[a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1,'MinPeakDistance',500);
+[a,l_dcs] = findpeaks(normalize(detrend(dcs_2,1,break_pt)),"MinPeakHeight",1,'MinPeakDistance',17);
+shift_tcd = l_bp(1)-l_tcd(1);
+tcd_shift = circshift(tcd,-shift_tcd);
+shift_dcs = l_bp(1) - l_dcs(1)*50;
+% dcs_1lp = circshift(dcs_1lp,-shift_dcs);
 %% CrCP calculation 
 
 % Using full cycle method
 close all;
-l = 2400;
-avg_pt = 60;
+l = 1200;
+avg_pt = 20;
 ccp = ccp_measure(ecg1(1:l*50),tcd_shift(1:l*50),bp_shift(1:l*50),avg_pt);
 CrCP = zeros(5,size(ccp,2));
 CrCP(1,:) = ccp;
