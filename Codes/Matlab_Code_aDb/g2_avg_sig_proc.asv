@@ -24,7 +24,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 % tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:210000);
+ecg1 = ecg_a(1:180000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
@@ -42,19 +42,19 @@ aDb1 = standalone_dcs(Data,Data_tau);
 
 % time resultion - aqusition time used to aquire data
 figure();
-t_res=0.05; % seconds
-time=t_res*(1:1:size(aDb1,2)-15);
+t_res=1; % seconds
+time=t_res*(1:1:size(aDb1,2));
 
 subplot(2,1,1)
 
-plot(time,aDb1(1,1:4185))
-title('{\itr}_{SD}=1.7 cm')
+plot(time,aDb1(1,:))
+title('{\itr}_{SD}=1 cm')
 % set(gca,'xticklabel',{})
 
 subplot(2,1,2)
 
-plot(time,aDb1(2,1:4185))
-title('{\itr}_{SD}=2.7 cm')
+plot(time,aDb1(2,:))
+title('{\itr}_{SD}=1.5 cm')
 xlabel('Time (s)')
 
 
@@ -93,7 +93,7 @@ close all;
 shift = 1:45:800;
 SNR = zeros(1,length(shift));
 bp_shift = circshift(bp_a,-1175);
-ecg_ad = circshift(ecg1,-650); % Advancing the ECG signal to match the DCS signal
+ecg_ad = circshift(ecg1,0); % Advancing the ECG signal to match the DCS signal
 % Finding the R-R peaks of ECG signal
 
 if exist("g2")
@@ -108,27 +108,27 @@ mus = 10;
 % Defining the protocol ltime line
 
 
-% ecg_1 = ecg_ad(1:300000);   % 5 min baseline data
-% Data_1 = Data(1:6000,:,:);
-% bp_1 = bp_shift(1:300000);
-% ecg_2 = ecg_ad(300001:480000); % 3 min TNQT @80 mmHg
-% Data_2 = Data(6001:9600,:,:);
-% bp_2 = bp_shift(300001:480000);
-% ecg_3 = ecg_ad(480001:720000); % 4 min TNQT @160 mmHg
-% Data_3 = Data(9601:14400,:,:);
-% bp_3 = bp_shift(480001:720000);
-% ecg_4 = ecg_ad(720001:780000); % 1 min baseline
-% Data_4 = Data(14401:15600,:,:);
-% bp_4 = bp_shift(720001:780000);
+ecg_1 = ecg_ad(1:300000);   % 5 min baseline data
+Data_1 = Data(1:6000,:,:);
+bp_1 = bp_shift(1:300000);
+ecg_2 = ecg_ad(300001:480000); % 3 min TNQT @80 mmHg
+Data_2 = Data(6001:9600,:,:);
+bp_2 = bp_shift(300001:480000);
+ecg_3 = ecg_ad(480001:720000); % 4 min TNQT @160 mmHg
+Data_3 = Data(9601:14400,:,:);
+bp_3 = bp_shift(480001:720000);
+ecg_4 = ecg_ad(720001:780000); % 1 min baseline
+Data_4 = Data(14401:15600,:,:);
+bp_4 = bp_shift(720001:780000);
+
+g2 = Data_1;
+ecg = ecg_1;
+
+% start_time = 120 ;   %time in seconds
+% stop_time =  180;    %time in seconds
 % 
-% g2 = Data;
-% ecg = ecg1;
-
-start_time = 60 ;   %time in seconds
-stop_time =  90;    %time in seconds
-
-g2 = Data(start_time*20:stop_time*20,:,:);
-ecg = ecg_ad(start_time*1000:stop_time*1000);
+% g2 = Data(start_time*20:stop_time*20,:,:);
+% ecg = ecg_ad(start_time*1000:stop_time*1000);
 % g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
 % g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
 % g2_3_temp=squeeze(D(:,3,:)-1); %g2-1 curve generation
@@ -188,7 +188,7 @@ dcs_3lp = lpf(adb_avg(2,:),7,20);
 %% Plotting the frequency spectrum of the averaged and raw signal
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = aDb1(1,2400:3000);
+signal = adb_avg(2,:);
 L = length(signal);     
 % Length of signal
 t = (0:L-1)*T;  

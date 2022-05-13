@@ -25,7 +25,7 @@ else
     step_size = 10;
 end
 
-
+disp(length(ecg));
 %Upsampling the signal if the signal is dcs
 if length(s)<length(ecg)
 %         signal = interp(singal,50);
@@ -35,7 +35,7 @@ if length(s)<length(ecg)
     sig_up = interp1(x, s,xq,'makima');  % Upsampling the signal
     count  = 0;
     ecg1 = ecg(1:length(s)*50);
-    sig_up = circshift(sig_up,520);
+    sig_up = circshift(sig_up,0);
 %     disp(length(sig_up))
 %     disp(length(ecg))
 else
@@ -46,8 +46,8 @@ end
 
 % shifting the signal to time align both bp and flow signals
 bp = bp(1:length(ecg1));
-[a_bp,l_bp] = findpeaks(normalize(bp),"MinPeakHeight",1.5,'MinPeakDistance',500) ;
-[a_sig,l_dcs] = findpeaks(normalize(sig_up),"MinPeakHeight",1.5,'MinPeakDistance',500);
+[a_bp,l_bp] = findpeaks(normalize(bp),"MinPeakHeight",1.25,'MinPeakDistance',700) ;
+[a_sig,l_dcs] = findpeaks(normalize(sig_up),"MinPeakHeight",1.5,'MinPeakDistance',700);
 shift = l_bp(1)-l_dcs(1);
 bp = circshift(bp,0);
 % disp(length(l_dcs))
@@ -75,10 +75,10 @@ for sig=1:length(d(:,1))
     time_signal=0.001*(1:1:size(signal,2));
     time_ECG=0.001*(1:1:size(ecg1,2));
     
-    figure()
-    hold on
-    plot(time_signal,signal/max(signal),'r')
-    plot(time_ECG,ecg1/max(ecg1),'b')
+%     figure()
+%     hold on
+%     plot(time_signal,signal/max(signal),'r')
+%     plot(time_ECG,ecg1/max(ecg1),'b')
     
  
     % Filtering the signal
@@ -86,24 +86,26 @@ for sig=1:length(d(:,1))
     windowsize=5; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
     wages=ones(1,windowsize)/windowsize;
     % wages = window_1;
-    sig_smooth=filtfilt(wages,1,signal); % Y is your time course you want to filter, Y_smoth is filtered data
-    ecg1_smooth=filtfilt(wages,1,ecg1);
+%     sig_smooth=filtfilt(wages,1,signal); % Y is your time course you want to filter, Y_smoth is filtered data
+%     ecg1_smooth=filtfilt(wages,1,ecg1);
+    sig_smooth = signal;
+    ecg1_smooth = ecg1;
     
-    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(normalize(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',500);
-    [pks_sig_smooth,locs_sig_smooth]=findpeaks(normalize(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
+    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(normalize(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',750);
+    [pks_sig_smooth,locs_sig_smooth]=findpeaks(normalize(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',750);
 
     if length(locs_ECG_smooth)<step_size
         step_size = length(locs_ECG_smooth)-1;
     end
     disp(length(pks_ECG_smooth))
     % Plotting the signal
-    fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
-    hold on
-    plot(normalize(sig_smooth),'r')
-    plot(locs_sig_smooth, pks_sig_smooth,'*k')
-    
-    plot(normalize(ecg1_smooth),'b')
-    plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
+%     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+%     hold on
+%     plot(normalize(sig_smooth),'r')
+%     plot(locs_sig_smooth, pks_sig_smooth,'*k')
+%     
+%     plot(normalize(ecg1_smooth),'b')
+%     plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
     
 
     % Change this condition, this is not right, becuase irrespective the
@@ -216,6 +218,26 @@ for i=1:length(bp_stack(:,1))
     plot(x,y);
     hold on; 
     scatter(bp_stack(i,:)',sig_stack(i,:)')
+    xlabel("ABP (mmHg)")
+    ylabel("CBFi (cm/s^2)*10^9");
+    title("Regression Plot(r_s_d")
+    ylim([0 max((sig_stack(i,:)))+1])
+   
+%     switch i
+%         case 1
+%             title("ABP vs TCD regression")
+%             ylabel("CBFV(cm/s)")
+%         case 2
+%             title("ABP vs CBFi(r_s_d=1cm) regresson")
+%         case 3
+%             title("ABP vs CBFi(r_s_d=1.5cm) regresson")
+%         case 4
+%             title("ABP vs CBFi(r_s_d=2cm) regresson")
+%         case 5
+%             title("ABP vs CBFi(r_s_d=2.5cm) regresson")
+%         otherwise
+%             title("Regression graph")
+%     end
     hold off;
     ccp(i) = -p(1)/p(2);   % simplifying the linear equation y=m*x + c for y=0 will lead to this equation 
     fprintf("%d",ccp(i));

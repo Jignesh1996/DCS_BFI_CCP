@@ -1,13 +1,18 @@
 function aDb = standalone_dcs(Data_avg,Data_tau)
 %Calculates the aDb values for each channels
-g2(1,:,:)=squeeze(Data_avg(:,1,:)-1); %g2-1 curve generation
-g2_2_temp=squeeze(Data_avg(:,2,:)-1); %g2-1 curve generation
-g2_3_temp=squeeze(Data_avg(:,3,:)-1); %g2-1 curve generation
-g2_4_temp=squeeze(Data_avg(:,4,:)-1); %g2-1 curve generation
-
-% average g2 curve for large source detector separation
-for i=1:size(g2,2)
-    g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+if size(Data_avg,2)==4
+    g2(1,:,:)=squeeze(Data_avg(:,1,:)-1); %g2-1 curve generation
+    g2_2_temp=squeeze(Data_avg(:,2,:)-1); %g2-1 curve generation
+    g2_3_temp=squeeze(Data_avg(:,3,:)-1); %g2-1 curve generation
+    g2_4_temp=squeeze(Data_avg(:,4,:)-1); %g2-1 curve generation
+    
+    % average g2 curve for large source detector separation
+    for i=1:size(g2,2)
+        g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+    end
+else
+    g2(1,:,:) = Data_avg(:,1,:);
+    g2(2,:,:) = Data_avg(:,2,:);
 end
 
 % aDb calculation
@@ -35,7 +40,7 @@ end
  %Plotting the fit
 Channel=1;
 Curve_no=1;
-rho = [1 1.5 2 2.5];
+rho = [1.7 2.7];
 
 beta=g2(Channel, Curve_no,1);
 aDb1=aDb(Channel,Curve_no);

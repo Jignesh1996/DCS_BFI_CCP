@@ -72,7 +72,7 @@ x_d = (1:1:size(adb_avg,2))/20;
 plot(x_d,normalize(adb_avg(1,:)),'r');
 %%
 close all;
-x_d = (1:1:size(adb_avg,2))/20;
+
 ecg_ad = circshift(ecg1,-650); % Advancing the ECG signal to match the DCS signal
 % Finding the R-R peaks of ECG signal
 
@@ -96,7 +96,7 @@ plot(l_pks, h_pks,'*k')
 hd_pks = floor(h_pks./50);
 ld_pks = floor(l_pks./50);
 % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-avg_window_width = 3;
+avg_window_width = 5;
 for i=2:size(ld_pks,2)
     if size(ld_pks,2)-i < avg_window_width
         avg_window_width = avg_window_width-1
@@ -147,12 +147,12 @@ end
 close all;
 
 break_pt = 1:1000:size(tcd,2);
-bp_shift = circshift(bp,-1150);
+bp_shift = circshift(bp,00);
 [a,l_bp] = findpeaks(normalize(bp_shift),"MinPeakHeight",1,'MinPeakDistance',700) ;
 [a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1,'MinPeakDistance',700);
 [a,l_ecg] = findpeaks(normalize(detrend(ecg1,1,break_pt)),"MinPeakHeight",1,'MinPeakDistance',700);
 shift_tcd = l_bp(1)-l_tcd(1);
-tcd_shift = circshift(tcd,-50);
+tcd_shift = circshift(tcd,-40);
 shift_ecg = l_bp(1) - l_ecg(1);
 plot(normalize(bp_shift),'b');hold on; plot(normalize(tcd_shift),'r');
 % dcs_1lp = circshift(dcs_1lp,-shift_dcs);

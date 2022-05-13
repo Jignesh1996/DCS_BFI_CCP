@@ -21,7 +21,7 @@ bp = lpf_ffilts(bp,40,1000);
 %% Plotting the frequency spectrum
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = filt_sig;
+signal = adb_avg(2,:);
 L = length(signal);     
 % Length of signal
 t = (0:L-1)*T;  
@@ -217,7 +217,7 @@ g2_3_temp=squeeze(Data_avg(:,3,:)-1); %g2-1 curve generation
 g2_4_temp=squeeze(Data_avg(:,4,:)-1); %g2-1 curve generation
 
 % average g2 curve for large source detector separation
-for i=1:size(g2,2)
+for i=2:size(g2,2)
     g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
 end
 
@@ -248,8 +248,8 @@ dcs_3 = aDb1(2,:).*10^9;
 
 
 % Filtering the singal
-dcs_1lp = lpf(dcs_1,3,20);
-dcs_3lp = lpf(dcs_3,3,20);
+dcs_1lp = lpf(dcs_1,5,20);
+dcs_3lp = lpf(dcs_3,5,20);
 
 %% plotting
 Chan=1;
@@ -752,4 +752,19 @@ title("Ensemble average of Upsampled signal")
 grid
 legend('Ensemble Average', '95% Confidence Intervals')
 
+%% Any
 
+p = robustfit(CCP(1,:)',CCP(3,:)');
+x = -1:0.005:40;
+f = p(1)*x+p(2);
+plot(x,f);
+hold on;
+scatter(CCP(1,:),CCP(3,:));
+
+%% plotting g2 curves
+for i=1:5:20
+    semilogx(Data_tau,squeeze(Data(i,4,:)))
+    hold on;
+    scatter(Data_tau,squeeze(Data(i,4,:)))
+    hold on;
+end
