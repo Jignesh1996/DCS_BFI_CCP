@@ -12,22 +12,26 @@ load(filename)
 
 %%
 
-g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
-g2_1_temp=squeeze(Data(:,1,:)-1); %g2-1 curve generation
-g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
-g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
-g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
+g2(1,:,:)=squeeze(dcs_t(:,1,:)-1); %g2-1 curve generation
+g2_1_temp=squeeze(dcs_t(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(dcs_t(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(dcs_t(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(dcs_t(:,4,:)-1); %g2-1 curve generation
+g2_5_temp=squeeze(nirs_t(:,1,:)-1); %g2-1 curve generation
+g2_6_temp=squeeze(nirs_t(:,2,:)-1); %g2-1 curve generation
+g2_7_temp=squeeze(nirs_t(:,3,:)-1); %g2-1 curve generation
+g2_8_temp=squeeze(nirs_t(:,4,:)-1); %g2-1 curve generation
 
 % average g2 curve for large source detector separation
 for i=1:size(g2,2)
-    g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+    g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:)+g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:)+g2_8_temp(i,:))/8;
 end
 % for i=1:size(g2,2)
-%     g2(2,i,:)=(g2_1_temp(i,:) + g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/4;
+%     g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
 % end
 %% aDb calculations
 
-rho = [1 3]; %source detector separations in cm 
+rho = [1.7 2.7]; %source detector separations in cm 
 mua = 0.1; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 

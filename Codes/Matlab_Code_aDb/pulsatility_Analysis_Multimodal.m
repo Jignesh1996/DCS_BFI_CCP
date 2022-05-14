@@ -19,9 +19,9 @@ tcd = lpf_ffilts(tcd,30,1000);
 bp_a = bp_a(1:length(ecg1));
 bp_a = lpf(bp_a,3,1000);
 %% Plotting the frequency spectrum
-Fs = 1000;            % Sampling frequency                    
+Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = bp_a;
+signal = aDb1(2,:);
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
