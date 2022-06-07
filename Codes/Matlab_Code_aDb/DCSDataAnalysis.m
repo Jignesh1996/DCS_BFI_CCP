@@ -35,9 +35,9 @@ g2_8_temp=squeeze(dcs_nt(:,4,:)-1);
 % for i=1:size(g2,2)
 %     g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:)+g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:)+g2_8_temp(i,:))/8;
 % end
-% for i=1:size(g2,2)
-%     g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
-% end
+for i=1:size(g2,2)
+    g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+end
 
 for i=1:size(g2,2)
     g2(2,i,:)=( g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:) + g2_8_temp(i,:))/4;
@@ -82,3 +82,21 @@ subplot(2,1,2)
 plot(time,aDb1(2,:))
 title('{\itr}_{SD}=3 cm')
 xlabel('Time (s)')
+
+%% 
+for i=150:1500:size(g2_5_temp,1)
+    semilogx(Data_tau,g2_5_temp(i,:))
+    title("g2 curves for DCS(hybrid) channel")
+    xlabel("Data Tau")
+    hold on;
+end
+
+%%
+semilogx(Data_tau,g2_2_temp(250,:))
+hold on;
+semilogx(Data_tau,g2_6_temp(250,:))
+semilogx(Data_tau,g2_7_temp(250,:))
+semilogx(Data_tau,g2_8_temp(250,:))
+legend("Chan 5","6","7","8")
+title("g2 curves for DCS(hybrid) channel")
+xlabel("Data Tau")

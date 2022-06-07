@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\DCS_TEST\TRNIRS\20221205\";
+Directory = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\06062022\Pressure test_20220606\";
 
 fprintf("Start....\n")
 

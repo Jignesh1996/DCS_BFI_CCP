@@ -64,7 +64,7 @@ xlabel('Time (s)')
 
 %% Finding the right shift for ECG to perform the g2 average
 close all;
-ecg_ad = circshift(ecg1,-650);
+ecg_ad = circshift(ecg1,-150);
 x_e = (1:1:length(ecg_ad))/1000;
 plot(x_e,normalize(ecg_ad),'b');
 hold on;
@@ -147,7 +147,7 @@ end
 close all;
 
 break_pt = 1:1000:size(tcd,2);
-bp_shift = circshift(bp,-1150);
+bp_shift = circshift(bp,0);
 [a,l_bp] = findpeaks(normalize(bp_shift),"MinPeakHeight",1,'MinPeakDistance',700) ;
 [a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1,'MinPeakDistance',700);
 [a,l_ecg] = findpeaks(normalize(detrend(ecg1,1,break_pt)),"MinPeakHeight",1,'MinPeakDistance',700);

@@ -24,7 +24,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 % tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:210000);
+ecg1 = ecg_a(1:840000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
@@ -43,18 +43,18 @@ aDb1 = standalone_dcs(Data,Data_tau);
 % time resultion - aqusition time used to aquire data
 figure();
 t_res=0.05; % seconds
-time=t_res*(1:1:size(aDb1,2)-15);
+time=t_res*(1:1:size(aDb1,2));
 
 subplot(2,1,1)
 
-plot(time,aDb1(1,1:4185))
-title('{\itr}_{SD}=1.7 cm')
+plot(time,aDb1(1,:))
+title('{\itr}_{SD}=1 cm')
 % set(gca,'xticklabel',{})
 
 subplot(2,1,2)
 
-plot(time,aDb1(2,1:4185))
-title('{\itr}_{SD}=2.7 cm')
+plot(time,aDb1(2,:))
+title('{\itr}_{SD}=2.5 cm')
 xlabel('Time (s)')
 
 
@@ -82,7 +82,7 @@ aDb1 = standalone_dcs(Data,Data_tau);
 %% Finding the shift
 
 close all;
-ecg_ad = circshift(ecg1,0);
+ecg_ad = circshift(ecg1,-100);
 x_e = (1:1:length(ecg_ad))/1000;
 plot(x_e,normalize(ecg_ad),'b');
 hold on;
@@ -93,8 +93,8 @@ close all;
 shift = 1:45:800;
 SNR = zeros(1,length(shift));
 bp_shift = circshift(bp_a,-1175);
-ecg_ad = circshift(ecg1,-650); % Advancing the ECG signal to match the DCS signal
-% Finding the R-R peaks of ECG signal
+ecg_ad = circshift(ecg1,0); % Advancing the ECG signal to match the DCS signal
+%% Finding the R-R peaks of ECG signal
 
 if exist("g2")
     clear g2;
@@ -124,10 +124,10 @@ mus = 10;
 % g2 = Data;
 % ecg = ecg1;
 
-start_time = 60 ;   %time in seconds
-stop_time =  90;    %time in seconds
+start_time = 480 ;   %time in seconds
+stop_time =  720;    %time in seconds
 
-g2 = Data(start_time*20:stop_time*20,:,:);
+g2 = Data_all(start_time*20:stop_time*20,:,:);
 ecg = ecg_ad(start_time*1000:stop_time*1000);
 % g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
 % g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
@@ -148,7 +148,7 @@ plot(l_pks, h_pks,'*k')
 hd_pks = floor(h_pks./50);
 ld_pks = floor(l_pks./50);
 % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-avg_window_width = 10;
+avg_window_width = 5;
 for i=1:size(ld_pks,2)-1
     if size(ld_pks,2)-i < avg_window_width
         avg_window_width = avg_window_width-1
@@ -164,6 +164,13 @@ for i=1:size(ld_pks,2)-1
     g2(ld_pks(i):ld_pks(i)+min_length,:,:) = base_sig./avg_window_width;
 end
 
+
+% for i=1:size(g2,1)
+%     g2(i,2,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+% end
+
+
+
 adb_avg = standalone_dcs(g2,Data_tau);
 % SNR(1,k) = snr(adb_avg(2,:),20);
 figure
@@ -171,7 +178,7 @@ snr(adb_avg(2,:),20)
 
 % adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
 % figure();
-aDb1 = standalone_dcs(Data(start_time*20:stop_time*20,:,:),Data_tau);
+aDb1 = standalone_dcs(Data_all(start_time*20:stop_time*20,:,:),Data_tau);
 dcs_1lp = lpf(adb_avg(1,:),7,20);
 dcs_3lp = lpf(adb_avg(2,:),7,20);
 
@@ -188,7 +195,7 @@ dcs_3lp = lpf(adb_avg(2,:),7,20);
 %% Plotting the frequency spectrum of the averaged and raw signal
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = aDb1(1,2400:3000);
+signal = adb_avg(2,:);
 L = length(signal);     
 % Length of signal
 t = (0:L-1)*T;  

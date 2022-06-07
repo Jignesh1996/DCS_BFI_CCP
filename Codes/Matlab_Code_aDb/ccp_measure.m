@@ -91,21 +91,21 @@ for sig=1:length(d(:,1))
     sig_smooth = signal;
     ecg1_smooth = ecg1;
     
-    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(normalize(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',750);
-    [pks_sig_smooth,locs_sig_smooth]=findpeaks(normalize(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',750);
+    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(normalize(ecg1_smooth),'MinPeakHeight',1.5,'MinPeakDistance',300);
+    [pks_sig_smooth,locs_sig_smooth]=findpeaks(normalize(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',300);
 
     if length(locs_ECG_smooth)<step_size
         step_size = length(locs_ECG_smooth)-1;
     end
     disp(length(pks_ECG_smooth))
     % Plotting the signal
-%     fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
-%     hold on
-%     plot(normalize(sig_smooth),'r')
-%     plot(locs_sig_smooth, pks_sig_smooth,'*k')
-%     
-%     plot(normalize(ecg1_smooth),'b')
-%     plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
+    fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+    hold on
+    plot(normalize(sig_smooth),'r')
+    plot(locs_sig_smooth, pks_sig_smooth,'*k')
+    
+    plot(normalize(ecg1_smooth),'b')
+    plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
     
 
     % Change this condition, this is not right, becuase irrespective the

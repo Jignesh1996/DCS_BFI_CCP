@@ -733,3 +733,48 @@ std_ccp = std(CCP,1,2);
 [rho15,p15]  = corrcoef(CCP(1,:),CCP(3,:));
 [rho2,p2]  = corrcoef(CCP(1,:),CCP(4,:));
 [rho25,p25]  = corrcoef(CCP(1,:),CCP(5,:));
+
+
+
+%% Plotting the signal with the points.
+
+t_res=0.05; % seconds
+t_avg=1; % window used for averaging in seconds
+
+t_avg_pt=t_avg/t_res; % window used for averaging in points
+time=t_res*(1:1:size(aDb1,2));
+Data_time(1,i)=i*t_res;
+j=1;
+for i=2:t_avg_pt:size(aDb1,2)
+    aDb1_avg(1,j)=mean(aDb1(1,i-1:i+t_avg_pt-2));
+    aDb1_avg(2,j)=mean(aDb1(2,i-1:i+t_avg_pt-2));
+%     time_avg(1,j)=(Data_time(1,i+t_avg_pt-1));
+    j=j+1;
+end
+
+
+t = (1:1:length(aDb1(1,:)))/20;
+
+x_pos=[2,3,4,5,6,7,8,9]; %task strat time in minutes
+txt = ["10 mmHg","30 mmHg","50 mmHg","70 mmHg","90 mmHg","120 mmHg","150 mmHg","BSL"];
+for i=1:size(x_pos,2)
+if mod(i,2)==0
+    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,60,max(aDb1(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+        'LineWidth',3)
+    text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
+else
+    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,60,max(aDb1(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+        'LineWidth',3)
+    text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
+
+end
+end
+
+hold on;
+plot(t,aDb1','DisplayName','aDb1');
+hold on;
+plot(t(120*20),aDb1(1,2400),'r*');
+title("Tourniquet Pressure Levels vs CBFi");
+xlabel("Time(s)");
+ylabel("CBFi");
+plot(aDb1_avg','DisplayName','aDb1_avg','LineWidth',1.5)

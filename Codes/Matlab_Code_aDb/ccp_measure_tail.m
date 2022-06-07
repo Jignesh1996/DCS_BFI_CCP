@@ -96,7 +96,7 @@ for sig=1:length(d(:,1))
     ecg1_smooth=filtfilt(wages,1,ecg1);
     
    
-    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(normalize(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',500);
+    [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(normalize(ecg1_smooth),'MinPeakHeight',1.5,'MinPeakDistance',300);
     [pks_sig_smooth,locs_sig_smooth]=findpeaks(normalize(sig_smooth),'MinPeakHeight',0.35,'MinPeakDistance',500);
 
     if length(locs_ECG_smooth)<step_size
