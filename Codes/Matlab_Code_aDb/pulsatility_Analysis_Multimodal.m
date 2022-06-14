@@ -21,7 +21,7 @@ bp = lpf_ffilts(bp,40,1000);
 %% Plotting the frequency spectrum
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = adb_all(2,:);
+signal = aDb1(1,8400:10800);
 L = length(signal);     
 % Length of signal
 t = (0:L-1)*T;  

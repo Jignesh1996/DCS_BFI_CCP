@@ -24,7 +24,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 % tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:840000);
+ecg1 = ecg_a(1:660000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
@@ -82,7 +82,7 @@ aDb1 = standalone_dcs(Data,Data_tau);
 %% Finding the shift
 
 close all;
-ecg_ad = circshift(ecg1,-100);
+ecg_ad = circshift(ecg1,-00);
 x_e = (1:1:length(ecg_ad))/1000;
 plot(x_e,normalize(ecg_ad),'b');
 hold on;
@@ -92,7 +92,7 @@ plot(x_d,normalize(aDb1(1,:)),'r');
 close all;
 shift = 1:45:800;
 SNR = zeros(1,length(shift));
-bp_shift = circshift(bp_a,-1175);
+bp_shift = circshift(bp_a,0);
 ecg_ad = circshift(ecg1,0); % Advancing the ECG signal to match the DCS signal
 %% Finding the R-R peaks of ECG signal
 
@@ -124,8 +124,8 @@ mus = 10;
 % g2 = Data;
 % ecg = ecg1;
 
-start_time = 480 ;   %time in seconds
-stop_time =  720;    %time in seconds
+start_time =  421;   %time in seconds
+stop_time =  540;    %time in seconds
 
 g2 = Data_all(start_time*20:stop_time*20,:,:);
 ecg = ecg_ad(start_time*1000:stop_time*1000);
@@ -148,7 +148,7 @@ plot(l_pks, h_pks,'*k')
 hd_pks = floor(h_pks./50);
 ld_pks = floor(l_pks./50);
 % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-avg_window_width = 5;
+avg_window_width = 30;
 for i=1:size(ld_pks,2)-1
     if size(ld_pks,2)-i < avg_window_width
         avg_window_width = avg_window_width-1
@@ -171,22 +171,23 @@ end
 
 
 
-adb_avg = standalone_dcs(g2,Data_tau);
+adb_avg = standalone_tr_dcs(g2,Data_tau);
 % SNR(1,k) = snr(adb_avg(2,:),20);
 figure
 snr(adb_avg(2,:),20)
 
 % adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
 % figure();
-aDb1 = standalone_dcs(Data_all(start_time*20:stop_time*20,:,:),Data_tau);
+adb = standalone_tr_dcs(Data_all(start_time*20:stop_time*20,:,:),Data_tau);
 dcs_1lp = lpf(adb_avg(1,:),7,20);
-dcs_3lp = lpf(adb_avg(2,:),7,20);
+dcs_25lp = lpf(adb_avg(2,:),7,20);
+dcs_25lp_tr = lpf(adb_avg(3,:),7,20);
 
 % aDb1 = aDb1;
 % figure();
 % snr(adb_avg(2,:),20);
 % figure();
-% plot(adb_avg(2,:),'b'); hold on; plot(aDb1(2,:),'r--');
+% plot(adb_avg(2,:),'b'); hold on; plot(adb(2,:),'r--');
 % title("Comparision of g2 averaging for cuff data MPCM004 width=50 cycles")
 % legend("g2 Averaged signal","Raw signal")
 % xlabel("samples (Time = samples/20)");
