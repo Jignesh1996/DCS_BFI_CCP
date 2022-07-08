@@ -24,7 +24,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 % tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:660000);
+ecg1 = ecg_a(1:120000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
@@ -82,7 +82,7 @@ aDb1 = standalone_dcs(Data,Data_tau);
 %% Finding the shift
 
 close all;
-ecg_ad = circshift(ecg1,-00);
+ecg_ad = circshift(ecg1,-600);
 x_e = (1:1:length(ecg_ad))/1000;
 plot(x_e,normalize(ecg_ad),'b');
 hold on;
@@ -122,22 +122,24 @@ mus = 10;
 % bp_4 = bp_shift(720001:780000);
 % 
 % g2 = Data;
-% ecg = ecg1;
+ecg = ecg_ad;
 
-start_time =  421;   %time in seconds
-stop_time =  540;    %time in seconds
+% start_time =  421;   %time in seconds
+% stop_time =  540;    %time in seconds
+% 
+% g2 = Data_all(start_time*20:stop_time*20,:,:);
+% ecg = ecg_ad(start_time*1000:stop_time*1000);
 
-g2 = Data_all(start_time*20:stop_time*20,:,:);
-ecg = ecg_ad(start_time*1000:stop_time*1000);
-% g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
-% g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
-% g2_3_temp=squeeze(D(:,3,:)-1); %g2-1 curve generation
-% g2_4_temp=squeeze(D(:,4,:)-1); %g2-1 curve generation
+D = Data;
+g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(D(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(D(:,4,:)-1); %g2-1 curve generation
 
 % average g2 curve for large source detector separation
-% for i=1:size(g2,1)
-%     g2(i,2,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
-% end
+for i=1:size(g2,1)
+    g2(i,2,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+end
 
 [h_pks,l_pks] = findpeaks(normalize(ecg),"MinPeakHeight",2.5);
 
@@ -171,17 +173,18 @@ end
 
 
 
-adb_avg = standalone_tr_dcs(g2,Data_tau);
+% adb_avg = standalone_tr_dcs(g2,Data_tau);
+adb_avg = standalone_dcs(g2,Data_tau);
 % SNR(1,k) = snr(adb_avg(2,:),20);
 figure
 snr(adb_avg(2,:),20)
 
 % adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
 % figure();
-adb = standalone_tr_dcs(Data_all(start_time*20:stop_time*20,:,:),Data_tau);
+% adb = standalone_tr_dcs(Data_all(start_time*20:stop_time*20,:,:),Data_tau);
 dcs_1lp = lpf(adb_avg(1,:),7,20);
 dcs_25lp = lpf(adb_avg(2,:),7,20);
-dcs_25lp_tr = lpf(adb_avg(3,:),7,20);
+% dcs_25lp_tr = lpf(adb_avg(3,:),7,20);
 
 % aDb1 = aDb1;
 % figure();
@@ -243,3 +246,31 @@ ylabel("Normalized Unit");
 xlabel("Time(s)");
 legend("g2 averaged","original");
 
+%% making an animation to show the g2 temporal averaging
+hfig = figure();
+
+subplot(2,4,[1 2 3 4])
+span = 1:100;
+t = (1:1:length(aDb1(1,span)))/20;
+plot(normalize(aDb1(1,span)))
+hold on;
+plot((1:1:length(ecg_ad(locs_ECG(1):locs_ECG(6))))/50,normalize(ecg_ad(locs_ECG(1):locs_ECG(6))))
+
+x_pos=[floor(locs_ECG(2)/50),floor((locs_ECG(3))/50)]; %task strat time in minutes
+% txt = ["25%", "50%","150%","BSL"];
+txt = ["80 mmHg", "160mmHg"];
+
+rectangle('Position',[t(x_pos(2)),0.1*10^-9,length(locs_ECG(2):locs_ECG(3))/50,max(aDb1(1,:))],'FaceColor',[0.9 0.9 0.9],'EdgeColor','none',...
+    'LineWidth',3)
+
+
+% 
+% % subplot(2,1,2)
+% subplot(2,4,5)
+% semilogx(Data_tau,squeeze(Data(8,1,:)))
+% subplot(2,4,5)
+% semilogx(Data_tau,squeeze(Data(8,1,:)))
+% subplot(2,4,5)
+% semilogx(Data_tau,squeeze(Data(8,1,:)))
+% subplot(2,4,5)
+% semilogx(Data_tau,squeeze(Data(8,1,:)))

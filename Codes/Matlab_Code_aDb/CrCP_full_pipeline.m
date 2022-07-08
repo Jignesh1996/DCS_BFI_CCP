@@ -123,7 +123,7 @@ plot(x_d,normalize(aDb1(4,:)),'r');
 plot(x_e,normalize(ecg_ad),'k');
 
 %% Filtering the signal
-fc = 15;
+fc = 10;
 dcs_1cm = adb_avg(1,:).*10^9;
 dcs_1lp = lpf_ffilts(dcs_1cm,fc,20);
 dcs_15 = adb_avg(2,:).*10^9;
@@ -228,5 +228,44 @@ CrCP_harmonics(3,:) = crcp_freq_method(ecg1,tcd,bp_a,dcs_2lp);
 CrCP_harmonics(4,:) = crcp_freq_method(ecg1,tcd,bp_a,dcs_25lp);
 
 %% Statistical analysis of the Critical closing pressure
+% Plotting the Bland- Altman Plot and a box-whisker plot
+%Bland Altman Plot
+tcd = [26.03;	27.38;	36.29;	14.11;	34.69;	10.36;	22.73;	12.28;	42.25];
+dcs_15 = [20.67	28.00	35.43	23.40	33.51	13.20	19.70	12.27	29.61]';
+dcs_25 = [18.73	18.27	19.61	30.89	61.23	11.25	-2.47	-13.06	43.60]';
+
+close all;
+BlandAltman(tcd,dcs_15,{"TCD","DCS 1.5cm"});
+BlandAltman(tcd,dcs_25,{"TCD","DCS 2.5cm"});
+
+% Box Plot
+figure();
+ccp_data = [tcd,dcs_15,dcs_25];
+boxplot(ccp_data,["TCD(CBFV)","DCS 1.5cm(CBFi)","DCS 2.5cm(CBFi)"],'Colors', 'rgbm');
+title("Critical Closing Pressure(CCP) values")
+ylabel("CCP(mmHg)")
 
 
+%%
+t = Tiff("C:\Users\Jignesh\OneDrive - The University of Western Ontario\ACM\suplementary material\pone.0066319.g003.tif",'r');
+imageData = read(t);
+%%
+img(1,:,:,:) = imageData(14:348,14:633,:);
+img(2,:,:,:) = imageData(14:348,640:1259,:);
+img(3,:,:,:) = imageData(14:348,1268:1887,:);
+img(4,:,:,:) = imageData(350:684,14:633,:);
+img(5,:,:,:) = imageData(350:684,640:1259,:);
+img(6,:,:,:) = imageData(350:684,1268:1887,:);
+img(7,:,:,:) = imageData(691:1025,14:633,:);
+img(8,:,:,:) = imageData(691:1025,640:1259,:);
+img(9,:,:,:) = imageData(691:1025,1268:1887,:);
+
+for i=1:9
+figure(); imshow(squeeze(img(i,:,:,:)));
+end
+
+close all;
+for j=1:9
+    im_name = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\ACM\suplementary material\DCS_perfusion"+string(j)+".jpg";
+    imwrite(squeeze(img(j,:,:,:)),im_name)
+end

@@ -21,7 +21,8 @@ bp = lpf_ffilts(bp,40,1000);
 %% Plotting the frequency spectrum
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = aDb1(1,8400:10800);
+signal = aDb1(4,:);
+% signal = dcs_25lp;
 L = length(signal);     
 % Length of signal
 t = (0:L-1)*T;  
@@ -768,3 +769,43 @@ for i=1:5:20
     scatter(Data_tau,squeeze(Data(i,4,:)))
     hold on;
 end
+
+%%
+subplot(2,1,1); 
+span = 246:480;
+sgtitle("Comparision of Raw and Filtered signal")
+plot((1:1:length(span))/20,normalize(aDb1(3,246:480))); 
+title("Raw DCS (r_s_d = 2.5cm) signal")
+xlabel("Time(s)")
+ylabel("Normalized Unit")
+
+subplot(2,1,2); 
+plot((1:1:length(span))/20,normalize(dcs_2lp(246:480)));
+title("Filtered DCS (r_s_d = 2.5cm) signal")
+xlabel("Time(s)")
+ylabel("Normalized Unit")
+
+%% Plot a good figure: Make a function for plotting a figure so that I don't have to change it everytime
+
+
+hfig = figure;  % save the figure handle in a variable
+t = 0:0.02:10; x = t.*sin(2*pi*t)+ 2*rand(1,length(t)); % data
+plot(t,x,'k-','LineWidth',1.5,'DisplayName','$\Omega(t)$');
+xlabel('time $t$ (s)')
+ylabel('$\Omega$ (V)')
+fname = 'myfigure';
+
+picturewidth = 25; % set this parameter and keep it forever
+hw_ratio = 0.65; % feel free to play with this ratio
+set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+%print(hfig,fname,'-dpdf','-painters','-fillpage')
+print(hfig,fname,'-dpng','-painters')
+
+

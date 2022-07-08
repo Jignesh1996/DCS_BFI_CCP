@@ -22,7 +22,7 @@ g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
 rho = [1 1.5 2 2.5]; %source detector separations in cm 
 mua = 0.1; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
-
+g2 = g2_new;
 tau_values=Data_tau;
 
 for chan=1:size(g2,1)

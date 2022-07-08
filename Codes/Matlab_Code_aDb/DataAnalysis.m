@@ -4,14 +4,15 @@ close all
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
+strt = 8600;
+stop = 10600;
 
-
-dcs =aDb1(2,1:600);
+dcs =dcs_25lp_tr(strt:stop);
 % uf = length(ecg1)/length(dcs_1cm); 
 ecg1 = normalize(ecg1);
  % shifting only if it is a DCS signal else not so condition is check the length of the signal
-ecg1 = circshift(ecg1,00);
-ecg_da = ecg1(1:size(dcs,2)*50);
+ecg1 = circshift(ecg1,-0);
+ecg_da = ecg1(strt*50:stop*50);
 
 
 break_pt = 1:100:length(dcs);
@@ -34,7 +35,7 @@ plot(time_ECG,ecg_da/max(ecg_da),'b')
 % Find peaks
 
 [pks_DCS,locs_DCS]=findpeaks(dcs_1/max(dcs_1),'MinPeakHeight',0.65)
-[pks_ECG,locs_ECG]=findpeaks(ecg_da/max(ecg_da),'MinPeakHeight',0.5)
+[pks_ECG,locs_ECG]=findpeaks(ecg_da/max(ecg_da),'MinPeakHeight',0.8)
 
 locs_DCS_time=locs_DCS*0.05;
 locs_ECG_time=locs_ECG*0.001;
@@ -53,7 +54,8 @@ windowsize=10; % how many points you want to use (it will depend on your resolut
 wages=ones(1,windowsize)/windowsize;
 % wages = window_1;
 dcs_1_smooth=dcs_1_interp; % Y is your time course you want to filter, Y_smoth is filtered data
-ecg1_smooth=filtfilt(wages,1,ecg_da);
+% ecg1_smooth=filtfilt(wages,1,ecg_da);
+ecg1_smooth=ecg_da;
 break_pt = 1:2000:size(dcs_1_smooth,2);
 [pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',600);
 [pks_DCS_smooth,locs_DCS_smooth]=findpeaks(detrend(dcs_1_smooth,1,break_pt,"omitnan"),'MinPeakHeight',0.25,'MinPeakDistance',600);
@@ -103,7 +105,7 @@ plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
 Extract=ones(size(pks_ECG_smooth,2)-3,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,-850);
+dcs_1_smooth2=circshift(dcs_1_smooth,450);
 figure()
 plot(dcs_1_smooth2);
 hold on;
@@ -168,6 +170,7 @@ title("Marker=ECG R peak, DCS 2.5cm")
 
 ttle = 'DCS 2.5cm Ensemble Avg';
 avg_dcs_1 = ens_avg(Extract,ttle);
+% plot(circshift(avg_dcs_1,375));
 
 %% 
 % plot(x,avg_dcs,'b');

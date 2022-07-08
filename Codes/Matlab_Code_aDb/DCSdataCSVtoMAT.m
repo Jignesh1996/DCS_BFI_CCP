@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "E:\TP\20220614 -TR\";
+Directory = "D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706 - TRTP\";
 
 fprintf("Start....\n")
 

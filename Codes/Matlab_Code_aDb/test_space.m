@@ -609,35 +609,54 @@ legend("Original",'makima','spline','linear','cubic','pchip','v5')
 %% Creating a GIF file from the Data to showcase the correlation between g2 curve, adb signal, 
 close all;
 % figure('units','normalized','outerposition',[0 0 1 1])
-
+adb_avg = aDb1;
 chan = 1;
-span = 105:126;
+span = 119:140;
 
-mx = max(max(Data(span,chan,:)));
-mn = min(min(Data(span,chan,:)));
+mx = max(max(g2(chan,span,:)));
+mn = min(min(g2(chan,span,:)));
 
 for i=1:1:length(adb_avg(chan,span))-1
     
-    subplot(1,2,1);
-    x = 0:1:length(adb_avg(chan,span))-1;
-    plot(x,adb_avg(chan,span),'Linewidth',1.5)
+    subplot(1,2,2);
+    x = 0:1:i;
+    
+    plot(x,adb_avg(chan,span(1):span(1)+i),'Linewidth',1.5)
+    axis([0 22 0.9*min(adb_avg(chan,span)) 1.2*max(adb_avg(chan,span))])
     xlabel("Time(s)",'FontSize',11)
     ylabel("CBFi",'FontSize',11);
     title("DCS 1.5cm signal",'FontSize',11)
     hold on;
     plot(x(i)+1,adb_avg(chan,span(1)+i),'o','MarkerFaceColor','r');
     hold off;
-    sub_f = subplot(1,2,2);
+
     
+    Channel=chan;
+    Curve_no=span(1)+i;
+    rho = [1 2.5 2.5];
+    
+    beta=g2(Channel, Curve_no,1);
+    aDb_fit=aDb1(Channel,Curve_no);
+    
+    g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb_fit);
+    
+%     semilogx(Data_tau,squeeze(g2(1,1,:)),'k')
+%     hold on
+    
+    sub_f = subplot(1,2,1);
 %     semilogx(sub_f,Data_tau,squeeze(Data(span(1)+i,chan,:)),'o','MarkerFaceColor',[0 0.447 0.741])
-    semilogx(sub_f,Data_tau,squeeze(Data(span(1)+i,chan,:)),'r','Linewidth',1.5)
+    semilogx(sub_f,Data_tau,squeeze(g2(chan,span(1)+i,:)),'b','Linewidth',1.5)
+    hold on;
+    semilogx(sub_f,Data_tau,g2_fit,'r')
+    hold off;
     title("Autocorrelation curve",'FontSize',11)
     xlabel("Delay time - tau (s)",'FontSize',11)
+    legend("g2","g2 fit")
     ylabel("g_2(tau)",'FontSize',11);
     xlim(sub_f,[10^-6 10^-3]);
     ylim(sub_f,[mn mx]);
     if i==1
-        gif('DCS_1.5cm_animation.gif','DelayTime',1/5);
+        gif('g2_vs_CBFi_animation.gif','DelayTime',1/5);
     end
     gif
 end
@@ -658,6 +677,9 @@ for j=1:length(Data_tau)
     hold off;
     gif
 end
+
+%%
+
 %%
 a = (1:1:length(1:100))/20;
 plot(a,squeeze(Data(1:100,1,1)))

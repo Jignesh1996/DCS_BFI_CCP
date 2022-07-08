@@ -102,4 +102,5 @@ for i=1:length(tau)
     G1(i) = sum(ds*exp(-a1(:)*z0).*G1_f(:).*s(:).*besselj(0,rho.*s(:)))/((2*pi)^2); %% Is it the same weighting factor as previously?
 end
 g1=G1(1,:)/G1(1,1);
+% g1=G1(1,:);
 g2=1+beta*(g1.^2);
