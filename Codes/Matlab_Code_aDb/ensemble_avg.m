@@ -10,7 +10,7 @@ ecg_da = ecg1;
 
 break_pt = 1:100:length(dcs);
 dcs_d = detrend(normalize(dcs),1,break_pt); 
-dcs_1 = dcs_d;
+dcs_1 = dcs;
 plot(dcs_1)
 time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg_da,2));
@@ -51,13 +51,13 @@ break_pt = 1:2000:size(dcs_1_smooth,2);
 
 
 
-fig1=figure('units','centimeters', 'Position',[2 2 35 13]) %18 width 15 heigh
-hold on
-plot(detrend(dcs_1_smooth,1,break_pt,"omitnan"),'r')
-plot(locs_DCS_smooth, pks_DCS_smooth,'*k')
-
-plot(ecg1_smooth/max(ecg1_smooth),'b')
-plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
+% fig1=figure('units','centimeters', 'Position',[2 2 35 13]) %18 width 15 heigh
+% hold on
+% plot(detrend(dcs_1_smooth,1,break_pt,"omitnan"),'r')
+% plot(locs_DCS_smooth, pks_DCS_smooth,'*k')
+% 
+% plot(ecg1_smooth/max(ecg1_smooth),'b')
+% plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
 
 
 
@@ -101,8 +101,8 @@ if mode==1
         signal = (dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i+1)));
     %     signal(size(signal,2):size(Extract))
 
-        if length(signal)>=1100
-            signal = signal(1:1100);
+        if length(signal)>=950
+            signal = signal(1:950);
         end
         Extract(i-1,1:size(signal,2))=signal;
         

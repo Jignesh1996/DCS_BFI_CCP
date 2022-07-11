@@ -150,6 +150,9 @@ for i=2:size(pks_ECG_smooth,2)-2
 
 end
 
+nan_val = sum(isnan(Extract));
+
+
 % Plotting the shifted DCS and ECG signal
 % x = (1:1:length(dcs_1_smooth2))/1000;
 % plot(x,normalize(dcs_1_smooth2));

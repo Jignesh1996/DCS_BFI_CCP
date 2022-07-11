@@ -4,7 +4,7 @@ close all
 
 % Folder name  - provide folder name for which you want to convert the data
 % Folder='21.4.27-apnea without cuff';
-file_no = 14;
+file_no = 4;
 %--------------------------------------------------------------------------
 % 
 filename_d=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
@@ -868,7 +868,9 @@ close all;
 strt_time =  [10,190,310,430];   %time in seconds
 stp_time =  [160,290,410,530];    %time in seconds
 j =3;
-dcs_1_avg = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp_tr(1,strt_time(j)*20:stp_time(j)*20),200,1);
+ens_avg_sig = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+
+PI = (min(d))
 
 
 %%
