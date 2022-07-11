@@ -750,11 +750,11 @@ hold on;
 x_d = (1:1:size(aDb1,2))/20;
 plot(x_d,normalize(aDb1(1,:)),'r');
 %% Averaging thr g2 curve
-close all;
-shift = 1:45:800;
-SNR = zeros(1,length(shift));
-bp_shift = circshift(bp_a,0);
-ecg_ad = circshift(ecg1,0); % Advancing the ECG signal to match the DCS signal
+% close all;
+% shift = 1:45:800;
+% SNR = zeros(1,length(shift));
+% bp_shift = circshift(bp_a,0);
+% ecg_ad = circshift(ecg1,0); % Advancing the ECG signal to match the DCS signal
 %% Finding the R-R peaks of ECG signal
 
 if exist("g2")
@@ -860,6 +860,17 @@ legend("Ensemle Temporal Averaged","Raw")
 % legend("g2 Averaged signal","Raw signal")
 % xlabel("samples (Time = samples/20)");
 % ylabel("aDb")
+
+%% Plotting the ensemble avg of the DCS signal
+%send the  mode as wether the averae to be with NaN(1) or without the
+%NaN(0)
+close all;
+strt_time =  [10,190,310,430];   %time in seconds
+stp_time =  [160,290,410,530];    %time in seconds
+j =4;
+dcs_1_avg = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),500,1);
+
+
 %%
 figure();
 plot((1:1:size(adb_avg,2))/20, adb_avg(2,:),'b',"LineWidth",1.5);

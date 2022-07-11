@@ -4,10 +4,10 @@ close all
 % load('dcs_1_baseline_forearm.mat')
 % load('ECG_DCS_forearm_exp.mat')
 
-strt = 8600;
-stop = 10600;
+strt = 1;
+stop = 600;
 
-dcs =dcs_25lp_tr(strt:stop);
+dcs =aDb1(1,strt:stop);
 % uf = length(ecg1)/length(dcs_1cm); 
 ecg1 = normalize(ecg1);
  % shifting only if it is a DCS signal else not so condition is check the length of the signal
@@ -105,7 +105,7 @@ plot(locs_ECG_smooth, pks_ECG_smooth,'*k')
 Extract=ones(size(pks_ECG_smooth,2)-3,min(diff(locs_ECG_smooth)));
 Extract=Extract*NaN;
 
-dcs_1_smooth2=circshift(dcs_1_smooth,450);
+dcs_1_smooth2=circshift(dcs_1_smooth,800);
 figure()
 plot(dcs_1_smooth2);
 hold on;
@@ -130,25 +130,25 @@ for i=2:size(pks_ECG_smooth,2)-2
 
 end
 
-% % Testing with adding the nan values at the end of tail
-% 
-% Extract=ones(size(pks_ECG_smooth,2)-3,(max(diff(locs_ECG_smooth))));
-% Extract=Extract*NaN;
-% 
-% dcs_1_smooth2=circshift(dcs_1_smooth,900);
-% 
-% for i=2:size(pks_ECG_smooth,2)-2
-%     locs_ECG_smooth(i)
-%     locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
-%     signal = (dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i+1)));
-% %     signal(size(signal,2):size(Extract))
-% 
-%     Extract(i-1,1:size(signal,2))=signal;
-%     
-% 
-% %     Extract(i,:)=signal
-% 
-% end
+% Testing with adding the nan values at the end of tail
+
+Extract=ones(size(pks_ECG_smooth,2)-3,(max(diff(locs_ECG_smooth))));
+Extract=Extract*NaN;
+
+dcs_1_smooth2=circshift(dcs_1_smooth,900);
+
+for i=2:size(pks_ECG_smooth,2)-2
+    locs_ECG_smooth(i)
+    locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
+    signal = (dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i+1)));
+%     signal(size(signal,2):size(Extract))
+
+    Extract(i-1,1:size(signal,2))=signal;
+    
+
+%     Extract(i,:)=signal
+
+end
 
 % Plotting the shifted DCS and ECG signal
 % x = (1:1:length(dcs_1_smooth2))/1000;

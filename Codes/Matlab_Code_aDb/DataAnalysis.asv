@@ -7,7 +7,7 @@ close all
 strt = 8600;
 stop = 10600;
 
-dcs =dcs_25lp_tr(strt:stop);
+dcs =aDb1(strt:stop);
 % uf = length(ecg1)/length(dcs_1cm); 
 ecg1 = normalize(ecg1);
  % shifting only if it is a DCS signal else not so condition is check the length of the signal
@@ -169,8 +169,7 @@ title("Marker=ECG R peak, DCS 2.5cm")
 % Plot ensemble average
 
 ttle = 'DCS 2.5cm Ensemble Avg';
-% avg_dcs_1 = ens_avg(Extract,ttle);
-avg_dcs_1 = ens_avg(a,ttle);
+avg_dcs_1 = ens_avg(Extract,ttle);
 % plot(circshift(avg_dcs_1,375));
 
 %% 
