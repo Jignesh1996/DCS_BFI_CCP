@@ -868,7 +868,7 @@ close all;
 strt_time =  [10,190,310,430];   %time in seconds
 stp_time =  [160,290,410,530];    %time in seconds
 j =1;
-ens_avg_sig = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),800,1);
+[ens_avg_sig,pind] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp_tr(1,strt_time(j)*20:stp_time(j)*20),400,1);
 d = ens_avg_sig(1:900);
 PI = (max(d)-min(d(1:500)))/mean(d);
 

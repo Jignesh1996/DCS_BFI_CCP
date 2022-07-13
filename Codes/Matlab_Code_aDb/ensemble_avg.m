@@ -1,4 +1,4 @@
-function ens_avg_sig = ensemble_avg(ecg, signal, shift,mode)
+function [ens_avg_sig,pind] = ensemble_avg(ecg, signal, shift,mode)
 ecg1 = ecg;
 dcs = signal;
 shift = shift;
@@ -79,7 +79,8 @@ if mode==0
         signal = dcs_1_smooth2(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
             
         Extract(i-1,:)=(dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1));
-        
+        d = Extract(i-1,:);
+        PI(i-1) = (max(d,"omitnan")-min(d(1:500),"omitnan"))/mean(d,"omitnan");
     
     %     Extract(i,:)=signal
     
@@ -105,13 +106,14 @@ if mode==1
             signal = signal(1:950);
         end
         Extract(i-1,1:size(signal,2))=signal;
-        
+        d = Extract(i-1,:);
+        PI(i-1) = (max(d,[],'omitnan')-min(d(1:500),[],'omitnan'))./mean(d,'omitnan');
     
     %     Extract(i,:)=signal
     
     end
 end
-
+pind = mean(PI,"omitnan");
 %    
 x = (1:1:length(Extract'))/1000;
 figure();
