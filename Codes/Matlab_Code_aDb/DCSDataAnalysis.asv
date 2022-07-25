@@ -1028,13 +1028,10 @@ subaxis(2,2,1,'SpacingVert',0.12,'SpacingHoriz',0.1,'MR',0.03, 'ML',0.08,'MT',0.
 
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
+plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
 % xlabel("Time (s)");
 ylabel("BFi_{1 cm} (cm^2/s)")
-mn = min(ensavg(3,:));
-mx = max(ensavg(1,:))
-ylim([mn*0.93 mx*1.05])
 % title(".   Flow Pulsatility Without Tourniquet (rsd = 1 cm)")
 title("(a)")
 hold off
@@ -1046,11 +1043,8 @@ ensavg = a_2(:,1:1000);
 subaxis(2,2,2)
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
-mn = min(ensavg(3,:));
-mx = max(ensavg(1,:))
-ylim([mn*0.93 mx*1.05])
+plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
 % title("  Flow Pulsatility With Tourniquet (rsd = 1 cm)")
 % xlabel("Time (s)");
 % ylabel("Blood Flow index")
@@ -1064,14 +1058,10 @@ ensavg = a_3(:,1:1000);
 subaxis(2,2,3);
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
-mn = min(ensavg(3,:));
-mx = max(ensavg(1,:))
-ylim([mn*0.93 mx*1.05])
+plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
 % title("Flow Pulsatility Without Tourniquet (rsd = 2.5 cm)")
 xlabel("Time (s)");
-title("(c)")
 ylabel("BFi_{2.5 cm} (cm^2/s)")
 
 hold off
@@ -1083,14 +1073,10 @@ ensavg = a_4(:,1:1000);
 subaxis(2,2,4);
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
-mn = min(ensavg(3,:));
-mx = max(ensavg(1,:))
-ylim([mn*0.93 mx*1.05])
+plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
 % title("Flow Pulsatility With Tourniquet (rsd = 2.5 cm)")
 xlabel("Time (s)");
-title("(d)")
 % ylabel("Blood Flow index")
 hold off
 grid

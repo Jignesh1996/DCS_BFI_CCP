@@ -800,3 +800,91 @@ title("Tourniquet Pressure Levels vs CBFi");
 xlabel("Time(s)");
 ylabel("CBFi");
 plot(aDb1_avg','DisplayName','aDb1_avg','LineWidth',1.5)
+
+%% Extracting the data from the figures
+open('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\Pulsatility Analysis\DCS_10_S1_BSL.fig');
+a = get(gca,'Children');
+xdata = get(a, 'XData');
+ydata = get(a, 'YData');
+
+
+%% Testing the g2 averaging
+
+close all;
+if exist("g2")
+    clear g2;
+end
+mua = 0.17; %cm^-1 baseline absorption coefficient
+mus = 10; 
+
+% g2 = Data;
+
+g2_n = Data_all;
+strt_time =  [1,190,310,430,540];   %time in seconds
+stp_time =  [160,290,410,530,660];    %time in seconds.
+
+
+% for m=1:length(strt_time)
+
+g2 = Data_all(1:3600,1:4,:);
+ecg = ecg_ad(1:180*1000);
+
+
+[h_pks,l_pks] = findpeaks(normalize(ecg),"MinPeakHeight",2.5,'MinPeakDistance',750);
+
+fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+hold on
+plot(normalize(ecg),'r')
+plot(l_pks, h_pks,'*k')
+hd_pks = floor(h_pks./50);
+ld_pks = floor(l_pks./50);
+% g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
+avg_window_width = 40;
+for i=1:size(ld_pks,2)-1
+    if size(ld_pks,2)-i < avg_window_width
+        avg_window_width = avg_window_width-1;
+    end
+    min_length = min(diff(ld_pks(i:i+avg_window_width)));
+    base_sig = g2(ld_pks(i):ld_pks(i)+min_length,:,:);
+   
+    for j=1:avg_window_width-1
+        base_sig = base_sig + g2(ld_pks(i+j):ld_pks(i+j)+min_length,:,:);
+%         adb_1 = hybrid_dcs(base_sig,Data_tau);
+       
+    end
+    g2(ld_pks(i):ld_pks(i)+min_length,:,:) = base_sig./avg_window_width;
+end
+
+% end
+
+% for i=1:size(g2,1)
+%     g2(i,2,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+% end
+
+
+
+adb_avg = standalone_dcs(g2,Data_tau);
+% SNR(1,k) = snr(adb_avg(2,:),20);
+figure
+snr(adb_avg(2,:),20)
+
+% adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
+% figure();
+adb = standalone_dcs(Data_all(1:3600,1:4,:),Data_tau);
+dcs_1lp = lpf(adb_avg(1,:),7,20);
+dcs_25lp = lpf(adb_avg(2,:),7,20);
+% dcs_25lp_tr = lpf(adb_avg(3,:),7,20);
+
+% aDb1 = aDb1;
+% figure();
+% snr(adb_avg(2,:),20);
+figure();
+plot(adb_avg(2,:),'b',"LineWidth",1.5);
+hold on; 
+plot(adb(2,:),'r');
+legend("Ensemle Temporal Averaged","Raw")
+% title("Comparision of g2 averaging for cuff data MPCM004 width=50 cycles")
+% legend("g2 Averaged signal","Raw signal")
+% xlabel("samples (Time = samples/20)");
+% ylabel("aDb")
+

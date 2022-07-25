@@ -14,15 +14,15 @@ s = 1; % Signal ROI starting point in seconds;
 
 ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
-tcd_a = data(datastart(3):dataend(3));
+% tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:60000);
+ecg1 = ecg_a(1:780000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
-    
-tcd = tcd_a(1:length(ecg1));
-
-tcd = lpf_ffilts(tcd,12,1000);
+%     
+% tcd = tcd_a(1:length(ecg1));
+% 
+% tcd = lpf_ffilts(tcd,12,1000);
 
 bp = bp_a(1:length(ecg1));
 bp = lpf(bp,3,1000);
