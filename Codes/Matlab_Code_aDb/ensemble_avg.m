@@ -10,7 +10,7 @@ ecg_da = ecg1;
 
 break_pt = 1:50:length(dcs);
 dcs_d = detrend(normalize(dcs),1,break_pt); 
-dcs_1 = dcs;
+dcs_1 = dcs_d;
 plot(dcs_1)
 time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg_da,2));

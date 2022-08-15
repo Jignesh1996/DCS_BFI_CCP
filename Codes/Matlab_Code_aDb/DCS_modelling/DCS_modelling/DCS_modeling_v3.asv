@@ -18,7 +18,7 @@ rho=1;
 rho2=2.5;
 % l=[0.4:0.1:3.5]; % First layer thicknes in cm
 val = [1:0.1:3.5];
-l = 1.2;
+l = val;
 % change = [0.1:0.1:1];
 fact= zeros(1,length(val));
 
@@ -109,7 +109,7 @@ end
 plt(l,error,"Error","Thickness","Error","");
 
 %% DeltaFc
-% deltaFc =  
+deltaFc =  
 %% 2 layered model
 close all;
 beta=0.5;

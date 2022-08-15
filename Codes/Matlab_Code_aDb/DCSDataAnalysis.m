@@ -4,7 +4,7 @@ close all
 
 % Folder name  - provide folder name for which you want to convert the data
 % Folder='21.4.27-apnea without cuff';
-file_no = 6;
+file_no = 18;
 %--------------------------------------------------------------------------
 % 
 filename_d=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
@@ -15,7 +15,7 @@ dcs = Data;
 
 
 
-filename_nd=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(file_no)+'TR','\Data.mat');
+filename_nd=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(2)+'TR','\Data.mat');
 load(filename_nd)
 % load("D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706 - TRTP\Data.mat")
 dcs_t = Data;
@@ -744,14 +744,14 @@ bp_a = lpf(bp_a,3,1000);
 %% Finding the shift
 
 close all;
-ecg_ad = circshift(ecg1,-550);
+ecg_ad = circshift(ecg1,-1250);
 x_e = (1:1:length(ecg_ad))/1000;
 plot(x_e,normalize(ecg_ad),'b');
 hold on;
 x_d = (1:1:size(aDb1,2))/20;
 plot(x_d,normalize(aDb1(1,:)),'r');
 %% Plotting the ensemble average graph
-[ens_avg_sig,pind] = ensemble_avg(ecg1(1:60000),aDb1(1,1:1200),500,1);
+[ens_avg_sig,pind] = ensemble_avg(ecg1(1:60000),aDb1(1,1:1200),1200,1);
 %% Averaging thr g2 curve
 % close all;
 % shift = 1:45:800;
@@ -765,7 +765,7 @@ if exist("g2")
     clear g2;
 end
 mua = 0.17; %cm^-1 baseline absorption coefficient
-mus = 10; 
+mus = 8; 
 
 % g2 = Data;
 % g2_avg = zeros(size(g2))*NaN;
@@ -789,8 +789,8 @@ mus = 10;
 % g2 = Data;
 % ecg = ecg1;
 g2_n = Data_all;
-strt_time =  [10,190,310,430,540];   %time in seconds
-stp_time =  [160,290,410,530,660];    %time in seconds.
+strt_time =  [1,180,300,420,540];   %time in seconds
+stp_time =  [180,310,420,540,660];    %time in seconds.
 
 %For subject 5(Farah), as the protocol is a bit different;
 % strt_time =  [1,300,480,720];   %time in seconds
@@ -819,7 +819,7 @@ for m=1:length(strt_time)
     hd_pks = floor(h_pks./50);
     ld_pks = floor(l_pks./50);
     % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-    avg_window_width = 50;
+    avg_window_width = 10;
     for i=1:size(ld_pks,2)-1
         if size(ld_pks,2)-i < avg_window_width
             avg_window_width = avg_window_width-1;
@@ -874,14 +874,14 @@ legend("Ensemle Temporal Averaged","Raw")
 %NaN(0)
 close all;
 %For subjects 1,2,3,6
-strt_time =  [10,190,350,430,540];   %time in seconds
+strt_time =  [10,190,350,450,540];   %time in seconds
 stp_time =  [160,290,400,520,660];    %time in seconds.
 %For subject 5(Farah), as the protocol is a bit different;
 % strt_time =  [10,320,590,720];   %time in seconds
 % stp_time =  [280,460,700,760];    %time in seconds.
 
 j =1;
-[ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),1200,1);
 d= ens_avg_sig(1:1000);
 
 PI = (max(d)-min(d))./mean(d);
