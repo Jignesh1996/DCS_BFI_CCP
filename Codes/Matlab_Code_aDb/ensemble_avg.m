@@ -1,4 +1,4 @@
-function ens_avg_sig = ensemble_avg(ecg, signal, shift,mode)
+function [ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg, signal, shift,mode)
 ecg1 = ecg;
 dcs = signal;
 shift = shift;
@@ -8,9 +8,9 @@ ecg1 = circshift(ecg1,0);
 ecg_da = ecg1;
 
 
-break_pt = 1:100:length(dcs);
+break_pt = 1:50:length(dcs);
 dcs_d = detrend(normalize(dcs),1,break_pt); 
-dcs_1 = dcs;
+dcs_1 = dcs_d;
 plot(dcs_1)
 time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg_da,2));
@@ -79,7 +79,8 @@ if mode==0
         signal = dcs_1_smooth2(locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1);
             
         Extract(i-1,:)=(dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1));
-        
+        d = Extract(i-1,:);
+        PI(i-1) = (max(d,"omitnan")-min(d(1:500),"omitnan"))/mean(d,"omitnan");
     
     %     Extract(i,:)=signal
     
@@ -99,19 +100,30 @@ if mode==1
         locs_ECG_smooth(i)
         locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))
         signal = (dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i+1)));
+
+        [h_peaks,l_peaks] = findpeaks(signal,'MinPeakHeight',1.5);
+        disp(l_peaks)
+        disp(length(l_peaks));
     %     signal(size(signal,2):size(Extract))
 
-        if length(signal)>=950
-            signal = signal(1:950);
+        if length(l_peaks)<2
+
+            if length(signal)>=1000
+                signal = signal(1:1000);
+            end
+            Extract(i-1,1:size(signal,2))=signal;
+            d = Extract(i-1,:);
+            PI(i-1) = (max(d(1:700),[],'omitnan')-min(d,[],'omitnan'))./mean(d,'omitnan');
+
+        else
+            Extract(i-1,1:size(signal,2))=nan;
         end
-        Extract(i-1,1:size(signal,2))=signal;
-        
     
     %     Extract(i,:)=signal
     
     end
 end
-
+pind = mean(PI,"omitnan");
 %    
 x = (1:1:length(Extract'))/1000;
 figure();
@@ -128,6 +140,6 @@ title("Marker=ECG R peak, DCS 2.5cm")
 % Plot ensemble average
 
 ttle = 'DCS 2.5cm Ensemble Avg';
-ens_avg_sig = ens_avg(Extract,ttle);
+[ens_avg_sig,ensemble_curve] = ens_avg(Extract,ttle);
 
 end

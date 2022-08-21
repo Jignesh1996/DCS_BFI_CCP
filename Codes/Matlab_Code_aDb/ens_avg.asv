@@ -1,4 +1,4 @@
-function [avg,ensemble_curve] = ens_avg(signals,ttl)
+function avg = ens_avg(signals,ttl)
 
 % The issue with the ensemble averaging with NaNs is that the extra signal
 % at the end iduces discontinuities and the signal goes down till the
@@ -21,7 +21,7 @@ hold off
 grid
 legend('Ensemble Average', '95% Confidence Intervals')
 avg = ensavg;
-ensemble_curve = [avg+ci95;avg;avg-ci95];
+ensemble_curve = [avg+ci95,]
 title(ttl)
 
 end

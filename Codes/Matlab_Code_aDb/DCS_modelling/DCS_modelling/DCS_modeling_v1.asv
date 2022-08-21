@@ -2,9 +2,9 @@ clear all
 close all
 %%
 lambda = 786e-7; % Wavelenght in cm
-rho=[1 2.5]; % Source detetcor spearation
-% tau=load('data_tau.csv');
-tau = Data_tau;
+rho=3; % Source detetcor spearation
+tau=load('data_tau.csv');
+tau = tau;
 beta=Data(1,1,1)-1;
 
 %% 3 layered model
@@ -93,7 +93,7 @@ tau = Data_tau;
 LayNo=2;
 rho=1;
 rho2=2.5;
-L=1.2; % First layer thicknes in cm
+L=1.5; % First layer thicknes in cm
 mua=[0.17 0.17];
 mus=[10 10];
 bsl_span = 1:500;
@@ -141,5 +141,5 @@ hold on
 semilogx(tau,DeltaFec(2,:),'b')
 
 %%
-% Del_Fc = 
+Del_Fc = 
 

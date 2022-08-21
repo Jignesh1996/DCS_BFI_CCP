@@ -905,20 +905,18 @@ for i=1:size(g2,2)
 end
 
 %%
-aDb = standalone_dcs(Data,Data_tau);
+aDb=
 %% Normalize the g2 curve
 g2(g2<0) = 0;
 %%
 g2_0_rl = squeeze(mean(g2(2,1:500,:),2)); 
 g2_0_rs = squeeze(mean(g2(1,1:500,:),2)); 
-g2_p_rl = squeeze(mean(g2(2,630:1000,:),2)); 
-g2_p_rs = squeeze(mean(g2(1,630:1000,:),2)); 
+g2_p_rl = squeeze(mean(g2(2,630:900,:),2)); 
+g2_p_rs = squeeze(mean(g2(1,630:900,:),2)); 
 
 %%
-close all;
 del_OD_l_p = -log((g2_p_rl')./(g2_0_rl'));
 del_OD_s_p = -log((g2_p_rs')./(g2_0_rs'));
 
 sens_fact = abs(del_OD_l_p./del_OD_s_p);
 mean(sens_fact)
-plot(sens_fact)

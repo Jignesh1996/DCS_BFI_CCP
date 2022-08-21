@@ -77,12 +77,12 @@ end
 
 
 %% Calculating BFI
-aDb1 = standalone_dcs(Data,Data_tau);
+aDb1 = standalone_dcs(Data(9600:14400,:,:),Data_tau);
 
 %% Finding the shift
 
 close all;
-ecg_ad = circshift(ecg1,-600);
+ecg_ad = circshift(ecg1,-400);
 x_e = (1:1:length(ecg_ad))/1000;
 plot(x_e,normalize(ecg_ad),'b');
 hold on;
@@ -121,8 +121,8 @@ mus = 10;
 % Data_4 = Data(14401:15600,:,:);
 % bp_4 = bp_shift(720001:780000);
 % 
-% g2 = Data;
-ecg = ecg_ad;
+g2 = Data(9600:14400,:,:);
+ecg = ecg_ad(480000:720000);
 
 % start_time =  421;   %time in seconds
 % stop_time =  540;    %time in seconds
@@ -130,16 +130,16 @@ ecg = ecg_ad;
 % g2 = Data_all(start_time*20:stop_time*20,:,:);
 % ecg = ecg_ad(start_time*1000:stop_time*1000);
 
-D = Data;
-g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
-g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
-g2_3_temp=squeeze(D(:,3,:)-1); %g2-1 curve generation
-g2_4_temp=squeeze(D(:,4,:)-1); %g2-1 curve generation
-
+% D = Data(9600:14400,:,:);
+% g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
+% g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
+% g2_3_temp=squeeze(D(:,3,:)-1); %g2-1 curve generation
+% g2_4_temp=squeeze(D(:,4,:)-1); %g2-1 curve generation
+% 
 % average g2 curve for large source detector separation
-for i=1:size(g2,1)
-    g2(i,2,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
-end
+% for i=1:size(g2,1)
+%     g2(i,2,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+% end
 
 [h_pks,l_pks] = findpeaks(normalize(ecg),"MinPeakHeight",2.5);
 
@@ -150,7 +150,7 @@ plot(l_pks, h_pks,'*k')
 hd_pks = floor(h_pks./50);
 ld_pks = floor(l_pks./50);
 % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-avg_window_width = 30;
+avg_window_width = 50;
 for i=1:size(ld_pks,2)-1
     if size(ld_pks,2)-i < avg_window_width
         avg_window_width = avg_window_width-1
@@ -182,15 +182,15 @@ snr(adb_avg(2,:),20)
 % adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
 % figure();
 % adb = standalone_tr_dcs(Data_all(start_time*20:stop_time*20,:,:),Data_tau);
-dcs_1lp = lpf(adb_avg(1,:),7,20);
-dcs_25lp = lpf(adb_avg(2,:),7,20);
+dcs_1lp = lpf(adb_avg(1,:),4,20);
+dcs_25lp = lpf(adb_avg(2,:),4,20);
 % dcs_25lp_tr = lpf(adb_avg(3,:),7,20);
 
 % aDb1 = aDb1;
 % figure();
 % snr(adb_avg(2,:),20);
 % figure();
-% plot(adb_avg(2,:),'b'); hold on; plot(adb(2,:),'r--');
+plot(adb_avg(2,:),'b'); hold on; plot(aDb1(2,:),'r--');
 % title("Comparision of g2 averaging for cuff data MPCM004 width=50 cycles")
 % legend("g2 Averaged signal","Raw signal")
 % xlabel("samples (Time = samples/20)");
