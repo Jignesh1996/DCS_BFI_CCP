@@ -8,7 +8,7 @@ close all;
 
 
 % Read files;
-dcs_dir = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\MPCM Study\DCS\20220217\Data.mat" ;     % Directory for DCS data
+dcs_dir = "D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - 2\Data.mat" ;     % Directory for DCS data
 param_dir = nan;   % Directory for ECG,BP data
 
 load(dcs_dir);
@@ -24,7 +24,7 @@ ecg_a = data(datastart(1):dataend(1));
 bp_a = data(datastart(2):dataend(2));
 % tcd_a = data(datastart(3):dataend(3));
 
-ecg1 = ecg_a(1:120000);
+ecg1 = ecg_a(1:660000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
     
@@ -61,15 +61,12 @@ xlabel('Time (s)')
 %% Assigning the channels
 dcs_1cm = aDb1(1,:).*10^9;
 dcs_1lp = lpf_ffilts(dcs_1cm,10,20);
-dcs_15 = aDb1(2,:).*10^9;
-dcs_15lp = lpf_ffilts(dcs_15,10,20);
-dcs_2 = aDb1(3,:).*10^9;
-dcs_2lp = lpf_ffilts(dcs_2,10,20);
-dcs_25 = aDb1(4,:).*10^9;
-dcs_25lp = lpf_ffilts(dcs_25,7,20);
+dcs_25 = aDb1(2,:).*10^9;
+dcs_25lp = lpf_ffilts(dcs_25,10,20);
+
 
 %% Recombine the DCS signal
-adb_lp = [dcs_1lp;dcs_15lp;dcs_2lp;dcs_25lp];
+adb_lp = [dcs_1lp;dcs_25lp];
 breakpoints = 1:50:length(dcs_1lp);
 for k=1:size(adb_lp,1)
     adb_lp(k,:) = detrend(adb_lp(k,:),1,breakpoints);
@@ -107,7 +104,7 @@ mus = 10;
 
 % Defining the protocol ltime line
 
-
+% 
 % ecg_1 = ecg_ad(1:300000);   % 5 min baseline data
 % Data_1 = Data(1:6000,:,:);
 % bp_1 = bp_shift(1:300000);
@@ -121,8 +118,8 @@ mus = 10;
 % Data_4 = Data(14401:15600,:,:);
 % bp_4 = bp_shift(720001:780000);
 % 
-g2 = Data(9600:14400,:,:);
-ecg = ecg_ad(480000:720000);
+g2 = Data;
+ecg = ecg_ad;
 
 % start_time =  421;   %time in seconds
 % stop_time =  540;    %time in seconds

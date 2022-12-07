@@ -1,13 +1,15 @@
 clear all;
 close all
 %--------------------------------------------------------------------------
-
+% This code is for tourniquet pulsatility study. It has multiple sections
+% for preprocessing the data and getting the ensembled averaged pulsatile
+% shape of the signal. The preprocessing includes LPF, g2 averaging. 
 % Folder name  - provide folder name for which you want to convert the data
 % Folder='21.4.27-apnea without cuff';
-file_no = 6;
+file_no = 2;
 %--------------------------------------------------------------------------
 % 
-filename_d=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
+filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
 
 load(filename_d)
 % load("D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706\Data.mat")
@@ -15,17 +17,17 @@ dcs = Data;
 
 
 
-filename_nd=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(file_no)+'TR','\Data.mat');
-load(filename_nd)
-% load("D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706 - TRTP\Data.mat")
-dcs_t = Data;
+% filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(2)+'TR','\Data.mat');
+% load(filename_nd)
+% % load("D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706 - TRTP\Data.mat")
+% dcs_t = Data;
 
 % dcs_nt = dcs_n(128:end,:,:);
 % dcs_t = dcs(121:121+size(dcs_nt,1)-1,:,:);
-Data_all = [dcs  dcs_t];
+% Data_all = [dcs  dcs_t];
 
 %Loading the ECG file
-filename_nd=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
+filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
 load(filename_nd)
 
 %%
@@ -48,16 +50,16 @@ bp_a = bp_a(1:length(ecg1));
 bp_a = lpf(bp_a,3,1000);
 
 %%
-
+dcs = Data;
 g2(1,:,:)=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
 g2_1_temp=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
 g2_2_temp=squeeze(dcs(:,2,:)-1); %g2-1 curve generation
 g2_3_temp=squeeze(dcs(:,3,:)-1); %g2-1 curve generation
 g2_4_temp=squeeze(dcs(:,4,:)-1); %g2-1 curve generation
-g2_5_temp=squeeze(dcs_t(:,1,:)-1);
-g2_6_temp=squeeze(dcs_t(:,2,:)-1);
-g2_7_temp=squeeze(dcs_t(:,3,:)-1);
-g2_8_temp=squeeze(dcs_t(:,4,:)-1);
+% g2_5_temp=squeeze(dcs_t(:,1,:)-1);
+% g2_6_temp=squeeze(dcs_t(:,2,:)-1);
+% g2_7_temp=squeeze(dcs_t(:,3,:)-1);
+% g2_8_temp=squeeze(dcs_t(:,4,:)-1);
 % average g2 curve for large source detector separation
 % for i=1:size(g2,2)
 %     g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:)+g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:)+g2_8_temp(i,:))/8;
@@ -66,18 +68,18 @@ for i=1:size(g2,2)
     g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
 end
 
-for i=1:size(g2,2)
-    g2(3,i,:)=( g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:) + g2_8_temp(i,:))/4;
-end
+% for i=1:size(g2,2)
+%     g2(3,i,:)=( g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:) + g2_8_temp(i,:))/4;
+% end
 
 % for i=1:size(g2,2)
 %     g2a(1,i,:)=( normalize(g2_2_temp(i,:))+normalize(g2_3_temp(i,:))+normalize(g2_4_temp(i,:))+ normalize(0.25*g2_5_temp(i,:))+ 0.25*normalize(g2_6_temp(i,:)) ...
 %         + 0.25*normalize(g2_7_temp(i,:)) + 0.25*normalize(g2_8_temp(i,:)))/4;
 % end
-for i=1:size(g2,2)
-    g2a(1,i,:)=( (g2_2_temp(i,:)./g2_2_temp(1,1))+(g2_3_temp(i,:)./g2_3_temp(1,1))+(g2_4_temp(i,:)./g2_4_temp(1,1))+ (g2_5_temp(i,:)./g2_5_temp(1,1))+ (g2_6_temp(i,:)./g2_6_temp(1,1)) ...
-        + (g2_7_temp(i,:)./g2_7_temp(1,1)) + (g2_8_temp(i,:)./g2_8_temp(1,1)))/7;
-end
+% for i=1:size(g2,2)
+%     g2a(1,i,:)=( (g2_2_temp(i,:)./g2_2_temp(1,1))+(g2_3_temp(i,:)./g2_3_temp(1,1))+(g2_4_temp(i,:)./g2_4_temp(1,1))+ (g2_5_temp(i,:)./g2_5_temp(1,1))+ (g2_6_temp(i,:)./g2_6_temp(1,1)) ...
+%         + (g2_7_temp(i,:)./g2_7_temp(1,1)) + (g2_8_temp(i,:)./g2_8_temp(1,1)))/7;
+% end
 
 
 
@@ -117,7 +119,7 @@ print(hfig,fname,'-dpng','-painters')
 
 %% aDb calculations
 
-rho = [1 2.5 2.5]; %source detector separations in cm 
+rho = [1 2.5]; %source detector separations in cm 
 mua = 0.17; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
@@ -161,7 +163,7 @@ end
 %%
 Channel=1;
 Curve_no=1;
-rho = [1 2.5 2.5];
+rho = [1 2.7];
 
 beta=g2(Channel, Curve_no,1);
 aDb_fit=aDb1(Channel,Curve_no);
@@ -178,32 +180,32 @@ semilogx(Data_tau,g2_fit,'r')
 t_res=0.05; % seconds
 time=t_res*(1:1:size(aDb1,2));
 
-subplot(3,1,1)
+subplot(2,1,1)
 
 plot(time,aDb1(1,:))
 title('{\itr}_{SD}=1 cm')
 % set(gca,'xticklabel',{})
 
-subplot(3,1,2)
+subplot(2,1,2)
 
 plot(time,aDb1(2,:))
 title('{\itr}_{SD}=2.5 cm')
 xlabel('Time (s)')
 
-subplot(3,1,3)
-
-plot(time,aDb1(2,:))
-title('{\itr}_{SD}=2.5 cm TR system')
-xlabel('Time (s)')
+% subplot(3,1,3)
+% 
+% plot(time,aDb1(2,:))
+% title('{\itr}_{SD}=2.5 cm TR system')
+% xlabel('Time (s)')
 
 %% 
 plot(normalize(aDb1'));
 mean_adb = zeros(5,3,660);
 
 %% Fiding the shift by checking for the SNR
-corr = zeros([1,2*size(aDb1a,2)-1]);
+corr = zeros([1,2*size(aDb1,2)-1]);
 for i=1:100
-    adb_25 = aDb1(2,:)+circshift(aDb1(3,:),i-50);
+    adb_25 = aDb1(2,:)+circshift(aDb1(2,:),i-50);
     s(i) = snr(adb_25,20);
     corr(i,:) = xcorr(aDb1(2,:),circshift(aDb1(3,:),i-50));
 end
@@ -219,7 +221,7 @@ j=1;
 for i=2:t_avg_pt:size(aDb1,2)
     aDb1_avg(1,j)=mean(aDb1(1,i-1:i+t_avg_pt-2));
     aDb1_avg(2,j)=mean(aDb1(2,i-1:i+t_avg_pt-2));
-    aDb1_avg(3,j)=mean(aDb1(3,i-1:i+t_avg_pt-2));
+%     aDb1_avg(3,j)=mean(aDb1(3,i-1:i+t_avg_pt-2));
 %     time_avg(1,j)=(Data_time(1,i+t_avg_pt-1));
     j=j+1;
 end
@@ -228,36 +230,36 @@ mean_adb(file_no/2,:,:) = aDb1_avg;
 
 t = (1:1:length(aDb1(1,:)))/20;
 
-% x_pos=[0.1,4,7,11]; %task strat time in minutes
-% % txt = ["25%", "50%","150%","BSL"];
+x_pos=[0.1,4,7,11]; %task strat time in minutes
+txt = ["25%", "50%","150%","BSL"];
 % txt = ["80 mmHg", "160mmHg","BSL"];
-% for i=1:size(x_pos,2)
-% if mod(i,2)==0
-%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
-%         'LineWidth',3)
-%     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
-% else
-%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
-%         'LineWidth',3)
-%     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
-% 
-% end
-% end
-x_pos=[5,8]; %task strat time in minutes
-% txt = ["25%", "50%","150%","BSL"];
-txt = ["80 mmHg", "160mmHg"];
 for i=1:size(x_pos,2)
 if mod(i,2)==0
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,240,max(aDb1(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
         'LineWidth',3)
     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
 else
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,180,max(aDb1(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
         'LineWidth',3)
     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
 
 end
 end
+% x_pos=[5,8]; %task strat time in minutes
+% % txt = ["25%", "50%","150%","BSL"];
+% txt = ["80 mmHg", "160mmHg"];
+% for i=1:size(x_pos,2)
+% if mod(i,2)==0
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,240,max(aDb1(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+%         'LineWidth',3)
+%     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
+% else
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,180,max(aDb1(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+%         'LineWidth',3)
+%     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
+% 
+% end
+% end
 
 hold on;
 plot(t,aDb1','DisplayName','aDb1');
@@ -279,39 +281,39 @@ end
 hold on;
 per_ch_mean(1,:) = 100*(adb_avg_smooth(1,:)./ mean(adb_avg_smooth(1,1:100),2));
 per_ch_mean(2,:) = 100*(adb_avg_smooth(2,:)./ mean(adb_avg_smooth(2,1:100),2));
-per_ch_mean(3,:) = 100*(adb_avg_smooth(3,:)./ mean(adb_avg_smooth(3,1:100),2));
+% per_ch_mean(3,:) = 100*(adb_avg_smooth(3,:)./ mean(adb_avg_smooth(3,1:100),2));
 
 t = (1:1:length(aDb1(1,:)))/20;
 
-% x_pos=[3,5,7,9]; %task strat time in minutes
+x_pos=[3,5,7,9]; %task strat time in minutes
+txt = ["25%", "50%","150%","BSL"];
+for i=1:size(x_pos,2)
+if mod(i,2)==0
+    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+        'LineWidth',3)
+    text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
+else
+    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+        'LineWidth',3)
+    text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
+
+end
+end
+% x_pos=[5,8]; %task strat time in minutes
 % txt = ["25%", "50%","150%","BSL"];
+% txt = ["80 mmHg", "160mmHg"];
 % for i=1:size(x_pos,2)
 % if mod(i,2)==0
-%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,240,max(per_ch_mean(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
 %         'LineWidth',3)
 %     text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
 % else
-%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,180,max(per_ch_mean(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
 %         'LineWidth',3)
 %     text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
 % 
 % end
 % end
-x_pos=[5,8]; %task strat time in minutes
-% txt = ["25%", "50%","150%","BSL"];
-txt = ["80 mmHg", "160mmHg"];
-for i=1:size(x_pos,2)
-if mod(i,2)==0
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,240,max(per_ch_mean(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
-        'LineWidth',3)
-    text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
-else
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,180,max(per_ch_mean(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
-        'LineWidth',3)
-    text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
-
-end
-end
 
 plot(per_ch_mean')
 title("Percent change in CBFi");
@@ -744,14 +746,14 @@ bp_a = lpf(bp_a,3,1000);
 %% Finding the shift
 
 close all;
-ecg_ad = circshift(ecg1,-550);
+ecg_ad = circshift(ecg1,-700);
 x_e = (1:1:length(ecg_ad))/1000;
 plot(x_e,normalize(ecg_ad),'b');
 hold on;
 x_d = (1:1:size(aDb1,2))/20;
 plot(x_d,normalize(aDb1(1,:)),'r');
 %% Plotting the ensemble average graph
-[ens_avg_sig,pind] = ensemble_avg(ecg1(1:60000),aDb1(1,1:1200),500,1);
+[ens_avg_sig,pind] = ensemble_avg(ecg1(1:90000),aDb1(1,1:1800),600,1);
 %% Averaging thr g2 curve
 % close all;
 % shift = 1:45:800;
@@ -761,15 +763,15 @@ plot(x_d,normalize(aDb1(1,:)),'r');
 %% Finding the R-R peaks of ECG signal
 
 close all;
-if exist("g2")
-    clear g2;
-end
+% if exist("g2")
+%     clear g2;
+% end
 mua = 0.17; %cm^-1 baseline absorption coefficient
 mus = 10; 
 
 % g2 = Data;
 % g2_avg = zeros(size(g2))*NaN;
-
+    
 % Defining the protocol ltime line
 
 
@@ -786,19 +788,25 @@ mus = 10;
 % Data_4 = Data(14401:15600,:,:);
 % bp_4 = bp_shift(720001:780000);
 % 
-% g2 = Data;
-% ecg = ecg1;
-g2_n = Data_all;
-strt_time =  [10,190,310,430,540];   %time in seconds
-stp_time =  [160,290,410,530,660];    %time in seconds.
+g2_backup = Data;
+ecg = ecg_ad;
+% g2_backup = g2;
+g2_n = g2_backup;
+strt_time =  [1,180,300,420,540];   %time in seconds
+stp_time =  [180,310,420,540,660];    %time in seconds.
+
+%  strt_time =  [1,32,62];
+%  stp_time =  [28,58,90]; 
 
 %For subject 5(Farah), as the protocol is a bit different;
 % strt_time =  [1,300,480,720];   %time in seconds
 % stp_time =  [300,480,720,780];    %time in seconds.
 for m=1:length(strt_time)
+    disp(m);
+    clear g2;
     stop_time = stp_time(m);
     start_time = strt_time(m);
-    g2 = Data_all(start_time*20:stop_time*20,:,:);
+    g2 = g2_n(start_time*20:stop_time*20,:,:);
     ecg = ecg_ad(start_time*1000:stop_time*1000);
     % g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
     % g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
@@ -816,12 +824,13 @@ for m=1:length(strt_time)
     hold on
     plot(normalize(ecg),'r')
     plot(l_pks, h_pks,'*k')
-    hd_pks = floor(h_pks./50);
-    ld_pks = floor(l_pks./50);
+    hd_pks = ceil(h_pks./50);
+    ld_pks = ceil(l_pks./50);
     % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-    avg_window_width = 50;
+    avg_window_width = 60;
     for i=1:size(ld_pks,2)-1
         if size(ld_pks,2)-i < avg_window_width
+
             avg_window_width = avg_window_width-1;
         end
         min_length = min(diff(ld_pks(i:i+avg_window_width)));
@@ -844,16 +853,16 @@ end
 
 
 
-adb_avg = standalone_tr_dcs(g2_n,Data_tau);
+adb_avg = standalone_dcs(g2_n,Data_tau);
 % SNR(1,k) = snr(adb_avg(2,:),20);
 figure
 snr(adb_avg(2,:),20)
 
 % adb_avg = adb_avg; % This is cut out specific portion of the signal to plot
 % figure();
-adb = standalone_tr_dcs(Data_all,Data_tau);
-dcs_1lp = lpf(adb_avg(1,:),7,20);
-dcs_25lp = lpf(adb_avg(2,:),7,20);
+% adb = standalone_tr_dcs(Data_all,Data_tau);
+dcs_1lp = (lpf(adb_avg(1,:),7,20));
+dcs_25lp =(lpf(adb_avg(2,:),7,20));
 % dcs_25lp_tr = lpf(adb_avg(3,:),7,20);
 
 % aDb1 = aDb1;
@@ -862,7 +871,7 @@ dcs_25lp = lpf(adb_avg(2,:),7,20);
 figure();
 plot(adb_avg(2,:),'b',"LineWidth",1.5);
 hold on; 
-plot(adb(2,:),'r');
+plot(aDb1(2,:),'r');
 legend("Ensemle Temporal Averaged","Raw")
 % title("Comparision of g2 averaging for cuff data MPCM004 width=50 cycles")
 % legend("g2 Averaged signal","Raw signal")
@@ -874,38 +883,39 @@ legend("Ensemle Temporal Averaged","Raw")
 %NaN(0)
 close all;
 %For subjects 1,2,3,6
-strt_time =  [10,190,350,430,540];   %time in seconds
-stp_time =  [160,290,400,520,660];    %time in seconds.
+strt_time =  [10,190,350,440,540];   %time in seconds
+stp_time =  [160,290,400,510,660];    %time in seconds.
 %For subject 5(Farah), as the protocol is a bit different;
 % strt_time =  [10,320,590,720];   %time in seconds
 % stp_time =  [280,460,700,760];    %time in seconds.
 
-j =1;
-[ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+j =4;
+[ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),700,1);
 d= ens_avg_sig(1:1000);
 
 PI = (max(d)-min(d))./mean(d);
 
 % ens_avg_sig = ens_avg_sig*10^9;
 
-filename = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\Pulsatility Analysis\variables\sub_6_"+j+"_10.csv";
-csvwrite(filename,ens_avg_sig);
+% filename = "C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\Pulsatility Analysis\variables\sub_6_"+j+"_10.csv";
+% csvwrite(filename,ens_avg_sig);
 
 %% Plotting a subplot for the abstract
 close all;
 
+sig_shift = 700;
 
 j =1;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift,1);
 a_1 = ensemble_curve;
 j =4;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift,1);
 a_2 = ensemble_curve;
 j =1;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift,1);
 a_3 = ensemble_curve;
 j =4;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift,1);
 a_4 = ensemble_curve;
 close all;
 
@@ -988,9 +998,11 @@ set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to you
 legend('Ensemble Average', '95% Confidence Intervals','Interpreter','tex')
 
 
-%%
+
 %% Plotting a subplot for the abstract
 close all;
+
+sig_shift = 700;
 
 set(0, 'DefaultAxesFontname', 'Calisto MT');
 font_size = 16;
@@ -1002,16 +1014,16 @@ set(0, 'defaultfigurecolor', 'w')
 
 
 j =1;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift ,1);
 a_1 = ensemble_curve;
 j =4;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_1lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift,1);
 a_2 = ensemble_curve;
 j =1;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift,1);
 a_3 = ensemble_curve;
 j =4;
-[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),400,1);
+[ens_avg_sig,~,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),sig_shift,1);
 a_4 = ensemble_curve;
 close all;
 
@@ -1028,10 +1040,13 @@ subaxis(2,2,1,'SpacingVert',0.12,'SpacingHoriz',0.1,'MR',0.03, 'ML',0.08,'MT',0.
 
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
 % xlabel("Time (s)");
 ylabel("BFi_{1 cm} (cm^2/s)")
+mn = min(ensavg(3,:));
+mx = max(ensavg(1,:))
+ylim([mn*0.93 mx*1.05])
 % title(".   Flow Pulsatility Without Tourniquet (rsd = 1 cm)")
 title("(a)")
 hold off
@@ -1043,8 +1058,11 @@ ensavg = a_2(:,1:1000);
 subaxis(2,2,2)
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
+mn = min(ensavg(3,:));
+mx = max(ensavg(1,:))
+ylim([mn*0.93 mx*1.05])
 % title("  Flow Pulsatility With Tourniquet (rsd = 1 cm)")
 % xlabel("Time (s)");
 % ylabel("Blood Flow index")
@@ -1058,10 +1076,14 @@ ensavg = a_3(:,1:1000);
 subaxis(2,2,3);
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
+mn = min(ensavg(3,:));
+mx = max(ensavg(1,:))
+ylim([mn*0.93 mx*1.05])
 % title("Flow Pulsatility Without Tourniquet (rsd = 2.5 cm)")
 xlabel("Time (s)");
+title("(c)")
 ylabel("BFi_{2.5 cm} (cm^2/s)")
 
 hold off
@@ -1073,10 +1095,14 @@ ensavg = a_4(:,1:1000);
 subaxis(2,2,4);
 plot(x, ensavg(2,:), '-r', 'LineWidth',1.5)
 hold on;
-plot(x, ensavg(1,:), ':g', 'LineWidth',1.5)
-plot(x, ensavg(3,:), ':g', 'LineWidth',1.5)
+plot(x, ensavg(1,:), ':b', 'LineWidth',1.5)
+plot(x, ensavg(3,:), ':b', 'LineWidth',1.5)
+mn = min(ensavg(3,:));
+mx = max(ensavg(1,:))
+ylim([mn*0.93 mx*1.05])
 % title("Flow Pulsatility With Tourniquet (rsd = 2.5 cm)")
 xlabel("Time (s)");
+title("(d)")
 % ylabel("Blood Flow index")
 hold off
 grid
@@ -1142,6 +1168,7 @@ set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','lat
 text((l_s(2)/1000)-0.008,h_s(2)-0.6,["\Deltat = t_S_1 - t_d"],"Interpreter","tex")
 set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
 
+%% Plotting the g2 averaged signal to find the deltaFc
 
 %%
 figure();
@@ -1232,4 +1259,74 @@ csvwrite("anova_matrix_1cm.csv",squeeze(an_table(1,:,:)));
 csvwrite("anova_matrix_25mm.csv",squeeze(an_table(2,:,:)));
 
 
+%%
+    g2(1,:,:) = Data(1:floor(length(ecg_ad)/50),1,:);
+    g2(2,:,:) = Data(1:floor(length(ecg_ad)/50),2,:);
+    g2(3,:,:) = Data(1:floor(length(ecg_ad)/50),3,:);
+    g2(4,:,:) = Data(1:floor(length(ecg_ad)/50),4,:);
+    
+%     g2(:,1,:)=squeeze(D(:,1,:)-1); %g2-1 curve generation
+%     g2_2_temp=squeeze(D(:,2,:)-1); %g2-1 curve generation
+%     g2_3_temp=squeeze(D(:,3,:)-1); %g2-1 curve generation
+%     g2_4_temp=squeeze(D(:,4,:)-1); %g2-1 curve generation
+    
+%     average g2 curve for large source detector separation
+%     for i=1:size(g2,1)
+%         g2(i,2,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+%     end
+    
+    [h_pks,l_pks] = findpeaks(normalize(ecg_ad),"MinPeakHeight",2.5,"MinPeakDistance",750);
+    
+    fig1=figure('units','centimeters', 'Position',[2 2 35 13]); %18 width 15 heigh
+    hold on
+    plot(normalize(ecg_ad),'r')
+    plot(l_pks, h_pks,'*k')
+    hd_pks = floor(h_pks./50);
+    ld_pks = floor(l_pks./50);
+    % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
+    avg_window_width = 10;
+    for i=1:size(ld_pks,2)-2
+        if size(ld_pks,2)-i < avg_window_width
+            avg_window_width = avg_window_width-1;
+        end
+        min_length = min(diff(ld_pks(i:i+avg_window_width)));
+        base_sig = g2(:,ld_pks(i):ld_pks(i)+min_length,:);
+       
+        for j=1:avg_window_width-1
+            base_sig = base_sig + g2(:,ld_pks(i+j):ld_pks(i+j)+min_length,:);
+    %         adb_1 = hybrid_dcs(base_sig,Data_tau);
+           
+        end
+        g2(:,ld_pks(i):ld_pks(i)+min_length,:) = base_sig./avg_window_width;
+    end
+
+    g2_n(:,1,:) = g2(1,1:floor(length(ecg_ad)/50),:);
+    g2_n(:,2,:) = g2(2,1:floor(length(ecg_ad)/50),:);
+    g2_n(:,3,:) = g2(3,1:floor(length(ecg_ad)/50),:);
+    g2_n(:,4,:) = g2(4,1:floor(length(ecg_ad)/50),:);
+
+    adb = standalone_dcs(g2_n,Data_tau);
+%%
+    close all;
+    dcs_1lp = lpf(adb(1,:),7,20);
+    dcs_25lp = lpf(adb(2,:),7,20);
+
+    dcs_up = interp(dcs_1lp,50);
+    dcs_up_lp = lpf(dcs_up,2,1500);
+    bp_shift = circshift(bp_a,-2950);
+
+    %%
+    close all;
+    bp_shift = circshift(bp_a,-1200);
+    plot(normalize(ecg1)); hold on; 
+    plot(normalize(bp_shift));
+    %%
+    close all;
+    l = 186380:192750;
+    t = (1:1:length(l))/1000;
+    plot(t,dcs_up(l)*10^9);
+    hold on;
+    plot(t,bp_shift(l));
+    xlabel("Time (s)");
+    ylabel("aDb")
 

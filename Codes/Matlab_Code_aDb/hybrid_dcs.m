@@ -9,12 +9,14 @@ g2(4,:,:)=squeeze(Data(:,4,:)-1); %g2-1 curve generation
 
 rho = [1 1.5 2 2.5]; %source detector separations in cm 
 mua = 0.17; %cm^-1 baseline absorption coefficient
-mus = 10; %cm^-1 baseline reduced scattering coefficient
+mus = 8; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau;
-
-for chan=1:size(g2,1)
-    for i=1:size(g2,2)
+lc = size(g2,1);
+ld = size(g2,2);
+parfor chan=1:lc
+    g2_temp = zeros(size(g2,2),length(tau_values));
+    for i=1:ld
         rsd=rho(chan);
         g2_temp(i,:)=squeeze(g2(chan,i,:));
         LB = [0];
@@ -31,8 +33,8 @@ for chan=1:size(g2,1)
 %     well
 end
  
-Channel=1;
-Curve_no=1;
+Channel=3;
+Curve_no=100;
 rho = [1 1.5 2 2.5];
 
 beta=g2(Channel, Curve_no,1);

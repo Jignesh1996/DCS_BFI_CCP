@@ -6,13 +6,13 @@ aDb = params(1);
 
 %% Define the parameters used in the correlation function
 v=3;
-zo = 1/(us); %first point source term in cm
-% zo = 1/(ua+us); %first point source term in cm
-D = 1/(3*(us)); %diffusion coefficient in cm
-% D = 1/(3*(ua+us));%diffusion coefficient in cm
+% zo = 1/(us); %first point source term in cm
+zo = 1/(ua+us); %first point source term in cm
+% D = 1/(3*(us)); %diffusion coefficient in cm
+D = 1/(3*(ua+us));%diffusion coefficient in cm
 zb = 2*D*(1+0.493)/(1-0.493); %2nd point source term in cm
 r1 = sqrt(rho^2+zo^2);
-r2 = sqrt((zo+2*zb)^2+(rho^2));
+rb = sqrt((zo+2*zb)^2+(rho^2));
 n = 1.4;%refractive index of the medium
 c=v/n;
 lamda = 780e-7; %786.5e-007;%wavelength of the light in cm
@@ -20,9 +20,26 @@ lamda = 780e-7; %786.5e-007;%wavelength of the light in cm
 k = (2*pi*n)/lamda;%Wavenumber of light in the medium
 k_D = sqrt((3*us*ua)+(6*us^2*k^2*aDb*tau));
 Amp = (3*us)/(4*pi);
+% % beta = 0.15;
+
+%new code
+% v=3;
+% Reff = 0.493;
+% n = 1.4;%refractive index of the medium
+% c=v/n;
+% lamda = 786.5e-007; %786.5e-007;%wavelength of the light in cm
+% % zo = 1/(ua+us); %first point source term in cm
+% D = 1/(ua+us);% (l(tr)) ,diffusion coefficient in cm
+% zb = 2*D*(1+Reff)/(1-Reff); %2nd point source term in cm
+% r1 = sqrt(rho^2+D^2);
+% rb = sqrt((D+2*zb)^2+(rho^2));
+% 
+% k = (2*pi*n)/lamda;%Wavenumber of light in the medium
+% k_D = sqrt(3*ua*(us+ua)*(1+(2*us*(k^2)*aDb*tau/ua)));
+% Amp = 3/(4*pi*D);
 % beta = 0.15;
 %% Field autocorrelation function
-G1 = Amp*((exp(-k_D*r1)./r1)-(exp(-k_D*r2)./r2));
+G1 = Amp*((exp(-k_D*r1)./r1)-(exp(-k_D*rb)./rb));
 g1 = (G1)./max(G1);
 g2_1_fit = beta*(g1.^2);
 % plot(g2_1_fit);

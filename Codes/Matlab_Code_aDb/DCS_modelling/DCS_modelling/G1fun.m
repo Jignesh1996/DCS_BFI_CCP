@@ -15,7 +15,7 @@ parfor i=1:length(tau)
     k0 = (2*pi*n)/lambda; % [cm^-1] Wavenumber of light in the medium %assume the same wave number for each layer
     
     D1 = 1/(3*us1 + 3*ua1); % [cm] diffusion coefficient for 1st layer
-    D2 = 1/(3*us2 + 3*ua3); % [cm] diffusion coefficient for 2nd layer
+    D2 = 1/(3*us2 + 3*ua2); % [cm] diffusion coefficient for 2nd layer
     D3 = 1/(3*us3 + 3*ua3); % [cm] diffusion coefficient for 3rd layer
     
     z0 = 1/(ua1+us1); % z0 = 3*D1; % [cm] first point source term

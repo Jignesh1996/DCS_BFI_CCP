@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706 - TRTP\";
+Directory = "E:\Donya\Thumb Muscle baseline\";
 
 fprintf("Start....\n")
 

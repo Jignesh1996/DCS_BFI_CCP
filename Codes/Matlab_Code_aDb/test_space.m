@@ -922,3 +922,11 @@ del_OD_s_p = -log((g2_p_rs')./(g2_0_rs'));
 sens_fact = abs(del_OD_l_p./del_OD_s_p);
 mean(sens_fact)
 plot(sens_fact)
+
+%% 
+for i = 1:40
+
+    if mod(i,20) ~=0
+        val(mod(i,20)) = mod(i,20);
+    end
+end
