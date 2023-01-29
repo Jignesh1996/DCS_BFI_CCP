@@ -121,40 +121,6 @@ clc;
 % end
 
 %%
-clear all;
-close all
-
-file_no = 2;
-%--------------------------------------------------------------------------
-% 
-filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
-load(filename_d)
-
-
-%Loading the ECG file
-filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
-load(filename_nd)
-
-
-% load("D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Matlab_Code_aDb\2 layer model\2 layer model\008_CUFF_g2.mat");
-% tau = csvread("D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Matlab_Code_aDb\2 layer model\data_tau.csv");
-% Data_tau = tau;
-% load("D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Matlab_Code_aDb\2 layer model\001_TCD_g2.mat");
-
-% 
-% if ~exist('Data') && exist("g2")
-%     Data(:,1,:) = g2(1,:,:)+1;
-%     Data(:,2,:) = g2(2,:,:)+1;
-%     Data(:,3,:) = g2(3,:,:)+1;
-%     Data(:,4,:) = g2(4,:,:)+1;
-% end
-tau = Data_tau;
-aDb = standalone_dcs(Data,Data_tau);
-figure();
-plot((1:1:length(aDb))/20,aDb1');
-xlabel("Time(s)")
-ylabel("aDb")
-%%
 
 adb = standalone_dcs(Data,Data_tau);
 figure()
@@ -199,13 +165,12 @@ dFec=DeltaFec;
 
 
 
-roi = 6000:8000;
+roi = 3700:4800;
 
-
+g2_short = g2(1,roi,:);
 for i=1:size(g2,2)
     g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
 end
-g2_short = g2(2,1:2000,:);
 g2_long = g2(2,roi,:);
 l1 = 0.7; %[cm]
 l2 = 0.4;
@@ -221,12 +186,12 @@ l2 = 0.4;
 ua1 = 0.17; %[cm^-1]
 us1 = 8; %[cm^-1]
 ua2 = 0.2; %[cm^-1]
-us2 = 8; %[cm^-1]
+us2 = 0.8; %[cm^-1]
 ua3 = 0.2; %[cm^-1]
 us3 = 8; %[cm^-1]
 
 
-rho1 = 25; %mm distance for short channel               
+rho1 = 10; %mm distance for short channel               
 rho2 = 25; %mm distance for long channle
                    
 corr1 = 1+squeeze(g2_short);

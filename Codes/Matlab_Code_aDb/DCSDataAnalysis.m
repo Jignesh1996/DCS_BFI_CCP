@@ -6,7 +6,7 @@ close all
 % shape of the signal. The preprocessing includes LPF, g2 averaging. 
 % Folder name  - provide folder name for which you want to convert the data
 % Folder='21.4.27-apnea without cuff';
-file_no = 2;
+file_no = 6;
 %--------------------------------------------------------------------------
 % 
 filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
@@ -119,8 +119,26 @@ print(hfig,fname,'-dpng','-painters')
 
 %% aDb calculations
 
+dcs = Data;
+g2(1,:,:)=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
+g2_1_temp=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(dcs(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(dcs(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(dcs(:,4,:)-1); %g2-1 curve generation
+% g2_5_temp=squeeze(dcs_t(:,1,:)-1);
+% g2_6_temp=squeeze(dcs_t(:,2,:)-1);
+% g2_7_temp=squeeze(dcs_t(:,3,:)-1);
+% g2_8_temp=squeeze(dcs_t(:,4,:)-1);
+% average g2 curve for large source detector separation
+% for i=1:size(g2,2)
+%     g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:)+g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:)+g2_8_temp(i,:))/8;
+% end
+for i=1:size(g2,2)
+    g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+end
+
 rho = [1 2.5]; %source detector separations in cm 
-mua = 0.17; %cm^-1 baseline absorption coefficient
+mua = 0.15; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau;
@@ -161,8 +179,9 @@ end
 % end
 
 %%
+close all
 Channel=1;
-Curve_no=1;
+Curve_no=15;
 rho = [1 2.5];
 
 beta=g2(Channel, Curve_no,1);
@@ -216,7 +235,8 @@ t_avg=1; % window used for averaging in seconds
 
 t_avg_pt=t_avg/t_res; % window used for averaging in points
 time=t_res*(1:1:size(aDb1,2));
-Data_time(1,i)=i*t_res;
+% Data_time(1,i)=i*t_res;
+%     aDb1 = adb_avg
 j=1;
 for i=2:t_avg_pt:size(aDb1,2)
     aDb1_avg(1,j)=mean(aDb1(1,i-1:i+t_avg_pt-2));
@@ -226,25 +246,25 @@ for i=2:t_avg_pt:size(aDb1,2)
     j=j+1;
 end
 
-mean_adb(file_no/2,:,:) = aDb1_avg;
+% mean_adb(file_no/2,:,:) = aDb1_avg;
 
 t = (1:1:length(aDb1(1,:)))/20;
 
 x_pos=[0.1,4,7,11]; %task strat time in minutes
-txt = ["25%", "50%","150%","BSL"];
+txt = ["BSL","25%", "50%","150%","Rec"];
 % txt = ["80 mmHg", "160mmHg","BSL"];
-for i=1:size(x_pos,2)
-if mod(i,2)==0
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
-        'LineWidth',3)
-    text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
-else
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
-        'LineWidth',3)
-    text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
-
-end
-end
+% for i=1:size(x_pos,2)
+% if mod(i,2)==0
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+%         'LineWidth',3)
+%     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
+% else
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(aDb1(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+%         'LineWidth',3)
+%     text(t(x_pos(i)*1200)*1.05,0.9*max(aDb1(1,:)),txt(i));
+% 
+% end
+% end
 % x_pos=[5,8]; %task strat time in minutes
 % % txt = ["25%", "50%","150%","BSL"];
 % txt = ["80 mmHg", "160mmHg"];
@@ -269,36 +289,41 @@ title("CBFi w.r.t Tourniquet Pressure Levels");
 xlabel("Time(s)");
 ylabel("CBFi");
 plot(aDb1_avg','DisplayName','aDb1_avg','LineWidth',1.5)
-legend("DCS 1cm","DCS 2.5cm","DCS 2.5cm TR"); 
+legend("DCS 1cm","DCS 2.5cm"); 
 
 
 
 figure();
 
 for i=1:size(aDb1_avg,1)
-    adb_avg_smooth(i,:) = smooth(aDb1_avg(i,:),15,'rlowess');
+    adb_avg_smooth(i,:) = smooth(aDb1_avg(i,:),5,'rlowess');
 end
 hold on;
+
 per_ch_mean(1,:) = 100*(adb_avg_smooth(1,:)./ mean(adb_avg_smooth(1,1:100),2));
 per_ch_mean(2,:) = 100*(adb_avg_smooth(2,:)./ mean(adb_avg_smooth(2,1:100),2));
+
+% per_ch_mean(1,:) = 100*((adb_avg_smooth(1,:)-mean(adb_avg_smooth(1,1:100),2))./ mean(adb_avg_smooth(1,1:100),2));
+% per_ch_mean(2,:) = 100*((adb_avg_smooth(2,:)-mean(adb_avg_smooth(2,1:100),2))./ mean(adb_avg_smooth(2,1:100),2));
+
 % per_ch_mean(3,:) = 100*(adb_avg_smooth(3,:)./ mean(adb_avg_smooth(3,1:100),2));
 
 t = (1:1:length(aDb1(1,:)))/20;
 
 x_pos=[3,5,7,9]; %task strat time in minutes
-txt = ["25%", "50%","150%","BSL"];
-for i=1:size(x_pos,2)
-if mod(i,2)==0
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
-        'LineWidth',3)
-    text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
-else
-    rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
-        'LineWidth',3)
-    text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
-
-end
-end
+% txt = ["25%", "50%","150%","BSL"];
+% for i=1:size(x_pos,2)
+% if mod(i,2)==0
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+%         'LineWidth',3)
+%     text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
+% else
+%     rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,max(per_ch_mean(1,:))],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+%         'LineWidth',3)
+%     text(t(x_pos(i)*1200)*1.05,0.95*max(per_ch_mean(1,:)),txt(i));
+% 
+% end
+% end
 % x_pos=[5,8]; %task strat time in minutes
 % txt = ["25%", "50%","150%","BSL"];
 % txt = ["80 mmHg", "160mmHg"];
@@ -320,7 +345,35 @@ title("Percent change in CBFi");
 
 xlabel("Time(s)");
 ylabel("CBFi");
-legend("DCS 1cm","DCS 2.5cm","DCS 2.5cm TR"); 
+legend("DCS 1cm","DCS 2.5cm"); 
+
+%% normalizing the average signal
+adb(1,:) = (adb_avg_smooth(1,:) -min(adb_avg_smooth(1,1:50)))./range(adb_avg_smooth(1,1:50))
+adb(2,:) = (adb_avg_smooth(2,:) -min(adb_avg_smooth(1,1:50)))./range(adb_avg_smooth(1,1:50))
+plot(adb')
+
+
+%%
+
+hfig = figure();
+picturewidth = 15; % set this parameter and keep it forever
+hw_ratio = 0.5; % feel free to play with this ratio
+t = (1:1:length(adb_avg_smooth))/20;
+plot(t,adb_avg_smooth(1,:))
+xlabel("Time(s)")
+ylabel("BFi")
+
+
+
+set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+% set(findall(hfig,'-property','Box'),'Box','off') % optional
+% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
 %% 
 % for i=150:1500:size(g2_5_temp,1)
 %     semilogx(Data_tau,g2_5_temp(i,:))
@@ -535,7 +588,9 @@ set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(
 %print(hfig,fname,'-dpdf','-painters','-fillpage')
 print(hfig,fname,'-dpng','-painters')
 %% Reading all the data for global analysis
-a = [2,4,6,10,12,14];
+
+% a = [2,4,6,10,12,14,16,18];
+a = [2];
 dcs_a = zeros(5,size(Data,1),size(Data,2),size(Data,3));
 dcs_at = zeros(5,size(Data,1),size(Data,2),size(Data,3));
 adb = zeros(5,3,13200);
@@ -544,7 +599,7 @@ for b = 1:length(a)
     file_no = a(b);
     %--------------------------------------------------------------------------
     % 
-    filename_d=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
+    filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
     
     load(filename_d)
     % load("C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\TP\20220614\Data.mat")
@@ -553,25 +608,25 @@ for b = 1:length(a)
     
     
     
-    filename_nd=strcat('C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(file_no)+'TR','\Data.mat');
-    load(filename_nd)
-    % load("C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\TP\20220614 -TR\Data.mat")
-    dcs_at(b,:,:,:) = Data;
-    dcs_t = Data;
+%     filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(file_no)+'TR','\Data.mat');
+%     load(filename_nd)
+%     % load("C:\Users\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\TP\20220614 -TR\Data.mat")
+%     dcs_at(b,:,:,:) = Data;
+%     dcs_t = Data;
     
     % dcs_nt = dcs_n(128:end,:,:);
     % dcs_t = dcs(121:121+size(dcs_nt,1)-1,:,:);
-    Data_all = [dcs  dcs_t];
+%     Data_all = [dcs  dcs_t];
 
     g2(1,:,:)=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
     g2_1_temp=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
     g2_2_temp=squeeze(dcs(:,2,:)-1); %g2-1 curve generation
     g2_3_temp=squeeze(dcs(:,3,:)-1); %g2-1 curve generation
     g2_4_temp=squeeze(dcs(:,4,:)-1); %g2-1 curve generation
-    g2_5_temp=squeeze(dcs_t(:,1,:)-1);
-    g2_6_temp=squeeze(dcs_t(:,2,:)-1);
-    g2_7_temp=squeeze(dcs_t(:,3,:)-1);
-    g2_8_temp=squeeze(dcs_t(:,4,:)-1);
+%     g2_5_temp=squeeze(dcs_t(:,1,:)-1);
+%     g2_6_temp=squeeze(dcs_t(:,2,:)-1);
+%     g2_7_temp=squeeze(dcs_t(:,3,:)-1);
+%     g2_8_temp=squeeze(dcs_t(:,4,:)-1);
     % average g2 curve for large source detector separation
     % for i=1:size(g2,2)
     %     g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:)+g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:)+g2_8_temp(i,:))/8;
@@ -580,22 +635,22 @@ for b = 1:length(a)
         g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
     end
     
-    for i=1:size(g2,2)
-        g2(3,i,:)=( g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:) + g2_8_temp(i,:))/4;
-    end
+%     for i=1:size(g2,2)
+%         g2(3,i,:)=( g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:) + g2_8_temp(i,:))/4;
+%     end
     
     % for i=1:size(g2,2)
     %     g2a(1,i,:)=( normalize(g2_2_temp(i,:))+normalize(g2_3_temp(i,:))+normalize(g2_4_temp(i,:))+ normalize(0.25*g2_5_temp(i,:))+ 0.25*normalize(g2_6_temp(i,:)) ...
     %         + 0.25*normalize(g2_7_temp(i,:)) + 0.25*normalize(g2_8_temp(i,:)))/4;
     % end
-    for i=1:size(g2,2)
-        g2a(1,i,:)=( (g2_2_temp(i,:)./g2_2_temp(1,1))+(g2_3_temp(i,:)./g2_3_temp(1,1))+(g2_4_temp(i,:)./g2_4_temp(1,1))+ (g2_5_temp(i,:)./g2_5_temp(1,1))+ (g2_6_temp(i,:)./g2_6_temp(1,1)) ...
-            + (g2_7_temp(i,:)./g2_7_temp(1,1)) + (g2_8_temp(i,:)./g2_8_temp(1,1)))/7;
-    end
+%     for i=1:size(g2,2)
+%         g2a(1,i,:)=( (g2_2_temp(i,:)./g2_2_temp(1,1))+(g2_3_temp(i,:)./g2_3_temp(1,1))+(g2_4_temp(i,:)./g2_4_temp(1,1))+ (g2_5_temp(i,:)./g2_5_temp(1,1))+ (g2_6_temp(i,:)./g2_6_temp(1,1)) ...
+%             + (g2_7_temp(i,:)./g2_7_temp(1,1)) + (g2_8_temp(i,:)./g2_8_temp(1,1)))/7;
+%     end
 
 
-    rho = [1 2.5 2.5]; %source detector separations in cm 
-    mua = 0.17; %cm^-1 baseline absorption coefficient
+    rho = [1 2.5]; %source detector separations in cm 
+    mua = 0.15; %cm^-1 baseline absorption coefficient
     mus = 10; %cm^-1 baseline reduced scattering coefficient
     
     tau_values=Data_tau;
@@ -626,7 +681,7 @@ for b = 1:length(a)
     for i=2:t_avg_pt:size(aDb1,2)
         aDb1_avg(1,j)=mean(aDb1(1,i-1:i+t_avg_pt-2));
         aDb1_avg(2,j)=mean(aDb1(2,i-1:i+t_avg_pt-2));
-        aDb1_avg(3,j)=mean(aDb1(3,i-1:i+t_avg_pt-2));
+%         aDb1_avg(3,j)=mean(aDb1(3,i-1:i+t_avg_pt-2));
     %     time_avg(1,j)=(Data_time(1,i+t_avg_pt-1));
         j=j+1;
     end
@@ -642,21 +697,26 @@ for i=1:6
     plot(squeeze(adb(i,1,:)));
     title("subject "+i)
 end
+
 %% Global average over all the participants
 close all;
 
-mean_adb_cut = mean_adb([1,2,3,5,6],:,:);
+mean_adb_cut = mean_adb([1,3,7],:,:);
 adb_g_avg = squeeze(mean(mean_adb_cut,1));
 adb_g_std = squeeze(std(mean_adb_cut,0,1));
 str = ["r_sd = 1cm","r_sd = 2.5cm","r_sd = 2.5cm-TR"];
 
-per_change_g(1,:) = 100*(adb_g_avg(1,:)./mean(adb_g_avg(1,1:180)));
-per_change_g(2,:) = 100*(adb_g_avg(2,:)./mean(adb_g_avg(2,1:180)));
-per_change_g(3,:) = 100*(adb_g_avg(3,:)./mean(adb_g_avg(3,1:180)));
+per_change_g(1,:) = 100*(adb_g_avg(1,:)./mean(adb_g_avg(1,1:170)));
+per_change_g(2,:) = 100*(adb_g_avg(2,:)./mean(adb_g_avg(2,1:170)));
+per_change_g(3,:) = 100*(adb_g_avg(3,:)./mean(adb_g_avg(3,1:170)));
 
-per_std_g(1,:) = 100*(adb_g_std(1,:)./mean(adb_g_std(1,1:180)));
-per_std_g(2,:) = 100*(adb_g_std(2,:)./mean(adb_g_std(2,1:180)));
-per_std_g(3,:) = 100*(adb_g_std(3,:)./mean(adb_g_std(3,1:180)));
+% per_std_g(1,:) = 100*(adb_g_std(1,:)./mean(adb_g_std(1,1:170)));
+% per_std_g(2,:) = 100*(adb_g_std(2,:)./mean(adb_g_std(2,1:170)));
+% per_std_g(3,:) = 100*(adb_g_std(3,:)./mean(adb_g_std(3,1:170)));
+
+per_std_g(1,:) = std(mean_adb_cut(1,:));
+per_std_g(2,:) = std(per_change_g(2,:));
+
 
 figure();
 t = (1:1:length(aDb1(1,:)))/20;
@@ -722,7 +782,251 @@ for j=1:size(adb_g_avg,1)
     legend("STD","Mean")
 end
 
+%% Finding the mean and std of percent change of the BFi
+close all
+m_adb = mean_adb([1,2,3,4,6],1:2,:);
+per_change = 100*(m_adb-mean(m_adb(:,:,20:170),3))./mean(m_adb(:,:,20:170),3);
+plot(squeeze(per_change(:,2,:))')
+figure();
 
+% mean_per_change = mean(per_change,1);
+mean_per_change = m_adb;
+
+    bsl = 1:181;
+    p1 = 181:301;
+    p2 = 301:424;
+    p3 = 424:540;
+    rec = 540:660;
+
+    sm_factor = 15;
+    for i=1:size(m_adb,1)
+        per_ch_sm(i,1,bsl) = (smooth(mean_per_change(i,1,bsl),sm_factor));
+        per_ch_sm(i,1,p1) = (smooth(mean_per_change(i,1,p1),sm_factor));
+        per_ch_sm(i,1,p2) = (smooth(mean_per_change(i,1,p2),sm_factor));
+        per_ch_sm(i,1,p3) = (smooth(mean_per_change(i,1,p3),sm_factor));
+        per_ch_sm(i,1,rec) = (smooth(mean_per_change(i,1,rec),sm_factor));
+        per_ch_sm(i,2,bsl) = (smooth(mean_per_change(i,2,bsl),sm_factor));
+        per_ch_sm(i,2,p1) = (smooth(mean_per_change(i,2,p1),sm_factor));
+        per_ch_sm(i,2,p2) = (smooth(mean_per_change(i,2,p2),sm_factor));
+        per_ch_sm(i,2,p3) = (smooth(mean_per_change(i,2,p3),sm_factor));
+        per_ch_sm(i,2,rec) = (smooth(mean_per_change(i,2,rec),sm_factor));
+    end
+plot(squeeze(per_ch_sm(:,1,:))');
+% plot(squeeze(mean_per_change)')
+
+
+% figure();
+% plot(normalize(squeeze(mean_per_change))')
+
+figure();
+per_change = 100*(per_ch_sm-mean(per_ch_sm(:,:,20:170),3))./mean(per_ch_sm(:,:,20:170),3);
+plot(squeeze(per_change(:,1,:))')
+
+figure();
+mean_per_change = mean(per_change,1);
+std_per_change = std(per_change,1);
+
+    std_p_ch(1,1,:) = smooth(std_per_change(1,1,:),10)
+     std_p_ch(1,2,:) = smooth(std_per_change(1,2,:),10)
+plot(squeeze(mean_per_change)');
+figure()
+plot(squeeze(std_p_ch)')
+hold on;
+plot(squeeze(std_per_change)')
+
+%% Takig average
+ close all;
+    t_res=0.05; % seconds
+    t_avg=1; % window used for averaging in seconds
+    
+    t_avg_pt=t_avg/t_res; % window used for averaging in points
+    time=t_res*(1:1:size(mean_pdfc,1));
+%     Data_time(1,i)=i*t_res;
+
+    j=1;
+    for i=2:t_avg_pt:size(mean_pdfc,1)
+        mpdfc_avg(j) = mean(mean_pdfc(i-1:i+t_avg_pt-2));
+        j = j+1
+    end
+   mpdfc_avg = smooth(mpdfc_avg,6)
+    j=1;
+    for i=2:t_avg_pt:size(mean_pdfc,1)
+        stdpfc_avg(j) = mean(std_pdfc(i-1:i+t_avg_pt-2));
+        j = j+1
+    end
+    stdpfc_avg = smooth(stdpfc_avg,6)
+    plot(stdpfc_avg)
+
+%%
+mpch =  squeeze(mean_per_change);
+hfig = figure();
+j = 1;
+
+    y = mpch(j,:);
+    x = 1:numel(y);
+    std_dev = stdpch(j,:);
+    curve1 = y + std_dev;
+    curve2 = y - std_dev;
+    x2 = [x, fliplr(x)];
+    inBetween = [curve1, fliplr(curve2)];
+
+
+%     t = (1:1:length(aDb1(1,:)))/20;
+    t = (1:1:length(mean_pdfc(:,1)))/20;
+
+
+    x_pos=[3,5,7,9]; %task strat time in minutes
+    txt = ["25%", "50%","150%","Recovery"];
+    if j==1
+        for i=1:size(x_pos,2)
+            if i==1
+                text(t(1200)*1.05,0.95*max(curve1),"BSL");
+            end
+        if mod(i,2)==0
+            rectangle('Position',[t(x_pos(i)*1200),-90,120,180],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+                'LineWidth',3)
+            text(t(x_pos(i)*1200)*1.05,0.95*max(curve1),txt(i));
+        else
+            rectangle('Position',[t(x_pos(i)*1200),-90,120,180],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+                'LineWidth',3)
+            text(t(x_pos(i)*1200)*1.05,0.95*max(curve1),txt(i));
+        
+        end
+        end
+    end
+    ylim([-90 60])
+    xlim([0 660])
+    hold all;
+%     plot(x, mpdfc_avg)
+    
+    fill(x2, inBetween,'k','FaceAlpha',0.2);
+    hold all;
+    plot(x, y,'k', 'LineWidth', 2,'DisplayName','BFi_1 _c_m');
+    ylabel("aDb (CBFi)")
+    xlabel("Time(s)")
+%     title("Mean CBFi across all subjects @"+str(j))
+%     legend("STD","Mean")
+
+
+j = 2;
+    y = mpch(j,:);
+    x = 1:numel(y);
+    std_dev = stdpch(j,:);
+    curve1 = y + std_dev;
+    curve2 = y - std_dev;
+    x2 = [x, fliplr(x)];
+    inBetween = [curve1, fliplr(curve2)];
+
+
+%     t = (1:1:length(aDb1(1,:)))/20;
+
+%     x_pos=[3,5,7,9]; %task strat time in minutes
+%     txt = ["25%", "50%","150%","Recovery"];
+%     if j==1
+%         for i=1:size(x_pos,2)
+%         if mod(i,2)==0
+%             rectangle('Position',[t(x_pos(i)*1200),-80,120,150],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+%                 'LineWidth',3)
+%             text(t(x_pos(i)*1200)*1.05,0.95*max(curve1),txt(i));
+%         else
+%             rectangle('Position',[t(x_pos(i)*1200),-80,120,150],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+%                 'LineWidth',3)
+%             text(t(x_pos(i)*1200)*1.05,0.95*max(curve1),txt(i));
+%         
+%         end
+%         end
+%     end
+    ylim([-90 60])
+    xlim([0 660])
+    hold all;
+%     plot(x, mpdfc_avg)
+    
+    fill(x2, inBetween,'b','FaceAlpha',0.2);
+    hold all;
+    plot(x, y,'b', 'LineWidth', 2,'DisplayName','BFi_2_._5 _c_m');
+    ylabel("aDb (CBFi)")
+    xlabel("Time(s)")
+%     title("Mean CBFi across all subjects @"+str(j))
+%     legend("STD1","Mean1")
+
+
+
+mpdfc_avg = mean_pdfc;
+hold all
+y1 = mpdfc_avg;
+x1 = 1:numel(y);
+std_dev_1 = stdpfc_avg';
+curve1 = y1 + std_dev_1;
+curve2 = y1 - std_dev_1;
+x2 = [x1, fliplr(x)];
+inBetween = [curve1, fliplr(curve2)];
+% plot(x1, mpdfc_avg,'r')
+    
+fill(x2, inBetween,'r','FaceAlpha',0.2);
+hold all;
+plot(x1, y1, 'r', 'LineWidth', 2,'DisplayName','CBFi');
+ylabel("\Delta (%)")
+xlabel("Time(s)")
+% title("Mean CBFi across all subjects @"+str(j))
+legend show
+% legend("BFi_1 _c_m Mean","BFi_1 _c_m STD","BFi_2.5 _c_m Mean","BFi_2.5 _c_m STD","CBFi Mean","CBFi STD")
+% legend("BFi_1 _c_m Mean","BFi_2.5 _c_m Mean","CBFi Mean")
+
+picturewidth = 35; % set this parameter and keep it forever
+hw_ratio = 0.5; % feel free to play with this ratio
+set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
+%% Plotting the percent change in BFi across subject
+for j=[1,2]
+    figure();
+    y = per_change_g(j,:);
+    x = 1:numel(y);
+    std_dev = per_std_g(j,:);
+    curve1 = y + std_dev;
+    curve2 = y - std_dev;
+    x2 = [x, fliplr(x)];
+    inBetween = [curve1, fliplr(curve2)];
+    
+    
+    t = (1:1:length(aDb1(1,:)))/20;
+    
+    x_pos=[3,5,7,9]; %task strat time in minutes
+    txt = ["25%", "50%","150%","BSL"];
+    for i=1:size(x_pos,2)
+    if mod(i,2)==0
+        rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,1.1*max(curve1)],'FaceColor',[0.8 0.8 0.8],'EdgeColor','none',...
+            'LineWidth',3)
+        text(t(x_pos(i)*1200)*1.05,0.95*max(curve1),txt(i));
+    else
+        rectangle('Position',[t(x_pos(i)*1200),0.1*10^-9,120,1.1*max(curve1)],'FaceColor',[0.7 0.7 0.7],'EdgeColor','none',...
+            'LineWidth',3)
+        text(t(x_pos(i)*1200)*1.05,0.95*max(curve1),txt(i));
+    
+    end
+    end
+    hold on;
+    
+    fill(x2, inBetween,'k','FaceAlpha',0.2);
+    hold on;
+    plot(x, y, 'LineWidth', 2);
+    ylabel("aDb (CBFi)")
+    xlabel("Time(s)")
+    title("Mean CBFi across all subjects @"+str(j))
+    legend("STD","Mean")
+end
+
+%%
+for i=1:7
+    figure()
+    plot(squeeze(per_change_g(i,[1,2],:))')
+end
 %% Pulsatility analysis and g2 averaging of the signal
 
 l = 60; % length of signal as ROI in seconds
@@ -889,7 +1193,7 @@ stp_time =  [160,290,400,510,660];    %time in seconds.
 % strt_time =  [10,320,590,720];   %time in seconds
 % stp_time =  [280,460,700,760];    %time in seconds.
 
-j =4;
+j =1;
 [ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg1(strt_time(j)*1000:stp_time(j)*1000),dcs_25lp(1,strt_time(j)*20:stp_time(j)*20),700,1);
 d= ens_avg_sig(1:1000);
 
@@ -1002,7 +1306,7 @@ legend('Ensemble Average', '95% Confidence Intervals','Interpreter','tex')
 %% Plotting a subplot for the abstract
 close all;
 
-sig_shift = 700;
+sig_shift = 300;
 
 set(0, 'DefaultAxesFontname', 'Calisto MT');
 font_size = 16;
@@ -1132,10 +1436,10 @@ fname = "Ens_avg_figure_abstract"
 
 %% Finding the s1, s2 and Diastolic features
 
-
+d = ensemble_curve_dcs25_1(2,:);
 hfig = figure();
 t = (1:1:length(d))/1000;
-[h_s,l_s] = findpeaks(ens_avg_sig(1:800),"MinPeakHeight",0,'NPeaks',5);
+[h_s,l_s] = findpeaks(ensemble_curve_dcs25_1(1:800),"MinPeakHeight",0,'NPeaks',5);
 [h_m,l_m] = findpeaks(-d,"MinPeakHeight",1);
 scatter(l_s/1000,h_s,'LineWidth',2.5,"MarkerFaceColor","r","MarkerEdgeColor","r");
 text((l_s/1000)-0.008,h_s-0.1,["S1","S2","d"])
@@ -1209,7 +1513,7 @@ ylabel("Normalized Unit");
 xlabel("Time(s)");
 legend("r_s_d = 1.5cm","r_s_d = 2.5cm");
 
-%% Compare the 2.5cm and 1.5cm signals after filtering
+%% Compare the 2.5cm and 1 cm signals after filtering
 
 dcs_1lp = lpf(adb_avg(1,:),7,20);
 dcs_3lp = lpf(adb_avg(2,:),7,20);

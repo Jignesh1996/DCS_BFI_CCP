@@ -10,7 +10,7 @@ ecg_da = ecg1;
 
 break_pt = 1:50:length(dcs);
 dcs_d = detrend(normalize(dcs),1,break_pt); 
-dcs_1 = dcs_d;
+dcs_1 = dcs;
 plot(dcs_1)
 time_DCS=0.05*(1:1:size(dcs_1,2));
 time_ECG=0.001*(1:1:size(ecg_da,2));
@@ -80,7 +80,8 @@ if mode==0
             
         Extract(i-1,:)=(dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1));
         d = Extract(i-1,:);
-        PI(i-1) = (max(d,"omitnan")-min(d(1:500),"omitnan"))/mean(d,"omitnan");
+        PI(i-1) = (max(d)-min(d(1:500)))/mean(dcs_1_interp);
+%         PI(i-1) = (max(d,"omitnan")-min(d(1:500),"omitnan"))/mean(d,"omitnan");
     
     %     Extract(i,:)=signal
     

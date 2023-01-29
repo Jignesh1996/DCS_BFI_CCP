@@ -121,35 +121,46 @@ clc;
 % end
 
 %%
+clear all;
+close all
+
+file_no = 2;
+%--------------------------------------------------------------------------
+% 
+filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
+load(filename_d)
+
+
+%Loading the ECG file
+filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
+load(filename_nd)
+
+
+% load("D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Matlab_Code_aDb\2 layer model\2 layer model\008_CUFF_g2.mat");
+% tau = csvread("D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Matlab_Code_aDb\2 layer model\data_tau.csv");
+% Data_tau = tau;
+% load("D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Matlab_Code_aDb\2 layer model\001_TCD_g2.mat");
+
+% 
+% if ~exist('Data') && exist("g2")
+%     Data(:,1,:) = g2(1,:,:)+1;
+%     Data(:,2,:) = g2(2,:,:)+1;
+%     Data(:,3,:) = g2(3,:,:)+1;
+%     Data(:,4,:) = g2(4,:,:)+1;
+% end
+tau = Data_tau;
+aDb = standalone_dcs(Data,Data_tau);
+figure();
+plot((1:1:length(aDb))/20,aDb1');
+xlabel("Time(s)")
+ylabel("aDb")
+%%
 
 adb = standalone_dcs(Data,Data_tau);
 figure()
 plot(adb');
 %%
 close all;
-% 
-% g2_baseline=squeeze(mean(g2(:,1:baseline_nop,:),2));
-% 
-% g2_cuff=squeeze(mean(g2(:,baseline_nop+1:2*baseline_nop,:),2));
-% 
-% mua = OpticalProp(subject,1); %cm^-1 baseline absorption coefficient
-% mus = OpticalProp(subject,2); %cm^-1 baseline reduced scattering coefficient
-% 
-% LB = [0.1e-9];
-% UB = [10e-8];
-% Starting = 1e-9; %[aDb, Beta; cm^2/s, a.u.]
-% beta= g2_baseline(1,1); %0.1568;
-% options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
-% [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_baseline(1,:),mua,mus,1,beta);
-% aDb1 = FittedParams(1);
-% 
-% beta= g2_cuff(1,1); %0.1568;
-% options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
-% [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_cuff(1,:),mua,mus,1,beta);
-% aDb2 = FittedParams(1);
-% 
-% DeltaFec(subject)=(aDb2/aDb1);
-% dFec=DeltaFec;
 
 
 g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
@@ -159,12 +170,42 @@ g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
 g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
 
 
-roi = 1:600;
+% 
+g2_baseline=squeeze(mean(g2(:,1:2800,:),2));
 
-g2_short = g2(1,roi,:);
+g2_cuff=squeeze(mean(g2(:,3800:4800,:),2));
+
+% mua = OpticalProp(subject,1); %cm^-1 baseline absorption coefficient
+% mus = OpticalProp(subject,2); %cm^-1 baseline reduced scattering coefficient
+mua = 0.17;
+mus = 8;
+tau = Data_tau;
+LB = [0.1e-9];
+UB = [10e-8];
+Starting = 1e-9; %[aDb, Beta; cm^2/s, a.u.]
+beta= g2_baseline(1,1); %0.1568;
+options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
+[FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_baseline(1,:),mua,mus,1,beta);
+aDb1 = FittedParams(1);
+
+beta= g2_cuff(1,1); %0.1568;
+options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
+[FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_cuff(1,:),mua,mus,1,beta);
+aDb2 = FittedParams(1);
+
+DeltaFec=(aDb2/aDb1);
+dFec=DeltaFec;
+
+
+
+
+roi = 6000:8000;
+
+
 for i=1:size(g2,2)
     g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
 end
+g2_short = g2(2,1:2000,:);
 g2_long = g2(2,roi,:);
 l1 = 0.7; %[cm]
 l2 = 0.4;
@@ -180,12 +221,12 @@ l2 = 0.4;
 ua1 = 0.17; %[cm^-1]
 us1 = 8; %[cm^-1]
 ua2 = 0.2; %[cm^-1]
-us2 = 0.8; %[cm^-1]
+us2 = 8; %[cm^-1]
 ua3 = 0.2; %[cm^-1]
 us3 = 8; %[cm^-1]
 
 
-rho1 = 10; %mm distance for short channel               
+rho1 = 25; %mm distance for short channel               
 rho2 = 25; %mm distance for long channle
                    
 corr1 = 1+squeeze(g2_short);
@@ -200,14 +241,14 @@ beta1=corr1(1,1)-1;
 beta2=corr2(1,1)-1;
 
 
-LB = [1e-10 0 1e-15 0.5 0.5];
+LB = [1e-10 0 1e-15 0.2 0.2];
 UB = [ 1e-7 0 1e-5  0.8 0.8];
 Starting = [1e-9 0 1e-9 0.6 0.6]; %[Fec, Fc, top layer thickness; cm^2/s, cm^2/s, cm]
 
 options = optimset('Display','final','TolX',1e-5,'MaxIter', 2000, 'MaxFunEvals', 2000);
     
 FittedParams = fminsearchbnd(@MD_DCS_N2H_BETA_Fc_v2,Starting,LB,UB,options,...
-        tau1,tau2,corr1,corr2,ua1,us1,ua2,us2,ua3,us3,rho1,rho2,beta1,beta2);
+        tau1,tau2,corr1,corr2,ua1,us1,ua2,us2,ua3,us3,rho1,rho2,beta1,beta2,dFec);
       
 Fscalp = FittedParams(1);
 Fskull = FittedParams(2);

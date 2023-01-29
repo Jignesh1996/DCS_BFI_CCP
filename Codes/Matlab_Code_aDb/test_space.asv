@@ -609,12 +609,12 @@ legend("Original",'makima','spline','linear','cubic','pchip','v5')
 %% Creating a GIF file from the Data to showcase the correlation between g2 curve, adb signal, 
 close all;
 % figure('units','normalized','outerposition',[0 0 1 1])
-adb_avg = aDb1;
+% adb_avg = aDb1;
 chan = 1;
-span = 119:140;
+span = 1190:1209;
 
-mx = max(max(g2(chan,span,:)));
-mn = min(min(g2(chan,span,:)));
+mx = max(max(g2_n(span,chan,:)));
+mn = min(min(g2_n(span,chan,:)));
 
 for i=1:1:length(adb_avg(chan,span))-1
     
@@ -633,9 +633,9 @@ for i=1:1:length(adb_avg(chan,span))-1
     
     Channel=chan;
     Curve_no=span(1)+i;
-    rho = [1 2.5 2.5];
+    rho = [1 2.5];
     
-    beta=g2(Channel, Curve_no,1);
+    beta=g2( Curve_no,Channel,1);
     aDb_fit=aDb1(Channel,Curve_no);
     
     g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb_fit);
@@ -645,7 +645,7 @@ for i=1:1:length(adb_avg(chan,span))-1
     
     sub_f = subplot(1,2,1);
 %     semilogx(sub_f,Data_tau,squeeze(Data(span(1)+i,chan,:)),'o','MarkerFaceColor',[0 0.447 0.741])
-    semilogx(sub_f,Data_tau,squeeze(g2(chan,span(1)+i,:)),'b','Linewidth',1.5)
+    semilogx(sub_f,Data_tau,squeeze(g2(span(1)+i,chan,:)),'b','Linewidth',1.5)
     hold on;
     semilogx(sub_f,Data_tau,g2_fit,'r')
     hold off;
@@ -656,7 +656,7 @@ for i=1:1:length(adb_avg(chan,span))-1
     xlim(sub_f,[10^-6 10^-3]);
     ylim(sub_f,[mn mx]);
     if i==1
-        gif('g2_vs_CBFi_animation.gif','DelayTime',1/5);
+        gif('g2_vs_CBFi_SP.gif','DelayTime',1/5);
     end
     gif
 end
@@ -678,8 +678,156 @@ for j=1:length(Data_tau)
     gif
 end
 
-%%
+%% Creating the GIF for the presentaiton about the sigal processing
+close all;
+m = 1;
 
+
+  hfig = figure();
+
+    picturewidth = 30; % set this parameter and keep it forever
+    hw_ratio =0.5; 
+    
+
+    j =1;
+    x = (1:1:3600)/20;
+    plot (x,aDb1(2,1:3600),'b');
+    rectangle("position",[ld_pks(j)/20, 2e-9, ld_pks(30+j), 0.6e-8] )
+    xlabel("Time(s)")
+    % hold on;
+    % plot(adb_avg(2,1:3600),'r')
+    set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
+    j= 0;
+     %%
+    hfig = figure();
+m = 1
+    picturewidth = 20; % set this parameter and keep it forever
+    hw_ratio =1.1; 
+    set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+% set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
+    for i = 1:1:min_length
+        set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+% set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+        subplot(3,2,[1 2])
+        
+
+        d = 4; % number of points to shift back for the
+
+        t = (1:1:length(aDb1(2,[ld_pks(10)-d:ld_pks(40)-d])))/20;
+        plot(t,aDb1(2,[ld_pks(10)-d:ld_pks(40)-d]),'k','Linewidth',1.5)
+        xlim([0 30])
+        hold on;
+        disp(ld_pks(10:40)+i)
+        scatter(t(ld_pks(10:39)+i+1-ld_pks(10)),aDb1(2,ld_pks(10:39)+i-d),'r','filled')
+        ylabel("BFi cm^2/s)")
+        xlabel("Time(s)");
+        hold off;
+        pause(0.1);
+        
+        subplot(3,2,3)
+        ylim([0.98 1.17])
+        xlim([1e-6 1e-3])
+        semilogx(Data_tau,squeeze(Data(ld_pks(10:39)+i,4,:)));
+        ylabel("g_2")
+        xlabel("\tau")
+        subplot(3,2,4)
+        semilogx(Data_tau,squeeze(mean(Data(ld_pks(10:39)+i,4,:))),'k','Linewidth',1.5);
+        xlabel("\tau")
+        ylim([0.98 1.17])
+        xlim([1e-6 1e-3])
+
+    
+        subplot(3,2,[5 6])
+%         plot(adb_avg(2,[ld_pks(10):ld_pks(39)]))
+        plot(t,adb_avg(2,[ld_pks(10)-4:ld_pks(40)-4]),'k','Linewidth',1.5)
+        xlim([0 30])
+        t = (1:1:length(adb_avg(2,[ld_pks(10):ld_pks(40)])))/20;
+    
+        hold on;
+        scatter(t(ld_pks(10)+i-ld_pks(10)+3),adb_avg(2,ld_pks(11)+i-3),'r','filled')
+        ylabel("BFi (cm^2/s)")
+        xlabel("Time(s)")
+        hold off;
+        
+
+        if m==1
+            gif('moving average.gif','DelayTime',1/2);
+            m = 0;
+        end
+
+        gif
+    end
+
+    %%
+    close all;
+
+   for i = 1:1:min_length
+        subplot(3,2,[1 2])
+
+        d = 4; % number of points to shift back for the
+
+        t = 1:1:length(aDb1(2,[ld_pks(10)-d:ld_pks(40)-d]));
+        plot(aDb1(2,[ld_pks(10)-d:ld_pks(40)-d]))
+        hold on;
+        disp(ld_pks(10:40)+i)
+        scatter(t(ld_pks(10:39)+i+1-ld_pks(10)),aDb1(2,ld_pks(10:39)+i-d),'r')
+%         hold off;
+%         pause(0.1);
+%         
+%         subplot(3,2,3)
+%         ylim([0.98 1.17])
+%         semilogx(Data_tau,squeeze(Data(ld_pks(10:39)+i,4,:)));
+%         subplot(3,2,4)
+%         semilogx(Data_tau,squeeze(mean(Data(ld_pks(10:39)+i,4,:))));
+%         ylim([0.98 1.17])
+%     
+%         subplot(3,2,[5 6])
+% %         plot(adb_avg(2,[ld_pks(10):ld_pks(39)]))
+%         plot(adb_avg(2,[ld_pks(10)-4:ld_pks(39)-4]))
+%         t = 1:1:length(adb_avg(2,[ld_pks(10):ld_pks(40)]));
+%     
+%             hold on;
+%             scatter(t(ld_pks(10)+i-ld_pks(10)+3),adb_avg(2,ld_pks(11)+i-3),'r')
+%         hold off;
+% 
+%         if m==1
+%             gif('moving average.gif','DelayTime',1/2);
+%             m = 0;
+%         end
+%         gif
+    end
+
+
+        %%
+        close all
+        plot(adb_avg(2,[ld_pks(10)+i-3:ld_pks(39)+i-3]))
+        for i = 1:20
+          t = 1:1:length(adb_avg(2,[ld_pks(10):ld_pks(40)]));
+            
+            hold on;
+            scatter(t(ld_pks(10)+i-ld_pks(10)+3),adb_avg(2,ld_pks(11)+i-3),'r')
+        end
 %%
 a = (1:1:length(1:100))/20;
 plot(a,squeeze(Data(1:100,1,1)))
@@ -905,18 +1053,267 @@ for i=1:size(g2,2)
 end
 
 %%
-aDb=
+aDb = standalone_dcs(Data,Data_tau);
 %% Normalize the g2 curve
 g2(g2<0) = 0;
 %%
 g2_0_rl = squeeze(mean(g2(2,1:500,:),2)); 
 g2_0_rs = squeeze(mean(g2(1,1:500,:),2)); 
-g2_p_rl = squeeze(mean(g2(2,630:900,:),2)); 
-g2_p_rs = squeeze(mean(g2(1,630:900,:),2)); 
+g2_p_rl = squeeze(mean(g2(2,630:1000,:),2)); 
+g2_p_rs = squeeze(mean(g2(1,630:1000,:),2)); 
 
 %%
+close all;
 del_OD_l_p = -log((g2_p_rl')./(g2_0_rl'));
 del_OD_s_p = -log((g2_p_rs')./(g2_0_rs'));
 
 sens_fact = abs(del_OD_l_p./del_OD_s_p);
 mean(sens_fact)
+plot(sens_fact)
+
+%% 
+% g2(1,:,:) = Data(:,1,:);
+% g2(2,:,:) = Data(:,4,:);
+close all;
+clear all;
+subject = 1;
+
+% filename=strcat(pwd,'\2 layer model\2 layer model\00',num2str(subject),'_CUFF_g2.mat');    
+filename = "D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - 1\Data.mat";
+load(filename);
+g2_t(1,:,:) = Data(:,1,:);
+for i=1:size(Data,1)
+    g2_t(2,i,:) = (Data(i,2,:)+Data(i,3,:)+Data(i,4,:))/3;
+end
+
+% g2_t(1,:,:) = g2(1,:,:)+1;
+% g2_t(2,:,:) = g2(4,:,:)+1;
+
+% g2_t(:,1,:) = g2(1,:,:)+1;
+% g2_t(:,2,:) = g2(2,:,:)+1;
+% g2_t(:,3,:) = g2(3,:,:)+1;
+% g2_t(:,4,:) = g2(4,:,:)+1;
+data = g2_t;
+load('D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Matlab_Code_aDb\2 layer model\data_tau.csv')
+tau = data_tau;
+
+
+time=(1:1:size(g2_t,2))*0.05;
+
+%Since this data loaded is in the g2 format, following code convert it into
+
+
+windowsize=5;
+wagi=ones(1,windowsize)/windowsize;
+for r=1:2
+    for i=1:size(data,3)
+        data_temp=squeeze(data(r,:,:));
+        data(r,:,i)=filtfilt(wagi,1,data_temp(:,i));
+    end
+end
+% windowsize=2;
+% wagi=ones(1,windowsize)/windowsize;
+% for r=1:4
+%     for i=1:size(data,3)
+%         data_temp=squeeze(data(:,r,:));
+%         data(:,r,i)=filtfilt(wagi,1,data_temp(:,i));
+%     end
+% end
+% semilogx(tau,squeeze(g2_t(1,100,:)),'b')
+% hold on;
+% semilogx(tau,squeeze(data(1,100,:)),'r')
+
+% Following code compares the adb fitting from raw g2 and filtered g2
+% adb = hybrid_dcs(g2_t,tau);
+% adb_filt = hybrid_dcs(data,tau);
+% close all;
+% plot(adb(1,:)); hold on; plot(adb_filt(1,:));
+
+% 
+bsl = 400:500;
+cuff = 1400:1500;
+%  bsl = [20 25];
+%     bsl = bsl/0.05;
+%     cuff = [70 75];
+%     cuff = cuff/0.05;
+
+g2_s0=mean(squeeze(data(1,bsl,:)))-1;
+g2_sp=mean(squeeze(data(1,cuff,:)))-1;
+g2_s0=(g2_s0)/(max(g2_s0));
+g2_sp=(g2_sp)/(max(g2_sp));
+
+
+
+g2_l0=mean(squeeze(data(2,bsl,:)))-1;
+g2_lp=mean(squeeze(data(2,cuff,:)))-1;
+g2_l0=(g2_l0)/(max(g2_l0));
+g2_lp=(g2_lp)/(max(g2_lp));
+
+
+
+DeltaOD_s=real(-log(g2_sp./g2_s0));
+DeltaOD_l=real(-log(g2_lp./g2_l0));
+
+Ratio=DeltaOD_l./DeltaOD_s;
+
+nanmean(Ratio(1,20:29))
+plot(Ratio)
+
+%%
+data = g2_t;
+
+g2_s0=mean(squeeze(data(1,bsl,:)));
+g2_sp=mean(squeeze(data(1,cuff,:)));
+g2_s0=(g2_s0)/(max(g2_s0));
+g2_sp=(g2_sp)/(max(g2_sp));
+
+
+
+g2_l0=mean(squeeze(data(2,bsl,:)));
+g2_lp=mean(squeeze(data(2,cuff,:)));
+g2_l0=(g2_l0)/(max(g2_l0));
+g2_lp=(g2_lp)/(max(g2_lp));
+
+
+
+DeltaOD_s=real(-log((g2_sp-1)./(g2_s0-1)));
+DeltaOD_l=real(-log((g2_lp-1)./(g2_l0-1)));
+
+Ratio_1=DeltaOD_l./DeltaOD_s;
+
+nanmean(Ratio_1(1,20:29))
+plot(Ratio_1)
+
+
+%%
+
+a = [2.7	1.89	0	1.5	0.305
+4.02	0.82	0	0.73	0.289
+2.9	2.7	0	2.1	0.291
+0.9	0.869	0	0.78	0.298
+5.39	3.3	0	2.1	0.311
+];
+a(:,[1,2,4]) = a(:,[1,2,4])/10;
+
+b = [1.03	0.478	0	0.49	0.332
+0.81	0.35	0	0.144	0.313
+5.5	4.12	0	3.2	0.307
+10.7	2.75	0	1.83	0.303
+8.1	5.2	0	3.3	0.328
+];
+xdt = [0.305,0.289,0.291,0.298,0.311];
+ydt = [0.332,0.313,0.307,0.303,0.328];
+[h,p,ci,stats] = ttest2(xdt,ydt);
+
+xdx = a(:,1);
+ydx = b(:,1);
+
+for i = 1:size(a,2)
+    x = a(:,i);
+    y = b(:,i);
+    [h(i),p(i)] = ttest2(x,y,'Alpha',0.05);
+end
+
+bfi_pp = mean(a(:,5));
+bfi_pp_sd = std(a(:,5));
+dfc_pp = mean(b(:,5));
+dfc_pp_sd = std(b(:,5));
+
+
+%%
+% a = [0.7
+% 0.875621891
+% 0.782758621
+% 0.8
+% 0.612244898
+% ];
+
+% a = [2.7
+% 4.02
+% 2.9
+% 0.9
+% 5.39
+% ]*1e-9;
+a = [0.715277778
+1.396551724
+4.296875
+1.221978022
+1.087248322
+];
+% b =[0.512621359
+% 0.654320988
+% 0.749090909
+% 0.665467626
+% 0.641975309
+% ] ;
+% b = [1.03
+% 0.81
+% 5.5
+% 5.56
+% 8.1
+% ]*1e-8;
+
+b = [0.602678571
+0.743068392
+0.84057971
+0.294117647
+0.965085049
+];
+[h,p] = ttest2(a,b)
+v = [a b]
+boxplot(v)
+
+%%
+a = [63
+58
+78
+64
+72
+];
+b = [40
+43
+74
+56
+67
+];
+c = [4
+3
+4
+7
+6
+];
+
+[h1,p1] = ttest2(a,c);
+[h2,p2] = ttest2(b,c);
+
+
+%%
+load('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\important variables\pulsatility comparison BFi DFC\6.mat')
+s1 = sig;
+load('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\important variables\pulsatility comparison BFi DFC\8.mat')
+s2 = sig;
+load('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\important variables\pulsatility comparison BFi DFC\01.mat')
+s3 = sig;
+load('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\important variables\pulsatility comparison BFi DFC\03.mat')
+s4 = sig;
+load('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\important variables\pulsatility comparison BFi DFC\4.mat')
+s5 = sig;
+
+
+%%
+close all;
+plot(s1');
+hold on;
+plot(s2');
+plot(s3');
+plot(s4');
+plot(s5');
+
+%% 
+close
+bfi = [s1(1,1:1000); s2(1,1:1000); s3(1,1:1000); s4(1,1:1000); s5(1,1:1000)];
+bfi_mean = mean(bfi);
+dfc =  [s1(2,1:1000); s2(2,1:1000); s3(2,1:1000); s4(2,1:1000); s5(2,1:1000)];
+dfc_mean = mean(dfc);
+
+plot()

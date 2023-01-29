@@ -7,8 +7,8 @@ s = pi*(0:N-1)*(ds); % [cm^-1] %radial spatial frequency, cycles/unit-time
 
 %% Define the parameters used in the correlation function
 n = 1.4; % refractive index of the medium
-% lambda = 786.5e-7; % [cm] wavelength of the light
-lambda = 852e-7; % [cm] wavelength of the light
+lambda = 786.5e-7; % [cm] wavelength of the light
+% lambda = 852e-7; % [cm] wavelength of the light
 Reff = 0.493; % The effective reflection coefficient
 
 parfor i=1:length(tau)

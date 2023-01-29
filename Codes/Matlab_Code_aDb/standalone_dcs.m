@@ -19,7 +19,7 @@ end
 % aDb calculation
 rho = [1 2.5]; %source detector separations in cm 
 mua = 0.17; %cm^-1 baseline absorption coefficient
-mus = 8; %cm^-1 baseline reduced scattering coefficient
+mus = 10; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau(tau_range);
 lc = size(g2,1);
