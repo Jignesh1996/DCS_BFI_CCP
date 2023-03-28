@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Pressure_cuff_study_Jignesh\new_cuff_test\test2\";
+Directory = "E:\new pressure cuff\Leena test\";
 
 fprintf("Start....\n")
 

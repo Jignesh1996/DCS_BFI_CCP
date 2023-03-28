@@ -1,11 +1,11 @@
-function [avg,ensemble_curve] = ens_avg(signals,ttl)
+function [avg,ensemble_curve] = ens_avg(signals,fs,ttl)
 
 % The issue with the ensemble averaging with NaNs is that the extra signal
 % at the end iduces discontinuities and the signal goes down till the
 % maximum time of the cycle. To compensate for that, I'm cutting the signal
 % till the minimum point. 
 
-x = (1:1:length(signals(1,:)))/1000;
+x = (1:1:length(signals(1,:)))/fs;
 count = length(signals(:,1));
 
 %Plotting the ensemble average

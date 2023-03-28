@@ -356,15 +356,23 @@ end
 clear all;
 close all
 
-file_no = 18;
+file_no = 6;
 %--------------------------------------------------------------------------
 % 
-filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
+% filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
+% load(filename_d)
+% 
+% 
+% %Loading the ECG file
+% filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
+% load(filename_nd)
+
+filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Pressure_cuff_study_Jignesh\new_cuff_test\test2\Data.mat');
 load(filename_d)
 
 
 %Loading the ECG file
-filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
+filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Pressure_cuff_study_Jignesh\LS2.mat');
 load(filename_nd)
 
 
@@ -393,21 +401,36 @@ l = 60; % length of signal as ROI in seconds
 s = 1; % Signal ROI starting point in seconds;
 
 ecg_a = data(datastart(1):dataend(1));
-bp_a = data(datastart(2):dataend(2));
+% bp_a = data(datastart(2):dataend(2));
 
-ecg1 = ecg_a(1:660000);
-% ecg1 = ecg_a(1:90000);
+% ecg1 = ecg_a(1:660000);
+ecg1 = ecg_a(1:360000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
 
-bp_a = bp_a(1:length(ecg1));
-bp_a = lpf(bp_a,3,1000);
+% bp_a = bp_a(1:length(ecg1));
+% bp_a = lpf(bp_a,3,1000);
 
+%%
+% Calculating FT frequency spectrum
+close all;
+Fs = 20;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period    
+signal = aDb1(2,4801:6000);
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
 
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+plot((1:1:length(P1))/Fs,P1)
+
+%%
 
 %% Plotting the ensemble average graph
 close all;
-shift =1280;
+shift =1850;
 [ens_avg_sig,pind] = ensemble_avg(ecg1(1:90000),aDb1(2,1:1800),shift,1);
 %% Finding the shift
 
@@ -454,11 +477,11 @@ g2_backup = Data;
 % ecg = ecg_ad;
 % g2_backup = g2;
 g2_n = g2_backup;
-strt_time =  [1,180,300,420,540];   %time in seconds
-stp_time =  [180,300,420,540,660];    %time in seconds.
+% strt_time =  [1,180,300,420,540];   %time in seconds
+% stp_time =  [180,300,420,540,660];    %time in seconds.
 
-%  strt_time =  [1,32,62];
-%  stp_time =  [28,58,90]; 
+ strt_time =  [1,120,180,240,300];
+ stp_time =  [120,180,240,300,360]; 
 
 %For subject 5(Farah), as the protocol is a bit different;
 % strt_time =  [1,300,480,720];   %time in seconds
@@ -517,7 +540,7 @@ figure()
 % adb = standalone_tr_dcs(Data_all,Data_tau);
 dcs_1lp = (lpf(adb_avg(1,:),7,20));
 dcs_25lp =(lpf(adb_avg(2,:),7,20));
-snr(dcs_25lp(8400:10800),20)
+% snr(dcs_25lp(8400:10800),20)
 % dcs_25lp_tr = lpf(adb_avg(3,:),7,20);
 
 % aDb1 = aDb1;
@@ -826,8 +849,8 @@ g2_temp =round(data,4);
 
 %%
 close all;
-bsl = 1:500;
-pres = 3800:4200;
+bsl = 1:1200;
+pres = 2450:3500;
     
 g2_sf = zeros(2,2,50);
 
@@ -843,8 +866,8 @@ hold off;
 
 figure();
 
-DeltaOD_sp=(-log((mean(squeeze(g2_temp(1,pres,:)))-1)./(mean(squeeze(g2_temp(1,bsl,:)))-1)));
-DeltaOD_lp=-log((mean(squeeze(g2_temp(2,pres,:)))-1)./(mean(squeeze(g2_temp(2,bsl,:)))-1));
+DeltaOD_sp=abs(-log((mean(squeeze(g2_temp(1,pres,:)))-1)./(mean(squeeze(g2_temp(1,bsl,:)))-1)));
+DeltaOD_lp=abs(-log((mean(squeeze(g2_temp(2,pres,:)))-1)./(mean(squeeze(g2_temp(2,bsl,:)))-1)));
 
 g2_sf(1,1,:) = (mean(squeeze(g2_temp(1,bsl,:))));
 g2_sf(1,2,:) = (mean(squeeze(g2_temp(1,pres,:))));
@@ -864,7 +887,7 @@ ratio = DeltaFec(2,:)./DeltaFec(1,:);
 semilogx(tau,DeltaFec(2,:)./DeltaFec(1,:));
 
 
-ratio_d = ratio(3:end-15);
+ratio_d = ratio(10:end-20);
 
 index=ratio_d==Inf;
 
@@ -1017,7 +1040,7 @@ bsl = 100:2500;
     DeltaOD_s = real(-log(((squeeze(g2_temp(1,:,:)))-1)./(mean(squeeze(g2_temp(1,bsl,:)))-1)));
     DeltaOD_l =  real(-log(((squeeze(g2_temp(2,:,:)))-1)./(mean(squeeze(g2_temp(2,bsl,:)))-1)));
     
-    DeltaFc = (1./wf).*((DeltaOD_l) - ((0.5).*(DeltaOD_s)));
+    DeltaFc = (1./wf).*((DeltaOD_l) - ((0.8).*(DeltaOD_s)));
 
 %     DeltaFc = DeltaFc/f0c;
 %     DeltaFc = ((DeltaOD_l) - ((0.78).*(DeltaOD_s)));
@@ -1029,7 +1052,7 @@ bsl = 100:2500;
     mean_dfc_sm = smooth(mean_dfc,0.0085,'rloess');
     minimum_val(i) = min(mean_dfc_sm);
 %     per_change_dfc = mean_dfc_sm*100;
-    per_change_dfc = (mean_dfc_sm-mean(mean_dfc_sm(300:3200)))/mean(mean_dfc_sm(300:3200));
+    per_change_dfc = (mean_dfc_sm-mean(mean_dfc_sm(300:1800)))/mean(mean_dfc_sm(300:1800));
 %     per_change_dfc = (mean_dfc_sm)/mean(mean_dfc_sm(300:3200));
 %     per_change_dfc = (mean_dfc_sm/f0c);
 %     per_change_adb(1,:) = ((aDb1(1,:)-mean(aDb1(1,1:600),2))./mean(aDb1(1,1:600),2))*100;
@@ -1084,9 +1107,9 @@ set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(
 %%
 % Calculating FT frequency spectrum
 close all;
-Fs = 1000;            % Sampling frequency                    
+Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = dcs_1lp;
+signal = dcs_1lp(4801:6000);
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -1094,7 +1117,7 @@ Y = fft(signal);
 P2 = abs(Y/L);
 P1 = P2(1:L/2+1);
 P1(2:end-1) = 2*P1(2:end-1);
-plot((1:1:length(P1))/1000,P1)
+plot((1:1:length(P1))/Fs,P1)
 
 %% Pulsatility in DeltaFc
 close all;

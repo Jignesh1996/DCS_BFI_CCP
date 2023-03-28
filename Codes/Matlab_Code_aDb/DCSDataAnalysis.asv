@@ -17,10 +17,10 @@ dcs = Data;
 
 
 
-% filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(2)+'TR','\Data.mat');
-% load(filename_nd)
-% % load("D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706 - TRTP\Data.mat")
-% dcs_t = Data;
+filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS_T\20220608 - '+string(2)+'TR','\Data.mat');
+load(filename_nd)
+% load("D:\Jignesh\MSc Western Uni\Research\Data\20220706\20220706 - TRTP\Data.mat")
+dcs_t = Data;
 
 % dcs_nt = dcs_n(128:end,:,:);
 % dcs_t = dcs(121:121+size(dcs_nt,1)-1,:,:);
@@ -50,7 +50,7 @@ bp_a = bp_a(1:length(ecg1));
 bp_a = lpf(bp_a,3,1000);
 
 %%
-dcs = Data;
+% dcs = Data;
 g2(1,:,:)=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
 g2_1_temp=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
 g2_2_temp=squeeze(dcs(:,2,:)-1); %g2-1 curve generation
@@ -82,7 +82,58 @@ end
 % end
 
 
+%% Processing the g2 curves to test the beta values in fibres of the standalone and hybrid dcs system
 
+g2_temp(:,1,:) = g2(1,:,:);
+g2_temp(:,2,:) = g2(2,:,:);
+g2_2 = g2(2,:,:);
+ for i=1:length(g2_2)
+    g_b=squeeze(g2_2(1,i,:))';
+    g_b=g_b-mean(g_b(1,end-10:end));
+    g_b=(g_b/max(g_b))/2+1;
+    g_b(1) = round(g_b(1),1);
+    g2_temp(i,2,:) = g_b;
+% 
+%     bsl_art=mean(g2_p(1,bsl,end));
+% 
+%     g_b=squeeze(g2(1,i,:))';
+%     g_b=g_b-g_b(1,end);
+%     g_b=(g_b/max(g_b));
+% %     g_b(1) = round(g_b(1),1);
+%     g2(1,i,:) = g_b*0.5+1;
+
+ 
+%     g_p=squeeze(g2(2,i,:))';
+%     g_p=g_p-mean(g_p(1,end-10:end));
+%     g_p=(g_p/max(g_p))/2+1;
+%     g_p(1) = round(g_p(1),1);
+%     g2(2,i,:) = g_p;
+%     bsl_art=mean(g2_p(2,bsl,end));
+% 
+%     g_b=squeeze(g2(2,i,:))';
+%     g_b=g_b-g_b(1,end);
+%     g_b=(g_b/g_b(1,1));
+% %     g_b(1) = round(g_b(1),1);
+%     g2(2,i,:) = g_b*0.5+1;
+ end
+ %% Plotting the g2 transform as above
+ semilogx(Data_tau, squeeze(g2_temp(10,2,:)));
+ hold on;
+ semilogx(Data_tau, squeeze(dcs(10,4,:)));
+title("g2_transform for low beta values");
+xlabel("Tau (s)");
+
+
+figure();
+aDb_r = standalone_dcs(dcs,Data_tau);
+aDb_n = standalone_dcs(g2_temp,Data_tau);
+figure()
+plot(aDb_r(2,:));
+hold on;
+plot(aDb_n(2,:));
+legend("Raw_2.5","Transformed_2.5");
+xlabel("time(s)");
+ylabel("\alpha_D_b")
 %% Crating the average g2 curves for the tourniquet pulsatility experiment to check if both the systems are working correctly
 hfig = figure()
 avg_g2 = mean(g2(:,1:30,:),2);
@@ -151,7 +202,7 @@ for chan=1:size(g2,1)
         UB = [inf];
         Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
         beta= squeeze(g2(chan,i,1)); %0.1568;
-        options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
+        options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 500000);
         [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
         aDb1(chan,i) = FittedParams(1);
     end
@@ -180,8 +231,8 @@ end
 
 %%
 close all
-Channel=1;
-Curve_no=15;
+Channel=2;
+Curve_no=20;
 rho = [1 2.5];
 
 beta=g2(Channel, Curve_no,1);
@@ -189,7 +240,7 @@ aDb_fit=aDb1(Channel,Curve_no);
 
 g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb_fit);
 
-semilogx(Data_tau,squeeze(g2(1,1,:)),'k')
+semilogx(Data_tau,squeeze(g2(Channel,Curve_no,:)),'k')
 hold on
 semilogx(Data_tau,g2_fit,'r')
 %% Data plotting
@@ -296,12 +347,12 @@ legend("DCS 1cm","DCS 2.5cm");
 figure();
 
 for i=1:size(aDb1_avg,1)
-    adb_avg_smooth(i,:) = smooth(aDb1_avg(i,:),5,'rlowess');
+    adb_avg_smooth(i,:) = smooth(aDb1_avg(i,:),3,'moving');
 end
 hold on;
 
-per_ch_mean(1,:) = 100*(adb_avg_smooth(1,:)./ mean(adb_avg_smooth(1,1:100),2));
-per_ch_mean(2,:) = 100*(adb_avg_smooth(2,:)./ mean(adb_avg_smooth(2,1:100),2));
+per_ch_mean(1,:) = 100*(adb_avg_smooth(1,:)./ mean(adb_avg_smooth(1,1:60),2));
+per_ch_mean(2,:) = 100*(adb_avg_smooth(2,:)./ mean(adb_avg_smooth(2,1:60),2));
 
 % per_ch_mean(1,:) = 100*((adb_avg_smooth(1,:)-mean(adb_avg_smooth(1,1:100),2))./ mean(adb_avg_smooth(1,1:100),2));
 % per_ch_mean(2,:) = 100*((adb_avg_smooth(2,:)-mean(adb_avg_smooth(2,1:100),2))./ mean(adb_avg_smooth(2,1:100),2));
@@ -951,9 +1002,9 @@ j = 2;
 
 
 
-mpdfc_avg = mean_pdfc;
+% mpdfc_avg = mean_pdfc;
 hold all
-y1 = mpdfc_avg;
+y1 = mpdfc_avg';
 x1 = 1:numel(y);
 std_dev_1 = stdpfc_avg';
 curve1 = y1 + std_dev_1;
@@ -968,7 +1019,7 @@ plot(x1, y1, 'r', 'LineWidth', 2,'DisplayName','CBFi');
 ylabel("\Delta (%)")
 xlabel("Time(s)")
 % title("Mean CBFi across all subjects @"+str(j))
-legend show
+% legend show
 % legend("BFi_1 _c_m Mean","BFi_1 _c_m STD","BFi_2.5 _c_m Mean","BFi_2.5 _c_m STD","CBFi Mean","CBFi STD")
 % legend("BFi_1 _c_m Mean","BFi_2.5 _c_m Mean","CBFi Mean")
 

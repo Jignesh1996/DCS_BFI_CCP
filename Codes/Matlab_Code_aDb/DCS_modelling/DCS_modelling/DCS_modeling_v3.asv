@@ -407,7 +407,7 @@ bp_a = lpf(bp_a,3,1000);
 
 %% Plotting the ensemble average graph
 close all;
-shift =400;
+shift =450;
 [ens_avg_sig,pind] = ensemble_avg(ecg1(1:90000),aDb1(2,1:1800),shift,1);
 %% Finding the shift
 
@@ -559,42 +559,42 @@ legend("Ensemle Temporal Averaged","Raw")
 
 
 %% Making the figure for the g2 average illustration
-close all;
-hfig = figure();
-picturewidth = 30; % set this parameter and keep it forever
-hw_ratio = 0.5; % feel free to play with this ratio
-% sgtitle();
-for i=3:6
-    ylim([0.98 1.165])
-    subplot(1,4,i-2)
-    semilogx(Data_tau,squeeze(Data(ld_pks(i)+3,4,:)))
-    xlabel("\tau (s)");
-    ylabel("g_2(\tau)")
-end
-set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
-
-% set(findall(hfig,'-property','Box'),'Box','off') % optional
-% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
-set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
-set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
-pos = get(hfig,'Position');
-set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
-
-hfig = figure();
-picturewidth = 6; % set this parameter and keep it forever
-hw_ratio = 2; 
-semilogx(Data_tau,squeeze(mean(Data([ld_pks(3:33)+3],4,:))));
-title("Averaged g_2(\tau)");
-xlabel("\tau(s)");
-ylabel("g_2(\tau)")
-set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
-
-% set(findall(hfig,'-property','Box'),'Box','off') % optional
-% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
-set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
-set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
-pos = get(hfig,'Position');
-set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+% close all;
+% hfig = figure();
+% picturewidth = 30; % set this parameter and keep it forever
+% hw_ratio = 0.5; % feel free to play with this ratio
+% % sgtitle();
+% for i=3:6
+%     ylim([0.98 1.165])
+%     subplot(1,4,i-2)
+%     semilogx(Data_tau,squeeze(Data(ld_pks(i)+3,4,:)))
+%     xlabel("\tau (s)");
+%     ylabel("g_2(\tau)")
+% end
+% set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+% 
+% % set(findall(hfig,'-property','Box'),'Box','off') % optional
+% % set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+% set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+% set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+% pos = get(hfig,'Position');
+% set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+% 
+% hfig = figure();
+% picturewidth = 6; % set this parameter and keep it forever
+% hw_ratio = 2; 
+% semilogx(Data_tau,squeeze(mean(Data([ld_pks(3:33)+3],4,:))));
+% title("Averaged g_2(\tau)");
+% xlabel("\tau(s)");
+% ylabel("g_2(\tau)")
+% set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+% 
+% % set(findall(hfig,'-property','Box'),'Box','off') % optional
+% % set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+% set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+% set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+% pos = get(hfig,'Position');
+% set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
 
 %% plotting the signal for the presentation
 close all;
@@ -826,8 +826,8 @@ g2_temp =round(data,4);
 
 %%
 close all;
-bsl = 1:500;
-pres = 3800:4200;
+bsl = 1:600;
+pres = 1300:1800;
     
 g2_sf = zeros(2,2,50);
 
@@ -843,8 +843,8 @@ hold off;
 
 figure();
 
-DeltaOD_sp=(-log((mean(squeeze(g2_temp(1,pres,:)))-1)./(mean(squeeze(g2_temp(1,bsl,:)))-1)));
-DeltaOD_lp=-log((mean(squeeze(g2_temp(2,pres,:)))-1)./(mean(squeeze(g2_temp(2,bsl,:)))-1));
+DeltaOD_sp=abs(-log((mean(squeeze(g2_temp(1,pres,:)))-1)./(mean(squeeze(g2_temp(1,bsl,:)))-1)));
+DeltaOD_lp=abs(-log((mean(squeeze(g2_temp(2,pres,:)))-1)./(mean(squeeze(g2_temp(2,bsl,:)))-1)));
 
 g2_sf(1,1,:) = (mean(squeeze(g2_temp(1,bsl,:))));
 g2_sf(1,2,:) = (mean(squeeze(g2_temp(1,pres,:))));
@@ -864,7 +864,7 @@ ratio = DeltaFec(2,:)./DeltaFec(1,:);
 semilogx(tau,DeltaFec(2,:)./DeltaFec(1,:));
 
 
-ratio_d = ratio(3:end-15);
+ratio_d = ratio(10:end-20);
 
 index=ratio_d==Inf;
 
@@ -908,28 +908,7 @@ pos = get(hfig,'Position');
 set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
 %print(hfig,fname,'-dpdf','-painters','-fillpage')
 %% Calculating the weighting factor
-tau = Data_tau;
 
-l1 = 0.8; %[cm]
-l2 = 0.6;
-
-%Optical Properties
-% amp = 1000;
-ua1 = 0.15; %[cm^-1]
-us1 = 10; %[cm^-1]
-ua2 = 0.2; %[cm^-1]
-us2 = 8; %[cm^-1]
-
-ua = [ua1 ua2];
-us = [us1 us2];
-
-%%
-ua1 = 0.17; %[cm^-1]
-us1 = 10; %[cm^-1]
-ua2 = 0.2; %[cm^-1]
-us2 = 8; %[cm^-1]
-ua3 = 0.2; %[cm^-1]
-us3 = 8; %[cm^-1]
 
 %% calculating the flow values
 
@@ -970,10 +949,31 @@ g2_1_new = mean(g2(:,1,:),2);
         
 F = [f0ec f0c];
 %%
+tau = Data_tau;
+
+l1 = 0.8; %[cm]
+l2 = 0.6;
+
+%Optical Properties
+% amp = 1000;
+ua1 = 0.15; %[cm^-1]
+us1 = 10; %[cm^-1]
+ua2 = 0.2; %[cm^-1]
+us2 = 8; %[cm^-1]
+
+ua = [ua1 ua2];
+us = [us1 us2];
+
+ua1 = 0.17; %[cm^-1]
+us1 = 10; %[cm^-1]
+ua2 = 0.2; %[cm^-1]
+us2 = 8; %[cm^-1]
+ua3 = 0.2; %[cm^-1]
+us3 = 8; %[cm^-1]
 close all;
 
-    f0c = 7.55*10^-8;  % Assumed from the literature, baker pressure paper
-    f0ec = 9.8*10^-9; % Assumed from the literature, baker pressure paper
+    f0c = 1.44*10^-8;  % Assumed from the literature, baker pressure paper
+    f0ec = 1.4*10^-9; % Assumed from the literature, baker pressure paper
     delFc = f0c*10^-5; 
     fc_denom = f0c + delFc/2;
     fc_num = f0c - delFc/2;
@@ -1017,10 +1017,10 @@ bsl = 100:2500;
     DeltaOD_s = real(-log(((squeeze(g2_temp(1,:,:)))-1)./(mean(squeeze(g2_temp(1,bsl,:)))-1)));
     DeltaOD_l =  real(-log(((squeeze(g2_temp(2,:,:)))-1)./(mean(squeeze(g2_temp(2,bsl,:)))-1)));
     
-%     DeltaFc = (1./wf).*((DeltaOD_l) - ((2.1).*(DeltaOD_s)));
+    DeltaFc = (1./wf).*((DeltaOD_l) - ((0.75).*(DeltaOD_s)));
 
 %     DeltaFc = DeltaFc/f0c;
-    DeltaFc = ((DeltaOD_l) - ((0.78).*(DeltaOD_s)));
+%     DeltaFc = ((DeltaOD_l) - ((0.78).*(DeltaOD_s)));
 %     DeltaFc = (1./wf).*((DeltaOD_l) - ((sf(i)).*(DeltaOD_s)));
     DeltaFc(isinf(DeltaFc)) = nan;
     t = (1:1:size(DeltaFc,1))/20;
@@ -1043,7 +1043,7 @@ figure();
 plot(mean_dfc_sm)
 figure();
 plot(t,per_change_dfc);
-ylim([-1 1])
+% ylim([-1 1])
 xlabel("Time (s)")
 ylabel("Mean DeltaFc")
 title("Mean DeltaFc across tau(2:25)")
@@ -1100,11 +1100,11 @@ plot((1:1:length(P1))/1000,P1)
 close all;
 %For subjects 1,2,3,6
 strt_time =  [20,190,350,480,540];   %time in seconds
-stp_time =  [160,290,400,510,660];    %time in seconds.
+stp_time =  [60,280,400,510,660];    %time in seconds.
 %For subject 5(Farah), as the protocol is a bit different;
 % strt_time =  [10,320,590,720];   %time in seconds
 % stp_time =  [280,460,700,760];    %time in seconds.
-shift = 300;
+shift = 1200;
 
 
 j =1;
@@ -1119,11 +1119,12 @@ j =1;
 
 %% Normalizing the waveforms
 close all;
-t = (1:1:1000)/1000;
+t = (1:1:length(ens_avg_dcs25_1))/1000;
 bfi = ens_avg_dcs25_1;
 dfc = ens_avg_dfc_1;
 bfi_n = (bfi-min(bfi(1:300)))./(max(bfi(1:500))-min(bfi(1:300)));
 dfc_n = (dfc-min(dfc(1:300)))./(max(dfc(1:500))-min(dfc(1:300)));
+sig = [bfi_n;dfc_n];
 % plot(bfi_n,'k');
 % hold on; 
 % plot(dfc_n,'r');
@@ -1131,9 +1132,12 @@ dfc_n = (dfc-min(dfc(1:300)))./(max(dfc(1:500))-min(dfc(1:300)));
 hfig = figure();
 fname = "Pulsatility Comparison"
 
-plot(t,circshift(bfi_n(1:1000),-30),'k');
+% plot(t,circshift(bfi_n(1:1000),-30),'k');
+t = (1:1:length(bfi_n))/1000;
+plot(t,(bfi_n),'k');
 hold on;
-plot(t,circshift(dfc_n(1:1000),-30),'r');
+% plot(t,circshift(dfc_n(1:1000),-30),'r');
+plot(t,dfc_n,'r');
 xlabel("Time(s)")
 ylabel("A.U.")
 

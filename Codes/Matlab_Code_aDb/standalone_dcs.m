@@ -17,7 +17,7 @@ else
 end
 
 % aDb calculation
-rho = [1 2.5]; %source detector separations in cm 
+rho = [0.7 2.5]; %source detector separations in cm 
 mua = 0.17; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
@@ -43,7 +43,7 @@ end
  %Plotting the fit
 Channel=1;
 Curve_no=1;
-rho = [1 2.5];
+rho = [0.7 2.5];
 
 beta=g2(Channel, Curve_no,1);
 aDb1=aDb(Channel,Curve_no);

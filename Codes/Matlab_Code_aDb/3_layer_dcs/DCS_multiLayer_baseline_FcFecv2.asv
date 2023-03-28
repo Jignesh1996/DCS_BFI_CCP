@@ -124,7 +124,7 @@ clc;
 clear all;
 close all
 
-file_no = 2;
+file_no = 6;
 %--------------------------------------------------------------------------
 % 
 filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - '+string(file_no),'\Data.mat');
@@ -151,7 +151,7 @@ load(filename_nd)
 tau = Data_tau;
 aDb = standalone_dcs(Data,Data_tau);
 figure();
-plot((1:1:length(aDb))/20,aDb1');
+plot((1:1:length(aDb))/20,aDb');
 xlabel("Time(s)")
 ylabel("aDb")
 %%
@@ -218,16 +218,16 @@ l2 = 0.4;
 %     us2 = OpticalProp(subject,2); %[cm^-1]
 %     ua3 = OpticalProp(subject,1); %[cm^-1]
 %     us3 = OpticalProp(subject,2); %[cm^-1]
-ua1 = 0.17; %[cm^-1]
-us1 = 8; %[cm^-1]
-ua2 = 0.2; %[cm^-1]
-us2 = 8; %[cm^-1]
-ua3 = 0.2; %[cm^-1]
-us3 = 8; %[cm^-1]
+ua1 = 0.1; %[cm^-1]
+us1 = 10; %[cm^-1]
+ua2 = 0.1; %[cm^-1]
+us2 = 10; %[cm^-1]
+ua3 = 0.15; %[cm^-1]
+us3 = 4; %[cm^-1]
 
 
 rho1 = 25; %mm distance for short channel               
-rho2 = 25; %mm distance for long channle
+rho2 = 25; %mm distance for long channel
                    
 corr1 = 1+squeeze(g2_short);
 corr2 = 1+squeeze(g2_long);
@@ -241,8 +241,8 @@ beta1=corr1(1,1)-1;
 beta2=corr2(1,1)-1;
 
 
-LB = [1e-10 0 1e-15 0.2 0.2];
-UB = [ 1e-7 0 1e-5  0.8 0.8];
+LB = [1e-10 0 1e-15 0.1 0];
+UB = [ 1e-7 0 1e-5  1 1];
 Starting = [1e-9 0 1e-9 0.6 0.6]; %[Fec, Fc, top layer thickness; cm^2/s, cm^2/s, cm]
 
 options = optimset('Display','final','TolX',1e-5,'MaxIter', 2000, 'MaxFunEvals', 2000);
@@ -258,28 +258,125 @@ close all
 
 Fbrain./Fscalp
 
+
+%% Applying 3 layer model to estimate CBF
+
+close all;
+
+data = g2_n;
+clear g2
+
+g2(1,:,:)=squeeze(data(:,1,:)-1); %g2-1 curve generation
+g2_1_temp=squeeze(data(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(data(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(data(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(data(:,4,:)-1); %g2-1 curve generation
+
+for i=1:size(g2,2)
+    g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+end
+% 
+g2_baseline=squeeze(mean(g2(:,1:2800,:),2));
+
+g2_cuff=squeeze(mean(g2(:,3800:4800,:),2));
+
+% mua = OpticalProp(subject,1); %cm^-1 baseline absorption coefficient
+% mus = OpticalProp(subject,2); %cm^-1 baseline reduced scattering coefficient
+mua = 0.17;
+mus = 8;
+tau = Data_tau;
+LB = [0.1e-9];
+UB = [10e-8];
+Starting = 1e-9; %[aDb, Beta; cm^2/s, a.u.]
+beta= g2_baseline(1,1); %0.1568;
+options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
+[FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_baseline(1,:),mua,mus,1,beta);
+aDb1 = FittedParams(1);
+
+beta= g2_cuff(1,1); %0.1568;
+options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
+[FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_cuff(1,:),mua,mus,1,beta);
+aDb2 = FittedParams(1);
+
+DeltaFec=(aDb2/aDb1);
+dFec=DeltaFec;
+
+
+
+
+
+l1 = 0.7; %[cm]
+l2 = 0.4;
+
+% Optical Properties
+ua1 = 0.1; %[cm^-1]
+us1 = 10; %[cm^-1]
+ua2 = 0.1; %[cm^-1]
+us2 = 10; %[cm^-1]
+ua3 = 0.15; %[cm^-1]
+us3 = 4; %[cm^-1]
+
+
+rho1 = 10; %mm distance for short channel               
+rho2 = 25; %mm distance for long channel
+j=1;
+for i = 10:10
+    g2_short = g2(1,i,:);
+    g2_long = g2(2,i,:);
+    corr1 = 1+squeeze(g2_short);
+    corr2 = 1+squeeze(g2_long);
+    
+    
+    tau1 = Data_tau;
+    tau2 = Data_tau;
+    
+%     F1 = aDb(1,i);
+    
+    beta1=corr1(1,1)-1;
+    beta2=corr2(1,1)-1;
+    
+    
+    LB = [1e-15 0  1e-15];
+    UB = [1e-5 0 1e-5];
+    Starting = [1e-9 0 1e-9]; %[Fc; cm^2/s]
+    
+    options = optimset('Display','final','TolX',1e-5,'MaxIter', 2000, 'MaxFunEvals', 2000);
+        
+    FittedParams = fminsearchbnd(@MD_DCS_N2H_BETA_Fc_v2,Starting,LB,UB,options,...
+            tau1,tau2,corr1,corr2,ua1,us1,ua2,us2,ua3,us3,rho1,rho2,beta1,beta2,dFec);
+          
+    Fscalp(j) = FittedParams(1);
+    Fskull(j) = FittedParams(2);
+    Fbrain(j) = FittedParams(3);
+    %     DeltaFec(subject) = FittedParams(3);
+    close all
+    j=j+1;
+    
+%     Fbrain./Fscalp
+end
+
 %%
 % load('Delta_Fc.mat')
 % 
 % DeltaFc_temp=mean(DeltaFc(:,2:30),2);
 
-for subject=1:9
-    [G1_first] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,Fscalp(subject),.01*Fscalp(subject),(Fbrain(subject)-(0.1*Fbrain(subject)/2)));
-    [G1_second] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,Fscalp(subject),.01*Fscalp(subject),(Fbrain(subject)+(0.1*Fbrain(subject)/2)));
-    
-    G_ratio=(G1_first(1,1:30)./G1_second(1,1:30));
-    dFc(subject)=sum((2./(0.1*Fbrain(subject)))*(log(G_ratio)));
-end
-
-l1=0.8;
-l2=0.6;
-for subject=1:9
-    [G1_first] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,0.16*Fbrain(subject),.01*Fscalp(subject),(Fbrain(subject)-(0.1*Fbrain(subject)/2)));
-    [G1_second] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,0.16*Fbrain(subject),.01*Fscalp(subject),(Fbrain(subject)+(0.1*Fbrain(subject)/2)));
-    
-    G_ratio=(G1_first(1,1:30)./G1_second(1,1:30));
-    dFc2(subject)=sum((2./(0.1*Fbrain(subject)))*(log(G_ratio)));
-end
+% for subject=1:9
+%     [G1_first] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,Fscalp(subject),.01*Fscalp(subject),(Fbrain(subject)-(0.1*Fbrain(subject)/2)));
+%     [G1_second] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,Fscalp(subject),.01*Fscalp(subject),(Fbrain(subject)+(0.1*Fbrain(subject)/2)));
+%     
+%     G_ratio=(G1_first(1,1:30)./G1_second(1,1:30));
+%     dFc(subject)=sum((2./(0.1*Fbrain(subject)))*(log(G_ratio)));
+% end
+% 
+% l1=0.8;
+% l2=0.6;
+% for subject=1:9
+%     [G1_first] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,0.16*Fbrain(subject),.01*Fscalp(subject),(Fbrain(subject)-(0.1*Fbrain(subject)/2)));
+%     [G1_second] = G1fun(rho1/10,tau1,ua1,us1,ua2,us2,ua3,us3,l1,l2,0.16*Fbrain(subject),.01*Fscalp(subject),(Fbrain(subject)+(0.1*Fbrain(subject)/2)));
+%     
+%     G_ratio=(G1_first(1,1:30)./G1_second(1,1:30));
+%     dFc2(subject)=sum((2./(0.1*Fbrain(subject)))*(log(G_ratio)));
+% end
 
 %%
 

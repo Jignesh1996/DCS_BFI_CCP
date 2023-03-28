@@ -1,5 +1,7 @@
-function [ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg, signal, shift,mode)
+function [ens_avg_sig,pind,ensemble_curve] = ensemble_avg(ecg, signal,fs, shift,mode)
+% fs is of the marker signal such as ECG or ABP
 ecg1 = ecg;
+fs = fs;
 dcs = signal;
 shift = shift;
 mode = mode;
@@ -9,11 +11,11 @@ ecg_da = ecg1;
 
 
 break_pt = 1:50:length(dcs);
-dcs_d = detrend(normalize(dcs),1,break_pt); 
-dcs_1 = dcs;
+dcs_d = detrend(normalize(dcs,'scale'),1,break_pt); 
+dcs_1 = dcs_d;
 plot(dcs_1)
 time_DCS=0.05*(1:1:size(dcs_1,2));
-time_ECG=0.001*(1:1:size(ecg_da,2));
+time_ECG=(1/fs)*(1:1:size(ecg_da,2));
 
 figure()
 hold on
@@ -27,29 +29,30 @@ plot(time_ECG,ecg_da/max(ecg_da),'b')
 [pks_ECG,locs_ECG]=findpeaks(ecg_da/max(ecg_da),'MinPeakHeight',0.8)
 
 locs_DCS_time=locs_DCS*0.05;
-locs_ECG_time=locs_ECG*0.001;
+locs_ECG_time=locs_ECG*(1/fs);
 
 time_shift1=locs_ECG_time(1)-locs_DCS_time(1) %% in s
 % Upsampling the DCS singal
 x = 1:1:length(dcs_1);
-uf = 50;   % Upsampling factor
+uf = fs/20;   % Upsampling factor
+% uf = 4;   % Upsampling factor
 xq = (1:(1/uf):length(dcs_1)+((uf-1)/uf)); 
 dcs_1_interp = interp1(x, dcs_1,xq,'v5cubic');
 % dcs_1_interp = dcs_1;
 
 % filtering
 % 
-windowsize=10; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
+windowsize=2; % how many points you want to use (it will depend on your resolution, we were using 10 so it was 3 s window)
 wages=ones(1,windowsize)/windowsize;
 % wages = window_1;
 dcs_1_smooth=dcs_1_interp; % Y is your time course you want to filter, Y_smoth is filtered data
 % ecg1_smooth=filtfilt(wages,1,ecg_da);
 ecg1_smooth=ecg_da;
 break_pt = 1:2000:size(dcs_1_smooth,2);
-[pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',600);
-[pks_DCS_smooth,locs_DCS_smooth]=findpeaks(detrend(dcs_1_smooth,1,break_pt,"omitnan"),'MinPeakHeight',0.25,'MinPeakDistance',600);
+[pks_ECG_smooth,locs_ECG_smooth]=findpeaks(ecg1_smooth./max(ecg1_smooth),'MinPeakHeight',0.65,'MinPeakDistance',fs/1.4);
+[pks_DCS_smooth,locs_DCS_smooth]=findpeaks(detrend(dcs_1_smooth,1,break_pt,"omitnan"),'MinPeakHeight',0.25,'MinPeakDistance',fs/1.4);
 
-
+disp(length(pks_ECG_smooth))
 
 % fig1=figure('units','centimeters', 'Position',[2 2 35 13]) %18 width 15 heigh
 % hold on
@@ -80,7 +83,8 @@ if mode==0
             
         Extract(i-1,:)=(dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i)+min(diff(locs_ECG_smooth))-1));
         d = Extract(i-1,:);
-        PI(i-1) = (max(d)-min(d(1:500)))/mean(dcs_1_interp);
+        disp(size(Extract))
+        PI(i-1) = (max(d)-min(d(1:100)))/mean(dcs_1_interp);
 %         PI(i-1) = (max(d,"omitnan")-min(d(1:500),"omitnan"))/mean(d,"omitnan");
     
     %     Extract(i,:)=signal
@@ -103,8 +107,8 @@ if mode==1
         signal = (dcs_1_smooth2(1,locs_ECG_smooth(i):locs_ECG_smooth(i+1)));
 
         [h_peaks,l_peaks] = findpeaks(signal,'MinPeakHeight',1.5);
-        disp(l_peaks)
-        disp(length(l_peaks));
+%         disp(l_peaks)
+%         disp(length(l_peaks));
     %     signal(size(signal,2):size(Extract))
 
         if length(l_peaks)<2
@@ -126,7 +130,7 @@ if mode==1
 end
 pind = mean(PI,"omitnan");
 %    
-x = (1:1:length(Extract'))/1000;
+x = (1:1:length(Extract'))/fs;
 figure();
 plot(x,(Extract'))
 xlabel("Time(s)")
@@ -139,7 +143,7 @@ title("Marker=ECG R peak, DCS 2.5cm")
 % till the minimum point. 
 
 % Plot ensemble average
-fs = 1000;
+
 ttle = 'DCS 2.5cm Ensemble Avg';
 [ens_avg_sig,ensemble_curve] = ens_avg(Extract,fs,ttle);
 

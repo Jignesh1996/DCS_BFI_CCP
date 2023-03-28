@@ -1316,9 +1316,226 @@ bfi_mean = mean(bfi);
 bfi_std = std(bfi);
 dfc =  [s1(2,1:1000); s2(2,1:1000); s3(2,1:1000); s4(2,1:1000); s5(2,1:1000)];
 dfc_mean = mean(dfc);
+dfc_std = std(dfc);
 
 plot(bfi_mean,'k')
 hold on;
 plot(bfi_mean+bfi_std,'k--')
 plot(bfi_mean-bfi_std,'k--')
 plot(dfc_mean,'r')
+plot(dfc_mean+dfc_std,'r--')
+plot(dfc_mean-dfc_std,'r--')
+
+%% Plotting a box plot for the pulsatility comparison
+close all;
+
+% The a,d are the deltaT for the BFi and CBFi correspondingly. b,e are
+% normalized amplitude of S2 and c,f are normalized amplitude of d
+% (dicrotic notch) for BFi and CBFi respectively. Yb and Yc are the
+% amplitudes of systolic to diastolic peak
+yb = [0.602678571
+0.743068392
+0.84057971
+0.294117647
+0.965085049
+]
+yc = [0.715277778
+1.396551724
+4.296875
+1.221978022
+1.087248322
+]
+a = [0.305
+0.289
+0.295
+0.298
+0.311
+];
+b = [0.7
+0.875621891
+0.782758621
+0.8
+0.612244898
+]
+c = [0.555555556
+0.629353234
+0.724137931
+0.711111111
+0.38961039
+]
+
+d = [0.332
+0.313
+0.307
+0.303
+0.328
+]
+e = [0.512621359
+0.654320988
+0.749090909
+0.665467626
+0.641975309
+]
+f = [0.475728155
+0.597530864
+0.581818182
+0.485611511
+0.407407407
+]
+
+hfig = figure();
+ysd = boxplot([yb,yc],'Labels',{'BFi','CBFi'},'Colors',['b','r'])
+set(ysd,'LineWidth', 2);
+% Xlabel("\Deltat (s)")
+ylabel("\Deltat (s)")
+picturewidth = 20; % set this parameter and keep it forever
+hw_ratio =0.75; % feel free to play with this ratio
+set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
+
+
+hfig = figure();
+dt = boxplot([a,d],'Labels',{'BFi','CBFi'},'Colors',['b','r'])
+set(dt,'LineWidth', 2);
+% Xlabel("\Deltat (s)")
+ylabel("\Deltat (s)")
+picturewidth = 20; % set this parameter and keep it forever
+hw_ratio =0.75; % feel free to play with this ratio
+set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
+
+hfig = figure();
+s2 = boxplot([b,e],'Labels',{'BFi','CBFi'},'Colors',['b','r'])
+set(s2,'LineWidth', 2);
+ylabel("S2 (A.U)")
+picturewidth = 20; % set this parameter and keep it forever
+hw_ratio =0.75; % feel free to play with this ratio
+set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
+hfig = figure();
+d = boxplot([c,f],'Labels',{'BFi','CBFi'},'Colors',['b','r'])
+set(d,'LineWidth', 2);
+ylabel("d (A.U.)")
+picturewidth = 20; % set this parameter and keep it forever
+hw_ratio =0.75; % feel free to play with this ratio
+set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
+
+set(findall(hfig,'-property','Box'),'Box','off') % optional
+% set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
+set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
+set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
+pos = get(hfig,'Position');
+set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
+
+%% aDb calculations
+% close all;
+% clear all;
+% load("D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\Donya\test2\jignesh\thenar\Data.mat")
+dcs = Data;
+g2(1,:,:)=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
+g2_1_temp=squeeze(dcs(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(dcs(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(dcs(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(dcs(:,4,:)-1); %g2-1 curve generation
+% g2_5_temp=squeeze(dcs_t(:,1,:)-1);
+% g2_6_temp=squeeze(dcs_t(:,2,:)-1);
+% g2_7_temp=squeeze(dcs_t(:,3,:)-1);
+% g2_8_temp=squeeze(dcs_t(:,4,:)-1);
+% average g2 curve for large source detector separation
+% for i=1:size(g2,2)
+%     g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:)+g2_5_temp(i,:)+g2_6_temp(i,:)+g2_7_temp(i,:)+g2_8_temp(i,:))/8;
+% end
+for i=1:size(g2,2)
+    g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
+end
+
+rho = [0.7 2.5]; %source detector separations in cm 
+mua = 0.15; %cm^-1 baseline absorption coefficient
+mus = 10; %cm^-1 baseline reduced scattering coefficient
+
+tau_values=Data_tau;
+
+for chan=1:size(g2,1)
+% for chan=1:1
+     for i=1:size(g2,2) 
+        rsd=rho(chan);
+        g2_temp(i,:)=squeeze(g2(chan,i,:));
+        LB = [0];
+        UB = [inf];
+        Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
+        beta= squeeze(g2(chan,i,1)); %0.1568;
+        options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
+        [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
+        aDb1(chan,i) = FittedParams(1);
+    end
+end
+
+t = (1:1:length(aDb1))/20;
+plot(t,aDb1')
+% adb_lpf = (lpf(aDb1,7,50));
+hold on;
+% plot(t,adb_lpf)
+xlabel("TIme (s)");
+ylabel("\alphaD_b")
+% title("Baselilne 50ms DCS 2.5cm")
+title("New Pressure Cuff vs \alphaD_b")
+legend("1 cm","2.5 cm")
+
+%% 
+close all;
+% adb_lpf = adb_lpf(1:6000);
+adb_5 = circshift(adb_50,20)
+t2 = (1:1:length(adb_lpf))/50;
+t5 = (1:1:length(adb_50))/20;
+
+plot(t2, aDb1,'b');
+hold on;
+plot(t5, adb_50,'r');
+xlabel("Time (s)");
+ylabel("\alphaD_b")
+legend("20ms Res","50ms Res");
+
+%%
+Fs = 20;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period    
+signal = aDb1(2,3600:4800);
+L = length(signal);             % Length of signal
+t = (0:L-1)*T;  
+
+Y = fft(signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+% calculating the inverse fft to get the amplitude of the signal
+
+
+
+f = Fs*(0:(L/2))/L;
+figure()
+plot(f,P1) 
+hold on;
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
