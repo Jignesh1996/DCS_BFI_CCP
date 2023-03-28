@@ -1,0 +1,19 @@
+close all;
+clear all;
+
+
+load("C:\Users\jigne\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\dr_k_shoemaker\hypercapnia\Data.mat");
+
+%% Checking the changes in the g2 curves over time
+for  i=1:6000
+
+    semilogx(Data_tau, squeeze(Data(i,3,:)));
+    ylim([1 1.5])
+
+    pause(0.01)
+    
+
+end
+
+%% Simulate the g2 curve to check the zero flow at the first layer and changing the brain flow.
+
