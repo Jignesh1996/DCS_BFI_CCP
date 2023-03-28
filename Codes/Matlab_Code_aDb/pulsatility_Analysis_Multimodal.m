@@ -10,21 +10,19 @@ tcd_a = data(datastart(3):dataend(3));
 
 ecg1 = ecg_a(1:120000);
 ecg1 = normalize(ecg1);
-ecg1 = lpf(ecg1,5,1000);
+% ecg1 = lpf_ffilts(ecg1,15,1000);
     
 tcd = tcd_a(1:length(ecg1));
 % tcd = normalize(tcd);
 tcd = lpf_ffilts(tcd,30,1000);
 
-bp = bp_a(1:length(ecg1));
-bp = lpf_ffilts(bp,40,1000);
+bp_a = bp_a(1:length(ecg1));
+bp_a = lpf(bp_a,3,1000);
 %% Plotting the frequency spectrum
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = aDb1(4,:);
-% signal = dcs_25lp;
-L = length(signal);     
-% Length of signal
+signal = aDb1(2,:);
+L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
 Y = fft(signal);
@@ -98,7 +96,7 @@ ecg_ens = ecg_ens';
 %% TCD signal Processing
 tcd = tcd_a(1:length(ecg1));
 % tcd = normalize(tcd);
-tcd = lpf_ffilts(tcd,15,1000);
+tcd = lpf_ffilts(tcd,30,1000);
 %% Plotting the TCD signal
 minima = islocalmin(tcd,'MinProminence',2,'MinSeparation',950 );
 x = 1:length(minima);
@@ -148,10 +146,10 @@ tcd_ens = ensavg;
 % writematrix(ensavg,'D:\Jignesh\MSc Western Uni\Research MSc\Codes\Western-MSc\Codes\Results and Plots\output_variables\jig\tcd_ens.csv','Delimiter','comma');
 
 %% Processing the blood pressure data
-bp = bp(1:length(ecg1));
-bp = lpf(bp,3,1000);
-bp = bp(1:length(tcd));
-bp = bp;
+bp_a = bp_a(1:length(ecg1));
+bp_a = lpf(bp_a,3,1000);
+bp_a = bp_a(1:length(tcd));
+bp = bp_a;
 minima = islocalmin(bp,'MinProminence',20);
 x = 1:length(minima);
 plot(x,bp,x(minima),bp(minima),'r*');
@@ -204,21 +202,13 @@ abd_ens = ensavg;
 % filename=strcat('D:\Jignesh\MSc Western Uni\Research MSc\Data\DCS\20211207\Data.mat');
 % load(filename)
 
-% g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
-% g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
-% g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
-% g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
-
-
-
-%This changed for g2 averaging
-g2(1,:,:)=squeeze(Data_avg(:,1,:)-1); %g2-1 curve generation
-g2_2_temp=squeeze(Data_avg(:,2,:)-1); %g2-1 curve generation
-g2_3_temp=squeeze(Data_avg(:,3,:)-1); %g2-1 curve generation
-g2_4_temp=squeeze(Data_avg(:,4,:)-1); %g2-1 curve generation
+g2(1,:,:)=squeeze(Data(:,1,:)-1); %g2-1 curve generation
+g2_2_temp=squeeze(Data(:,2,:)-1); %g2-1 curve generation
+g2_3_temp=squeeze(Data(:,3,:)-1); %g2-1 curve generation
+g2_4_temp=squeeze(Data(:,4,:)-1); %g2-1 curve generation
 
 % average g2 curve for large source detector separation
-for i=2:size(g2,2)
+for i=1:size(g2,2)
     g2(2,i,:)=(g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
 end
 
@@ -249,8 +239,8 @@ dcs_3 = aDb1(2,:).*10^9;
 
 
 % Filtering the singal
-dcs_1lp = lpf(dcs_1,5,20);
-dcs_3lp = lpf(dcs_3,5,20);
+dcs_1lp = lpf(dcs_1,3,20);
+dcs_3lp = lpf(dcs_3,3,20);
 
 %% plotting
 Chan=1;
@@ -398,37 +388,26 @@ xlabel('Time (s)')
 
 %% Assigning the channels
 dcs_1cm = aDb1(1,:).*10^9;
-dcs_1lp = lpf_ffilts(dcs_1cm,7,20);
+dcs_1lp = lpf_ffilts(dcs_1cm,15,20);
 dcs_15 = aDb1(2,:).*10^9;
-dcs_15lp = lpf_ffilts(dcs_15,7,20);
+dcs_15lp = lpf_ffilts(dcs_15,15,20);
 dcs_2 = aDb1(3,:).*10^9;
-dcs_2lp = lpf_ffilts(dcs_2,7,20);
+dcs_2lp = lpf_ffilts(dcs_2,15,20);
 dcs_25 = aDb1(4,:).*10^9;
-dcs_25lp = lpf_ffilts(dcs_25,7,20);
-
-
-
-%% Shifting the signal to time allign the DCS signal to ECG
-break_pt = 1:100:size(tcd,2);
-bp_shift = circshift(bp,-1180)
-[a,l_bp] = findpeaks(normalize(bp_shift),"MinPeakHeight",1.5,'MinPeakDistance',500) ;
-[a,l_tcd] = findpeaks(normalize(detrend(tcd,1,break_pt)),"MinPeakHeight",1);
-shift = l_bp(1)-l_tcd(1);
-tcd_shift = circshift(tcd,-100)
+dcs_25lp = lpf_ffilts(dcs_25,15,20);
 
 %% Calculating the Critical closing pressure
 close all;
-l = 2400;
-ccp_dcs  = ccp_measure_tail(ecg1(1:l*50),dcs_2lp(1:l),bp_shift(1:l*50),60);
+ccp_tail_dcs  = ccp_measure(ecg1,dcs_1lp,bp_a,20);
 % ccp_dcs  = ccp_measure(ecg1,dcs_25lp,bp,10);
 % close all;
 % scatter(1:length(ccp_tcd),ccp_tcd,'red');
 % hold on;
 % scatter(1:length(ccp_dcs),ccp_dcs,'blue');
-plot(ccp_dcs);
+plot(ccp_tail_dcs);
 ylabel("CrCP (mmHg)");
 title("CrCP using Tail, TCD averaged over 25 cycles")
-% close all
+
 %%
 load ccp_var_stack.mat;
 bp_stack = stack(1:floor(length(stack(:,1))/2),:);
@@ -752,60 +731,5 @@ ylabel('aDb *10^9')
 title("Ensemble average of Upsampled signal")
 grid
 legend('Ensemble Average', '95% Confidence Intervals')
-
-%% Any
-
-p = robustfit(CCP(1,:)',CCP(3,:)');
-x = -1:0.005:40;
-f = p(1)*x+p(2);
-plot(x,f);
-hold on;
-scatter(CCP(1,:),CCP(3,:));
-
-%% plotting g2 curves
-for i=1:5:20
-    semilogx(Data_tau,squeeze(Data(i,4,:)))
-    hold on;
-    scatter(Data_tau,squeeze(Data(i,4,:)))
-    hold on;
-end
-
-%%
-subplot(2,1,1); 
-span = 246:480;
-sgtitle("Comparision of Raw and Filtered signal")
-plot((1:1:length(span))/20,normalize(aDb1(3,246:480))); 
-title("Raw DCS (r_s_d = 2.5cm) signal")
-xlabel("Time(s)")
-ylabel("Normalized Unit")
-
-subplot(2,1,2); 
-plot((1:1:length(span))/20,normalize(dcs_2lp(246:480)));
-title("Filtered DCS (r_s_d = 2.5cm) signal")
-xlabel("Time(s)")
-ylabel("Normalized Unit")
-
-%% Plot a good figure: Make a function for plotting a figure so that I don't have to change it everytime
-
-
-hfig = figure;  % save the figure handle in a variable
-t = 0:0.02:10; x = t.*sin(2*pi*t)+ 2*rand(1,length(t)); % data
-plot(t,x,'k-','LineWidth',1.5,'DisplayName','$\Omega(t)$');
-xlabel('time $t$ (s)')
-ylabel('$\Omega$ (V)')
-fname = 'myfigure';
-
-picturewidth = 25; % set this parameter and keep it forever
-hw_ratio = 0.65; % feel free to play with this ratio
-set(findall(hfig,'-property','FontSize'),'FontSize',17) % adjust fontsize to your document
-
-set(findall(hfig,'-property','Box'),'Box','off') % optional
-set(findall(hfig,'-property','Interpreter'),'Interpreter','latex') 
-set(findall(hfig,'-property','TickLabelInterpreter'),'TickLabelInterpreter','latex')
-set(hfig,'Units','centimeters','Position',[3 3 picturewidth hw_ratio*picturewidth])
-pos = get(hfig,'Position');
-set(hfig,'PaperPositionMode','Auto','PaperUnits','centimeters','PaperSize',[pos(3), pos(4)])
-%print(hfig,fname,'-dpdf','-painters','-fillpage')
-print(hfig,fname,'-dpng','-painters')
 
 

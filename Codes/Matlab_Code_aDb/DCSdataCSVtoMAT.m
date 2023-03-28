@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Pressure_cuff_study_Jignesh\new_cuff_test\test2\";
+Directory = "C:\Users\jigne\OneDrive - The University of Western Ontario\Research\Data\DCS_TEST_8_fibres\TRNIRS\20221205\";
 
 fprintf("Start....\n")
 
@@ -22,17 +22,15 @@ for f=1:size(subFiles,1)
         filename=temp(1:ix(1)-1);
     end
 end
-% filename = "high ICP_"
+
 % Save as a mat -----------------------------------------------------------
-disp(filename)
-file=strcat(Directory, filename,'_tau.csv'); 
+
+file=strcat(Directory, filename,'_tau.csv');
 Data_tau=load (file);
 
 for f=1:1:size(subFiles,1)-1
     file=strcat(Directory, filename,num2str(f),'.csv');
-    disp(file)
     temp=load(file);
-%     disp(size(temp))
     Data(f,:,:)=temp(1:4,:);
     clear temp
 end
