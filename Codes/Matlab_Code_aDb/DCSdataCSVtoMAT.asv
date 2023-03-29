@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "C:\Users\jigne\OneDrive - The University of Western Ontario\Research\Data\DCS_TEST_8_fibres\20221205\";
+Directory = "E:\Pressure_cuff_study_Jignesh\hypercapnia\Farah\cuff_HCP_test\";
 
 fprintf("Start....\n")
 

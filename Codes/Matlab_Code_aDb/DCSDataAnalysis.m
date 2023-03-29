@@ -189,7 +189,7 @@ for i=1:size(g2,2)
 end
 
 rho = [0.7 2.5]; %source detector separations in cm 
-mua = 0.15; %cm^-1 baseline absorption coefficient
+mua = 0.17; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau;

@@ -367,12 +367,12 @@ file_no = 6;
 % filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
 % load(filename_nd)
 
-filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Pressure_cuff_study_Jignesh\new_cuff_test\test2\Data.mat');
+filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Cuff_HCP_test\Data.mat');
 load(filename_d)
 
 
 %Loading the ECG file
-filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Pressure_cuff_study_Jignesh\LS2.mat');
+filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Cuff_HCP_test\Cuff_HCP_Test.mat');
 load(filename_nd)
 
 
@@ -404,7 +404,7 @@ ecg_a = data(datastart(1):dataend(1));
 % bp_a = data(datastart(2):dataend(2));
 
 % ecg1 = ecg_a(1:660000);
-ecg1 = ecg_a(1:360000);
+ecg1 = ecg_a(1:6000000);
 ecg1 = normalize(ecg1);
 ecg1 = lpf(ecg1,5,1000);
 
@@ -416,7 +416,7 @@ ecg1 = lpf(ecg1,5,1000);
 close all;
 Fs = 20;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period    
-signal = aDb1(2,4801:6000);
+signal = aDb1(2,1:1200);
 L = length(signal);             % Length of signal
 t = (0:L-1)*T;  
 
@@ -427,11 +427,11 @@ P1(2:end-1) = 2*P1(2:end-1);
 plot((1:1:length(P1))/Fs,P1)
 
 %%
-
+ecg1 = downsample(ecg1,10);
 %% Plotting the ensemble average graph
 close all;
-shift =1850;
-[ens_avg_sig,pind] = ensemble_avg(ecg1(1:90000),aDb1(2,1:1800),shift,1);
+shift =380;
+[ens_avg_sig,pind] = ensemble_avg(ecg1(1:60000),aDb1(2,1:1200),shift,1);
 %% Finding the shift
 
 close all
@@ -468,7 +468,7 @@ close all;
 % if exist("g2")
 %     clear g2;
 % end
-mua = 0.15; %cm^-1 baseline absorption coefficient
+mua = 0.17; %cm^-1 baseline absorption coefficient
 mus = 10; 
 
     
@@ -480,8 +480,8 @@ g2_n = g2_backup;
 % strt_time =  [1,180,300,420,540];   %time in seconds
 % stp_time =  [180,300,420,540,660];    %time in seconds.
 
- strt_time =  [1,120,180,240,300];
- stp_time =  [120,180,240,300,360]; 
+ strt_time =  [1,60,120,240,540];
+ stp_time =  [60,120,240,540,600]; 
 
 %For subject 5(Farah), as the protocol is a bit different;
 % strt_time =  [1,300,480,720];   %time in seconds
@@ -504,7 +504,7 @@ for m=1:length(strt_time)
     hd_pks = ceil(h_pks./50);
     ld_pks = ceil(l_pks./50);
     % g2_avg = zeros(size(g2,1),size(g2,2),size(g2,3));
-    avg_window_width = 50;
+    avg_window_width = 20;
     for i=1:size(ld_pks,2)-1
         if size(ld_pks,2)-i < avg_window_width
 
