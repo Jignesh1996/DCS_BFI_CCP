@@ -351,11 +351,11 @@ for i=1:size(aDb1_avg,1)
 end
 hold on;
 
-per_ch_mean(1,:) = 100*(adb_avg_smooth(1,:)./ mean(adb_avg_smooth(1,1:60),2));
-per_ch_mean(2,:) = 100*(adb_avg_smooth(2,:)./ mean(adb_avg_smooth(2,1:60),2));
+% per_ch_mean(1,:) = 100*(adb_avg_smooth(1,:)./ mean(adb_avg_smooth(1,1:60),2));
+% per_ch_mean(2,:) = 100*(adb_avg_smooth(2,:)./ mean(adb_avg_smooth(2,1:60),2));
 
-% per_ch_mean(1,:) = 100*((adb_avg_smooth(1,:)-mean(adb_avg_smooth(1,1:100),2))./ mean(adb_avg_smooth(1,1:100),2));
-% per_ch_mean(2,:) = 100*((adb_avg_smooth(2,:)-mean(adb_avg_smooth(2,1:100),2))./ mean(adb_avg_smooth(2,1:100),2));
+per_ch_mean(1,:) = 100*((adb_avg_smooth(1,:)-mean(adb_avg_smooth(1,1:100),2))./ mean(adb_avg_smooth(1,1:100),2));
+per_ch_mean(2,:) = 100*((adb_avg_smooth(2,:)-mean(adb_avg_smooth(2,1:100),2))./ mean(adb_avg_smooth(2,1:100),2));
 
 % per_ch_mean(3,:) = 100*(adb_avg_smooth(3,:)./ mean(adb_avg_smooth(3,1:100),2));
 

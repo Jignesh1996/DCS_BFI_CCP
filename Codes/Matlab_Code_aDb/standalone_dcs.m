@@ -32,7 +32,7 @@ parfor chan=1:lc
         LB = [0];
         UB = [inf];
         Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
-        beta= squeeze(g2(chan,i,1)); %0.1568;
+        beta= squeeze(g2(chan,i,1)); ;
 %         beta= squeeze(mean(g2(chan,1:100,1))); %0.1568;
         options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
         [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
@@ -41,7 +41,7 @@ parfor chan=1:lc
 end
 
  %Plotting the fit
-Channel=1;
+Channel=2;
 Curve_no=1;
 rho = [0.7 2.5];
 
@@ -50,7 +50,7 @@ aDb1=aDb(Channel,Curve_no);
 
 g2_fit=gen_DCS_fit(tau_values,mua,mus,rho(Channel),beta,aDb1);
 
-semilogx(tau_values,squeeze(g2(1,1,:)),'k')
+semilogx(tau_values,squeeze(g2(Channel,Curve_no,:)),'k')
 hold on
 semilogx(tau_values,g2_fit,'r')
 

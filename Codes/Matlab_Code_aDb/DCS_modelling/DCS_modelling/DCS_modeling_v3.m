@@ -367,12 +367,12 @@ file_no = 6;
 % filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
 % load(filename_nd)
 
-filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Cuff_HCP_test\Data.mat');
+filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Baseline_HCP_test\Data.mat');
 load(filename_d)
 
 
 %Loading the ECG file
-filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Cuff_HCP_test\Cuff_HCP_Test.mat');
+filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Baseline_HCP_test\Baseline_HCP_Test.mat');
 load(filename_nd)
 
 
@@ -430,7 +430,7 @@ plot((1:1:length(P1))/Fs,P1)
 ecg1 = downsample(ecg1,10);
 %% Plotting the ensemble average graph
 close all;
-shift =380;
+shift =450;
 [ens_avg_sig,pind] = ensemble_avg(ecg1(1:60000),aDb1(2,1:1200),shift,1);
 %% Finding the shift
 
