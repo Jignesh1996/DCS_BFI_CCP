@@ -189,7 +189,7 @@ for i=1:size(g2,2)
 end
 
 rho = [0.7 2.5]; %source detector separations in cm 
-mua = 0.17; %cm^-1 baseline absorption coefficient
+mua = 0.1; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau;
@@ -243,6 +243,27 @@ g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb_fit);
 semilogx(Data_tau,squeeze(g2(Channel,Curve_no,:)),'k')
 hold on
 semilogx(Data_tau,g2_fit,'r')
+
+%% plotting the fit for the whole signal
+close all
+for i=2400:8000
+    Channel=2;
+Curve_no=i;
+rho = [0.7 2.5];
+
+beta=g2(Channel, Curve_no,1);
+aDb_fit=aDb1(Channel,Curve_no);
+
+g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb_fit);
+
+semilogx(Data_tau,squeeze(g2(Channel,i,:)),'k')
+hold on
+semilogx(Data_tau,g2_fit,'r')
+ylim([0 1])
+
+hold off
+pause(0.01)
+end
 %% Data plotting
 
 % time resultion - aqusition time used to aquire data
