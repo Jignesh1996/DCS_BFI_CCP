@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "E:\Pressure_cuff_study_Jignesh\hypercapnia\Farah\cuff_HCP_test\";
+Directory = "E:\TapeTest\TapeTest\New_cuff_tape_hole\";
 
 fprintf("Start....\n")
 

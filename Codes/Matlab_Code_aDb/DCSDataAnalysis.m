@@ -189,7 +189,7 @@ for i=1:size(g2,2)
 end
 
 rho = [0.7 2.5]; %source detector separations in cm 
-mua = 0.1; %cm^-1 baseline absorption coefficient
+mua = 0.05; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau;
@@ -375,8 +375,8 @@ hold on;
 % per_ch_mean(1,:) = 100*(adb_avg_smooth(1,:)./ mean(adb_avg_smooth(1,1:60),2));
 % per_ch_mean(2,:) = 100*(adb_avg_smooth(2,:)./ mean(adb_avg_smooth(2,1:60),2));
 
-per_ch_mean(1,:) = 100*((adb_avg_smooth(1,:)-mean(adb_avg_smooth(1,1:100),2))./ mean(adb_avg_smooth(1,1:100),2));
-per_ch_mean(2,:) = 100*((adb_avg_smooth(2,:)-mean(adb_avg_smooth(2,1:100),2))./ mean(adb_avg_smooth(2,1:100),2));
+per_ch_mean(1,:) = 100*((adb_avg_smooth(1,:)-mean(adb_avg_smooth(1,1:60),2))./ mean(adb_avg_smooth(1,1:60),2));
+per_ch_mean(2,:) = 100*((adb_avg_smooth(2,:)-mean(adb_avg_smooth(2,1:60),2))./ mean(adb_avg_smooth(2,1:60),2));
 
 % per_ch_mean(3,:) = 100*(adb_avg_smooth(3,:)./ mean(adb_avg_smooth(3,1:100),2));
 

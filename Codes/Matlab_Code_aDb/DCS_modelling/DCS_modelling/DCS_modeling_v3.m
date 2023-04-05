@@ -367,12 +367,12 @@ file_no = 6;
 % filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\ECG\20220608_'+string(file_no)+'.mat');
 % load(filename_nd)
 
-filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Baseline_HCP_test\Data.mat');
+filename_d=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Cuff_HCP_test\Data.mat');
 load(filename_d)
 
 
 %Loading the ECG file
-filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Baseline_HCP_test\Baseline_HCP_Test.mat');
+filename_nd=strcat('D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\new pressure cuff\Hypercapnia\Farah\Cuff_HCP_test\Cuff_HCP_Test.mat');
 load(filename_nd)
 
 
