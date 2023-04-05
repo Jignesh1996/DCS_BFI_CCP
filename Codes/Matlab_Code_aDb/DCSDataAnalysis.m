@@ -189,13 +189,13 @@ for i=1:size(g2,2)
 end
 
 rho = [0.7 2.5]; %source detector separations in cm 
-mua = 0.1; %cm^-1 baseline absorption coefficient
+mua = 0.15; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau;
 
 for chan=1:size(g2,1)
-     for i=1:size(g2,2) 
+     for i=1:size(g2,2)
         rsd=rho(chan);
         g2_temp(i,:)=squeeze(g2(chan,i,:));
         LB = [0];
@@ -231,9 +231,9 @@ end
 
 %%
 close all
-Channel=2;
-Curve_no=10;
-rho = [1 2.5];
+Channel=1;
+Curve_no=175;
+rho = [0.7 2.5];
 
 beta=g2(Channel, Curve_no,1);
 aDb_fit=aDb1(Channel,Curve_no);
@@ -246,24 +246,36 @@ semilogx(Data_tau,g2_fit,'r')
 
 %% plotting the fit for the whole signal
 close all
-for i=2400:8000
+for j=1
+for i=1:480
     Channel=2;
 Curve_no=i;
 rho = [0.7 2.5];
-
+mua =0.15;
+% mus = 1*j;
+% mua =0.02*j;
+mus = 10;
 beta=g2(Channel, Curve_no,1);
 aDb_fit=aDb1(Channel,Curve_no);
+% aDb_fit=0.5e-8;
 
 g2_fit=gen_DCS_fit(Data_tau,mua,mus,rho(Channel),beta,aDb_fit);
-
-semilogx(Data_tau,squeeze(g2(Channel,i,:)),'k')
+if j==1
+    semilogx(Data_tau,squeeze(g2(Channel,i,:)),'k')
+end
 hold on
-semilogx(Data_tau,g2_fit,'r')
-ylim([0 1])
+semilogx(Data_tau,g2_fit)
+ylabel("g_2(\tau)")
+xlabel("\tau (s)")
+title("Fitting")
+% ylim([0 1])
+% legend("DCS","1","3","5","7","9","11","13","15")
 
 hold off
 pause(0.01)
 end
+end
+legend("DCS","0.02","0.06","0.1","0.14","0.18","0.22","0.26","0.3")
 %% Data plotting
 
 % time resultion - aqusition time used to aquire data

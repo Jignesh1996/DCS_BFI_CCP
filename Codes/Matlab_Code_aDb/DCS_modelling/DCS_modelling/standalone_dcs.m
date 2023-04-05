@@ -17,9 +17,9 @@ else
 end
 
 % aDb calculation
-rho = [1 2.5]; %source detector separations in cm 
+rho = [0.7 2.5]; %source detector separations in cm 
 mua = 0.17; %cm^-1 baseline absorption coefficient
-mus = 10; %cm^-1 baseline reduced scattering coefficient
+mus = 8; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau(tau_range);
 lc = size(g2,1);
@@ -32,8 +32,8 @@ parfor chan=1:lc
         LB = [0];
         UB = [inf];
         Starting = [1e-9]; %[aDb, Beta; cm^2/s, a.u.]
-%         beta= squeeze(g2(chan,i,1)); %0.1568;
-        beta= squeeze(mean(g2(chan,1:100,1))); %0.1568;
+        beta= squeeze(g2(chan,i,1)); %0.1568;
+%         beta= squeeze(mean(g2(chan,1:100,1))); %0.1568;
         options = optimset('Display','final','TolX',1e-30,'MaxIter',2000000, 'MaxFunEvals', 200000);
         [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau_values,g2_temp(i,:),mua,mus,rsd,beta);
         aDb(chan,i) = FittedParams(1);
@@ -43,7 +43,7 @@ end
  %Plotting the fit
 Channel=1;
 Curve_no=1;
-rho = [1.7 2.7];
+rho = [0.7 2.7];
 
 beta=g2(Channel, Curve_no,1);
 aDb1=aDb(Channel,Curve_no);
