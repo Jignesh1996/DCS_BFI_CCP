@@ -7,7 +7,7 @@ Folder='20220309 - 8';
 
 %--------------------------------------------------------------------------
 
-Directory = "E:\TapeTest\TapeTest\New_cuff_tape_hole\";
+Directory = "E:\TapeTest\TapeTest\LBNP_LS_PM_Black_probe\";
 
 fprintf("Start....\n")
 
@@ -28,7 +28,7 @@ end
 file=strcat(Directory, filename,'_tau.csv');
 Data_tau=load (file);
 
-for f=1:1:size(subFiles,1)-1
+for f=1:1:size(subFiles,1)-2
     file=strcat(Directory, filename,num2str(f),'.csv');
     temp=load(file);
     Data(f,:,:)=temp(1:4,:);

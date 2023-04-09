@@ -189,11 +189,11 @@ for i=1:size(g2,2)
 end
 
 rho = [0.7 2.5]; %source detector separations in cm 
-mua = 0.05; %cm^-1 baseline absorption coefficient
+mua = 0.15; %cm^-1 baseline absorption coefficient
 mus = 10; %cm^-1 baseline reduced scattering coefficient
 
 tau_values=Data_tau;
-
+    
 for chan=1:size(g2,1)
      for i=1:size(g2,2) 
         rsd=rho(chan);
@@ -246,8 +246,8 @@ semilogx(Data_tau,g2_fit,'r')
 
 %% plotting the fit for the whole signal
 close all
-for i=2400:8000
-    Channel=2;
+for i=1:4800
+    Channel=1;
 Curve_no=i;
 rho = [0.7 2.5];
 
@@ -260,9 +260,10 @@ semilogx(Data_tau,squeeze(g2(Channel,i,:)),'k')
 hold on
 semilogx(Data_tau,g2_fit,'r')
 ylim([0 1])
-
+title(string(i))
 hold off
-pause(0.01)
+pause(0.05)
+
 end
 %% Data plotting
 

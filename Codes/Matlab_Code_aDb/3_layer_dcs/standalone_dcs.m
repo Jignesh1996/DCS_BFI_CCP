@@ -43,7 +43,7 @@ end
  %Plotting the fit
 Channel=1;
 Curve_no=1;
-rho = [1.7 2.7];
+rho = [1 2.5];
 
 beta=g2(Channel, Curve_no,1);
 aDb1=aDb(Channel,Curve_no);

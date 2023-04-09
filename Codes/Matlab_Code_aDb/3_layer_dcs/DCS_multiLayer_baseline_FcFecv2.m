@@ -180,16 +180,16 @@ g2_cuff=squeeze(mean(g2(:,3800:4800,:),2));
 mua = 0.17;
 mus = 8;
 tau = Data_tau;
-LB = [0.1e-9];
-UB = [10e-8];
+LB = [inf];
+UB = [0];
 Starting = 1e-9; %[aDb, Beta; cm^2/s, a.u.]
 beta= g2_baseline(1,1); %0.1568;
-options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
+options = optimset('Display','final','TolX',1e-10,'MaxIter',20000, 'MaxFunEvals', 20000);
 [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_baseline(1,:),mua,mus,1,beta);
 aDb1 = FittedParams(1);
 
 beta= g2_cuff(1,1); %0.1568;
-options = optimset('Display','final','TolX',1e-10,'MaxIter',2000, 'MaxFunEvals', 2000);
+options = optimset('Display','final','TolX',1e-10,'MaxIter',20000, 'MaxFunEvals', 20000);
 [FittedParams] = fminsearchbnd(@Brownian_fitting,Starting,LB,UB,options,tau,g2_cuff(1,:),mua,mus,1,beta);
 aDb2 = FittedParams(1);
 

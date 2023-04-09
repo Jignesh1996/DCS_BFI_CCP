@@ -3,9 +3,9 @@ clear all;
 close all;
 clc;
 
-load('data_tau.csv')
+% load('data_tau.csv')
 
-load("D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\Pressure_modulation\Aleena\Aleena_Probe_pressure_1\Data.mat");
+load("D:\Jignesh\OneDrive - The University of Western Ontario\Research\Data\TNQT Pulsatility study\TP_Study\DCS\20220608 - 5\Data.mat");
 tau = Data_tau;
 
 %% Obtaining the avg g2 curves
@@ -22,19 +22,20 @@ for i=1:size(g2,2)
     g2(2,i,:)=( g2_2_temp(i,:)+g2_3_temp(i,:)+g2_4_temp(i,:))/3;
 end
 
-g2_1_new = mean(g2(:,1:600,:),2);
+g2_1_new = mean(g2(:,1,:),2);
 %% Analyze INDIVIDUAL
 % Determine the Blood Flow Index for each Channel
-tau=1e-6*(1:1:40);
+% tau=1e-6*(1:1:40);
+tau = Data_tau;
 
-l1 = 1.00; %[cm]
-l2 = 0.2; %[cm]
+l1 = 0.65; %[cm]
+l2 = 0.45; %[cm]
 
 %Optical Properties
 % amp = 1000;
 ua1 = 0.15; %[cm^-1]
 us1 = 8; %[cm^-1]
-ua2 = 0.12; %[cm^-1]
+ua2 = 0.08; %[cm^-1]
 us2 = 8; %[cm^-1]
 ua3 = 0.2; %[cm^-1]
 us3 = 8; %[cm^-1]
@@ -48,8 +49,8 @@ us3 = 8; %[cm^-1]
     corr1 = 1+squeeze(g2_1_new(1,:,:));
     corr2 = 1+squeeze(g2_1_new(2,:,:));
     
-    tau1 = data_tau;
-    tau2 = data_tau;
+    tau1 = Data_tau;
+    tau2 = Data_tau;
          
     [beta1,Bspt1,Bept1,spt1,ept1] = PointsSC2019(tau1,corr1,rho1);
     [beta2,Bspt2,Bept2,spt2,ept2] = PointsSC2019(tau2,corr2,rho2);
@@ -64,15 +65,15 @@ us3 = 8; %[cm^-1]
     % UB.three = [inf 0 inf 2];
     % Starting = [1e-8 0 1e-8 0.1]; %[Fec, Fc, top layer thickness; cm^2/s, cm^2/s, cm]
     
-    if window==1
+%     if window==1
         LB.three = [0 0 0];
         UB.three = [inf 0 inf ];
         Starting = [5e-9 0 5e-9]; %[Fec, Fc, top layer thickness; cm^2/s, cm^2/s, cm]
-    else
-        LB.three = [0.8*FittedParams(1) 0 0.8*FittedParams(3)];
-        UB.three = [1.2*FittedParams(1) 0 1.2*FittedParams(3)];
-        Starting = [FittedParams(1) 0 FittedParams(3)]; %[Fec, Fc, top layer thickness; cm^2/s, cm^2/s, cm]
-    end
+%     else
+%         LB.three = [0.8*FittedParams(1) 0 0.8*FittedParams(3)];
+%         UB.three = [1.2*FittedParams(1) 0 1.2*FittedParams(3)];
+%         Starting = [FittedParams(1) 0 FittedParams(3)]; %[Fec, Fc, top layer thickness; cm^2/s, cm^2/s, cm]
+%     end
        
         options = optimset('Display','final','TolX',1e-11,'MaxIter', 1000, 'MaxFunEvals', 1000);
         
@@ -82,10 +83,10 @@ us3 = 8; %[cm^-1]
         Fskull = FittedParams(2);
         Fbrain = FittedParams(3);
         
-        Results_FSCBR(window,1) = Fscalp;
-        Results_FSCBR(window,2) = Fbrain;
+%         Results_FSCBR(window,1) = Fscalp;
+%         Results_FSCBR(window,2) = Fbrain;
         
-        symulacja=symulacja+1;
+        
         
 
 
