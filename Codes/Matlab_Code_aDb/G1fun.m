@@ -1,6 +1,6 @@
 function [G1,F1,F2,F3] = G1fun(rho,tau,ua1,us1,ua2,us2,ua3,us3,l1,l2,F1,F2,F3)
 N = 5000;
-dp = 20;
+dp = 10;
 p = (0:N-1)/dp;
 ds = dp/N;
 s = pi*(0:N-1)*(ds); % [cm^-1] %radial spatial frequency, cycles/unit-time

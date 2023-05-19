@@ -3,8 +3,8 @@ function sse = MD_DCS_N2H_beta_Fc_v2(params,tau1,tau2,g2_raw1,g2_raw2,ua1,us1,ua
 F1 = params(1); % Flow of extracerebral tissue cm2/s
 F2 = 0.01*F1; % Flow of extracerebral tissue cm2/s
 F3 = params(3); % Flow of cerebral tissue cm2/s
-l1 = 0.34;
-l2 = 0.7;
+l1 = 0.65;
+l2 = 0.55;
 % beta = params(4);
 
 %%
