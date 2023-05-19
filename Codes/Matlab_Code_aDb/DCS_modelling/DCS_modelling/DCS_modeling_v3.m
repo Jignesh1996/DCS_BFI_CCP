@@ -430,7 +430,7 @@ plot((1:1:length(P1))/Fs,P1)
 ecg1 = downsample(ecg1,10);
 %% Plotting the ensemble average graph
 close all;
-shift =380;
+shift =450;
 [ens_avg_sig,pind] = ensemble_avg(ecg1(1:60000),aDb1(2,1:1200),shift,1);
 %% Finding the shift
 
